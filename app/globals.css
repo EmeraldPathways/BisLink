@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-void: #0c0b09;
+  --color-void-2: #1c1610;
+  --color-gold: #c9a45c;
+  --color-gold-dark: #8b6b1a;
+  --color-gold-muted: #f2ede3;
+  --color-bg: #fafaf8;
+  --color-surface: #fff;
+  --color-surface-2: #f7f4ef;
+  --color-surface-3: #f4f4f2;
+  --color-border: #ebebeb;
+  --color-border-2: #eae5dc;
+  --color-border-dark: #2e2a26;
+  --color-text-primary: #111;
+  --color-text-secondary: #888;
+  --color-text-tertiary: #aaa;
+  --color-text-hero: #f7f3ed;
+  --color-text-hero-2: #9e9890;
+  --color-text-hero-3: #666;
+  --font-display: 'Cormorant Garamond', serif;
+  --font-ui: 'DM Sans', sans-serif;
+}
+
+html, body { background: var(--color-bg); color: var(--color-text-primary); font-family: var(--font-ui); }
+.font-display { font-family: var(--font-display); }
