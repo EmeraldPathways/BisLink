@@ -1,0 +1,42 @@
+{
+  "name": "ybial-agents",
+  "version": "1.0.0",
+  "description": "AI agent layer for Your Business in a Link",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "test": "jest --coverage",
+    "deploy:onboarding": "gcloud functions deploy ybial-onboarding-webhook --runtime nodejs20 --trigger-http --entry-point onboardingWebhook --source dist",
+    "deploy:support": "gcloud functions deploy ybial-support-chat --runtime nodejs20 --trigger-http --entry-point supportChat --source dist",
+    "deploy:churn": "gcloud functions deploy ybial-churn-nightly --runtime nodejs20 --trigger-http --entry-point churnNightly --source dist",
+    "deploy:advisor": "gcloud functions deploy ybial-advisor-weekly --runtime nodejs20 --trigger-http --entry-point advisorWeekly --source dist",
+    "deploy:booking-chat": "gcloud functions deploy ybial-booking-chat --runtime nodejs20 --trigger-http --entry-point bookingChatEndpoint --source dist",
+    "deploy:all": "npm run build && npm run deploy:onboarding && npm run deploy:support && npm run deploy:churn && npm run deploy:advisor && npm run deploy:booking-chat"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google-cloud/functions-framework": "^3.4.5",
+    "@supabase/supabase-js": "^2.49.1",
+    "resend": "^4.1.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.30",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/tests"
+    ],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1"
+    }
+  }
+}

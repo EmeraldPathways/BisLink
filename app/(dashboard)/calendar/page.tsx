@@ -1,1 +1,6 @@
-export default function Page() { return <div><h1 className="font-display text-4xl">Calendar</h1><p className="text-zinc-600">Calendar view scaffolded for v1.</p></div>; }
+import { CalendarView } from '@/components/dashboard/CalendarView';
+import { demoBookings, demoBusiness } from '@/lib/demo-data';
+
+export default function Page() {
+  return <CalendarView business={demoBusiness} bookings={demoBookings} />;
+}

@@ -7,17 +7,32 @@ export function calculateAvailableSlots(
   date: Date,
   timezone: string
 ): string[] {
+  void timezone;
   if (!availabilityRecord) return [];
+
   const base = date.toISOString().slice(0, 10);
-  const dayStart = new Date(`${base}T${availabilityRecord.start_time}`);
-  const dayEnd = new Date(`${base}T${availabilityRecord.end_time}`);
+  const dayStart = mergeDateAndTime(base, availabilityRecord.start_time);
+  const dayEnd = mergeDateAndTime(base, availabilityRecord.end_time);
   const slots: string[] = [];
+
   for (let curr = new Date(dayStart); curr < dayEnd; curr = new Date(curr.getTime() + 30 * 60000)) {
     const end = new Date(curr.getTime() + (serviceDuration + bufferAfter) * 60000);
     if (end > dayEnd) continue;
-    const overlapsBooking = existingBookings.some((b) => curr < b.end_time && end > b.start_time);
-    const overlapsBlocked = blockedTimes.some((b) => curr < b.end_time && end > b.start_time);
-    if (!overlapsBooking && !overlapsBlocked) slots.push(curr.toISOString());
+
+    const overlapsBooking = existingBookings.some((booking) => curr < booking.end_time && end > booking.start_time);
+    const overlapsBlocked = blockedTimes.some((blocked) => curr < blocked.end_time && end > blocked.start_time);
+
+    if (!overlapsBooking && !overlapsBlocked) {
+      slots.push(curr.toISOString().slice(11, 16));
+    }
   }
+
   return slots;
+}
+
+export function mergeDateAndTime(date: string, time: string) {
+  const [hours, minutes] = time.slice(0, 5).split(':').map(Number);
+  const merged = new Date(`${date}T00:00:00`);
+  merged.setHours(hours, minutes, 0, 0);
+  return merged;
 }
