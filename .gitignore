@@ -6,3 +6,8 @@ ybial-agents/node_modules/
 ybial-agents/coverage/
 ybial-agents/dist/
 *.log
+
+# Environment files — never commit real credentials
+.env.local
+.env*.local
+ybial-agents/.env
