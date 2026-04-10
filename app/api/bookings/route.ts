@@ -51,7 +51,15 @@ export async function POST(req: Request) {
         currency: service.currency,
         automatic_payment_methods: { enabled: true },
         application_fee_amount: 0,
-        metadata: { businessId, serviceId, startTime, customerName, customerEmail, customerPhone: customerPhone ?? '' }
+        metadata: {
+          type: 'booking',
+          businessId,
+          serviceId,
+          startTime,
+          customerName,
+          customerEmail,
+          customerPhone: customerPhone ?? ''
+        }
       });
 
       return NextResponse.json({
@@ -99,7 +107,15 @@ export async function POST(req: Request) {
         automatic_payment_methods: { enabled: true },
         application_fee_amount: 0,
         transfer_data: business?.stripe_account_id ? { destination: business.stripe_account_id } : undefined,
-        metadata: { businessId, serviceId, startTime, customerName, customerEmail, customerPhone: customerPhone ?? '' }
+        metadata: {
+          type: 'booking',
+          businessId,
+          serviceId,
+          startTime,
+          customerName,
+          customerEmail,
+          customerPhone: customerPhone ?? ''
+        }
       })
     : null;
 
@@ -117,7 +133,8 @@ export async function POST(req: Request) {
       payment_status: 'unpaid',
       payment_intent_id: paymentIntent?.id,
       amount_paid: service.price,
-      currency: business?.currency ?? service.currency ?? 'usd'
+      currency: business?.currency ?? service.currency ?? 'usd',
+      review_token: crypto.randomUUID()
     })
     .select('id')
     .single();

@@ -1,14 +1,19 @@
-import { addDays, formatISO, set } from 'date-fns';
+import { addDays, formatISO, set, subDays } from 'date-fns';
 import type {
   AvailabilityRecord,
   BlockedTimeRecord,
   BookingRecord,
   BusinessProfile,
+  CredentialRecord,
   CustomerRecord,
   DashboardStats,
+  OrderRecord,
   PayoutRecord,
+  ProductRecord,
   RevenuePoint,
-  ServiceRecord
+  ReviewRecord,
+  ServiceRecord,
+  SpecialismRecord
 } from '@/types';
 
 const businessId = '11111111-1111-1111-1111-111111111111';
@@ -25,15 +30,38 @@ export const demoBusiness: BusinessProfile = {
   name: 'Studio Eleven',
   category: 'Personal Training',
   bio: 'Movement coaching for real people. No fluff, no fads, just honest training that gets results.',
+  tagline: 'Strong bodies. Clear heads. Honest coaching.',
+  full_bio:
+    'Studio Eleven was built for people who want training that fits real life. We coach strength, conditioning, mobility, and long-term consistency without turning fitness into a performance.\n\nEvery session is tailored to where you are right now, whether you are getting back into movement, rebuilding after injury, or pushing toward a new level.',
   location: 'Brooklyn, NY',
+  address: '218 Atlantic Avenue, Brooklyn, NY 11201',
+  parking_notes: 'Street parking after 6pm is usually easiest. Enter through the side gate.',
   timezone: 'America/New_York',
   currency: 'usd',
   stripe_account_id: 'acct_demo',
   stripe_onboarded: true,
   is_active: true,
   instagram_handle: '@studioeleven',
-  tiktok_handle: '@studioelevenmoves'
+  tiktok_handle: '@studioelevenmoves',
+  whatsapp_number: '+1 555 300 4400',
+  email: 'hello@studioeleven.com',
+  phone: '+1 555 300 4400',
+  years_experience: 9,
+  google_review_url: 'https://google.com/maps/reviews/demo'
 };
+
+export const demoCredentials: CredentialRecord[] = [
+  { id: 'cred_1', business_id: businessId, label: 'NASM Certified', sort_order: 1 },
+  { id: 'cred_2', business_id: businessId, label: 'Precision Nutrition L1', sort_order: 2 },
+  { id: 'cred_3', business_id: businessId, label: 'CPR / AED', sort_order: 3 }
+];
+
+export const demoSpecialisms: SpecialismRecord[] = [
+  { id: 'spec_1', business_id: businessId, label: 'Strength & Conditioning', sort_order: 1 },
+  { id: 'spec_2', business_id: businessId, label: 'Beginner Friendly', sort_order: 2 },
+  { id: 'spec_3', business_id: businessId, label: 'Injury Rehab', sort_order: 3 },
+  { id: 'spec_4', business_id: businessId, label: 'Mobility & Recovery', sort_order: 4 }
+];
 
 export const demoServices: ServiceRecord[] = [
   {
@@ -98,6 +126,76 @@ export const demoServices: ServiceRecord[] = [
   }
 ];
 
+export const demoProducts: ProductRecord[] = [
+  {
+    id: 'prod_1',
+    business_id: businessId,
+    name: 'Studio Eleven Bands',
+    description: 'Heavy and medium resistance bands for warmups, mobility, and home sessions.',
+    price: 3400,
+    original_price: 4200,
+    category: 'Equipment',
+    badge: 'Best Seller',
+    emoji: '🏋️',
+    is_active: true,
+    in_stock: true,
+    is_digital: false,
+    sort_order: 1,
+    rating: 4.8,
+    review_count: 61
+  },
+  {
+    id: 'prod_2',
+    business_id: businessId,
+    name: '4-Week Reset Plan',
+    description: 'Digital training plan with 4 weeks of workouts, mobility, and habit tracking.',
+    price: 2900,
+    category: 'Programs',
+    badge: 'New',
+    emoji: '📲',
+    is_active: true,
+    in_stock: true,
+    is_digital: true,
+    digital_url: 'https://example.com/download/reset-plan',
+    sort_order: 2,
+    rating: 4.9,
+    review_count: 24
+  },
+  {
+    id: 'prod_3',
+    business_id: businessId,
+    name: 'Mobility Ball Set',
+    description: 'Pair of release balls for hips, feet, shoulders, and post-session recovery.',
+    price: 2200,
+    category: 'Recovery',
+    badge: 'Limited',
+    emoji: '🟠',
+    is_active: true,
+    in_stock: false,
+    is_digital: false,
+    sort_order: 3,
+    rating: 4.7,
+    review_count: 18
+  },
+  {
+    id: 'prod_4',
+    business_id: businessId,
+    name: 'Beginner Strength Guide',
+    description: 'Simple digital guide for people starting strength training from scratch.',
+    price: 1900,
+    category: 'Programs',
+    badge: null,
+    emoji: '📘',
+    is_active: true,
+    in_stock: true,
+    is_digital: true,
+    digital_url: 'https://example.com/download/strength-guide',
+    sort_order: 4,
+    rating: 4.6,
+    review_count: 12
+  }
+];
+
 export const demoAvailability: AvailabilityRecord[] = [1, 2, 3, 4, 5].map((day) => ({
   id: `44444444-4444-4444-4444-44444444444${day}`,
   business_id: businessId,
@@ -130,7 +228,8 @@ export const demoBookings: BookingRecord[] = [
     status: 'confirmed',
     payment_status: 'paid',
     amount_paid: 12000,
-    currency: 'usd'
+    currency: 'usd',
+    review_token: 'demo-review-token'
   },
   {
     id: '66666666-6666-6666-6666-666666666662',
@@ -144,7 +243,8 @@ export const demoBookings: BookingRecord[] = [
     status: 'confirmed',
     payment_status: 'paid',
     amount_paid: 8000,
-    currency: 'usd'
+    currency: 'usd',
+    review_token: 'demo-review-token'
   },
   {
     id: '66666666-6666-6666-6666-666666666663',
@@ -157,7 +257,8 @@ export const demoBookings: BookingRecord[] = [
     status: 'completed',
     payment_status: 'paid',
     amount_paid: 6500,
-    currency: 'usd'
+    currency: 'usd',
+    review_token: 'demo-review-token'
   },
   {
     id: '66666666-6666-6666-6666-666666666664',
@@ -170,7 +271,26 @@ export const demoBookings: BookingRecord[] = [
     status: 'cancelled',
     payment_status: 'refunded',
     amount_paid: 8500,
-    currency: 'usd'
+    currency: 'usd',
+    review_token: 'demo-review-token'
+  }
+];
+
+export const demoOrders: OrderRecord[] = [
+  {
+    id: 'order_1',
+    business_id: businessId,
+    customer_name: 'Leah Murphy',
+    customer_email: 'leah@example.com',
+    items: [
+      { productId: 'prod_1', qty: 1, name: 'Studio Eleven Bands', price: 3400 },
+      { productId: 'prod_2', qty: 1, name: '4-Week Reset Plan', price: 2900 }
+    ],
+    total_amount: 6300,
+    currency: 'usd',
+    status: 'paid',
+    payment_intent_id: 'pi_order_demo',
+    created_at: formatISO(subDays(today, 2))
   }
 ];
 
@@ -182,9 +302,12 @@ export const demoCustomers: CustomerRecord[] = [
     email: 'avery@example.com',
     phone: '+1 555 120 4401',
     total_bookings: 6,
+    total_orders: 1,
     total_spent: 72000,
     last_booking_at: demoBookings[0].start_time,
     first_booking_at: formatISO(addDays(today, -60)),
+    last_activity_at: demoBookings[0].start_time,
+    first_activity_at: formatISO(addDays(today, -60)),
     notes: 'Prefers morning sessions.'
   },
   {
@@ -194,9 +317,12 @@ export const demoCustomers: CustomerRecord[] = [
     email: 'maya@example.com',
     phone: '+1 555 302 9987',
     total_bookings: 2,
+    total_orders: 0,
     total_spent: 16000,
     last_booking_at: demoBookings[1].start_time,
     first_booking_at: formatISO(addDays(today, -12)),
+    last_activity_at: demoBookings[1].start_time,
+    first_activity_at: formatISO(addDays(today, -12)),
     notes: 'Recovering from ankle strain.'
   },
   {
@@ -205,9 +331,63 @@ export const demoCustomers: CustomerRecord[] = [
     name: 'Jordan Kim',
     email: 'jordan@example.com',
     total_bookings: 4,
-    total_spent: 26000,
+    total_orders: 2,
+    total_spent: 32300,
     last_booking_at: demoBookings[2].start_time,
-    first_booking_at: formatISO(addDays(today, -45))
+    first_booking_at: formatISO(addDays(today, -45)),
+    last_activity_at: demoOrders[0].created_at,
+    first_activity_at: formatISO(addDays(today, -45))
+  }
+];
+
+export const demoReviews: ReviewRecord[] = [
+  {
+    id: 'review_1',
+    business_id: businessId,
+    booking_id: demoBookings[0].id,
+    customer_name: 'Avery S.',
+    customer_email: 'avery@example.com',
+    rating: 5,
+    text: 'The best coaching I have had in years. Clear programming, honest feedback, and real progress.',
+    is_verified: true,
+    is_published: true,
+    created_at: formatISO(subDays(today, 8))
+  },
+  {
+    id: 'review_2',
+    business_id: businessId,
+    booking_id: demoBookings[1].id,
+    customer_name: 'Maya L.',
+    customer_email: 'maya@example.com',
+    rating: 5,
+    text: 'Studio Eleven made training feel approachable again. Great energy and thoughtful attention to detail.',
+    is_verified: true,
+    is_published: true,
+    created_at: formatISO(subDays(today, 13))
+  },
+  {
+    id: 'review_3',
+    business_id: businessId,
+    booking_id: null,
+    customer_name: 'Chris D.',
+    customer_email: 'chris@example.com',
+    rating: 4,
+    text: 'Really good session structure and a strong recovery focus.',
+    is_verified: false,
+    is_published: true,
+    created_at: formatISO(subDays(today, 21))
+  },
+  {
+    id: 'review_4',
+    business_id: businessId,
+    booking_id: null,
+    customer_name: 'Robin K.',
+    customer_email: 'robin@example.com',
+    rating: 5,
+    text: 'I booked one session and came back the same week. Exactly the kind of coaching I wanted.',
+    is_verified: true,
+    is_published: true,
+    created_at: formatISO(subDays(today, 32))
   }
 ];
 
@@ -217,7 +397,9 @@ export const demoStats: DashboardStats = {
   weekBookings: 9,
   weekRevenue: 76500,
   monthRevenue: 214000,
-  customers: demoCustomers.length
+  customers: demoCustomers.length,
+  products: demoProducts.length,
+  reviews: demoReviews.filter((review) => review.is_published).length
 };
 
 export const demoRevenue: RevenuePoint[] = [
@@ -226,7 +408,7 @@ export const demoRevenue: RevenuePoint[] = [
   { label: 'Wed', amount: 24000 },
   { label: 'Thu', amount: 14000 },
   { label: 'Fri', amount: 8000 },
-  { label: 'Sat', amount: 0 },
+  { label: 'Sat', amount: 6300 },
   { label: 'Sun', amount: 0 }
 ];
 
@@ -253,10 +435,25 @@ export const businessCategories = [
   'Other'
 ];
 
+export const productEmojiChoices = ['📦', '🏋️', '📲', '🧃', '🧘', '📘', '🟠', '🎒', '🥤', '🧴'];
+
 export function getDemoBusinessBySlug(slug: string) {
   return slug === demoBusiness.slug ? demoBusiness : null;
 }
 
 export function getDemoService(serviceId: string) {
   return demoServices.find((service) => service.id === serviceId) ?? null;
+}
+
+export function getDemoProduct(productId: string) {
+  return demoProducts.find((product) => product.id === productId) ?? null;
+}
+
+export function getReviewBreakdown() {
+  const published = demoReviews.filter((review) => review.is_published);
+  const total = published.length || 1;
+  return [5, 4, 3, 2, 1].map((rating) => {
+    const count = published.filter((review) => review.rating === rating).length;
+    return { rating, count, percent: count / total };
+  });
 }
