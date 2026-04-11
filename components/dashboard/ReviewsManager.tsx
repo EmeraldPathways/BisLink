@@ -1,3 +1,4 @@
+import { Star } from 'lucide-react';
 import type { ReviewRecord } from '@/types';
 
 export function ReviewsManager({ reviews }: { reviews: ReviewRecord[] }) {
@@ -11,7 +12,7 @@ export function ReviewsManager({ reviews }: { reviews: ReviewRecord[] }) {
               <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{review.text}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-semibold text-[var(--color-gold-dark)]">{review.rating}★</p>
+              <p className="flex items-center gap-1 text-sm font-semibold text-[var(--color-gold-dark)]">{review.rating}<Star className="h-3 w-3 fill-current" /></p>
               <p className="mt-1 text-[11px] text-[var(--color-text-secondary)]">{review.is_verified ? 'Verified' : 'Unverified'}</p>
             </div>
           </div>

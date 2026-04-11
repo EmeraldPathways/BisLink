@@ -11,7 +11,7 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
   ];
 
   return (
-    <section className="space-y-4 px-5 pb-10 pt-6">
+    <section className="space-y-4 px-2 pb-10 pt-6">
       <div className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-white p-5">
         {rows.map((row) => (
           <a key={row.label} href={row.href} className="flex items-center justify-between border-b border-[var(--border)] py-4 last:border-b-0">

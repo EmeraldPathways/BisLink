@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Check, Package, Plus } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
 import type { ProductRecord } from '@/types';
 
@@ -22,8 +23,8 @@ export function ProductsTab({
   inCart: (productId: string) => boolean;
 }) {
   return (
-    <section className="px-5 pb-24 pt-6">
-      <div className="flex gap-2 overflow-x-auto pb-2">
+    <section className="space-y-4 px-2 pb-24 pt-6">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {categories.map((category) => {
           const active = category === activeCategory;
           return (
@@ -37,11 +38,8 @@ export function ProductsTab({
           );
         })}
       </div>
-      <h2 className="mt-4 font-display text-[24px] font-semibold tracking-[-0.3px] text-[var(--text-1)]">Shop</h2>
-      <p className="mt-1 text-[13px] text-[var(--text-4)]">
-        {products.length} items · {Math.max(categories.length - 1, 1)} categories
-      </p>
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-white p-3">
+      <div className="grid grid-cols-2 gap-3">
         {products.map((product, index) => (
           <motion.button
             key={product.id}
@@ -52,7 +50,7 @@ export function ProductsTab({
             className={`overflow-hidden rounded-[16px] border-[1.5px] border-[var(--border)] bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] ${!product.in_stock ? 'opacity-55' : ''}`}
           >
             <div className="relative flex h-24 items-center justify-center bg-[linear-gradient(135deg,#F7F4EF,#EEE9DF)]">
-              <span className="text-4xl">{product.emoji}</span>
+              <Package className="h-10 w-10 text-[#bbb]" strokeWidth={1.25} />
               {product.badge ? (
                 <span className="absolute left-2 top-2 rounded-full bg-[var(--void)] px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--gold)]">
                   {product.badge}
@@ -84,12 +82,13 @@ export function ProductsTab({
                   disabled={!product.in_stock}
                   className={`flex h-7 w-7 items-center justify-center rounded-[9px] text-sm ${inCart(product.id) ? 'bg-[var(--gold)] text-[var(--void)]' : 'bg-[var(--surface-3)] text-[var(--text-2)]'}`}
                 >
-                  {inCart(product.id) ? '✓' : '+'}
+                  {inCart(product.id) ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                 </button>
               </div>
             </div>
           </motion.button>
         ))}
+      </div>
       </div>
     </section>
   );

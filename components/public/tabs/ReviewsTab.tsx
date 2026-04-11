@@ -1,6 +1,6 @@
 'use client';
 
-import { Star } from 'lucide-react';
+import { Check, Star } from 'lucide-react';
 import { getInitials } from '@/lib/utils/formatting';
 import type { BusinessProfile, ReviewRecord } from '@/types';
 
@@ -19,7 +19,7 @@ export function ReviewsTab({
   const average = published.reduce((sum, review) => sum + review.rating, 0) / Math.max(published.length, 1);
 
   return (
-    <section className="space-y-4 px-5 pb-10 pt-6">
+    <section className="space-y-4 px-2 pb-10 pt-6">
       <div className="rounded-[18px] bg-[var(--void)] px-5 py-6 text-center text-[var(--hero-text-1)]">
         <p className="font-display text-[64px] leading-none tracking-[-2px]">{average.toFixed(1)}</p>
         <div className="mt-2 flex justify-center gap-1">
@@ -31,7 +31,7 @@ export function ReviewsTab({
         <div className="mt-5 space-y-2">
           {breakdown.map((item) => (
             <div key={item.rating} className="flex items-center gap-3 text-sm">
-              <span className="w-8 text-left text-[var(--hero-text-2)]">{item.rating}★</span>
+              <span className="flex w-8 items-center gap-0.5 text-left text-[var(--hero-text-2)]">{item.rating}<Star className="h-2.5 w-2.5 fill-current" /></span>
               <div className="h-1.5 flex-1 rounded-full bg-white/10">
                 <div className="h-1.5 rounded-full bg-[var(--gold)]" style={{ width: `${item.percent * 100}%` }} />
               </div>
@@ -49,11 +49,11 @@ export function ReviewsTab({
               </div>
               <div>
                 <p className="text-sm font-semibold text-[var(--text-1)]">{review.customer_name}</p>
-                {review.is_verified ? <p className="text-[11px] font-medium text-[var(--green)]">✓ Verified booking</p> : null}
+                {review.is_verified ? <p className="flex items-center gap-1 text-[11px] font-medium text-[var(--green)]"><Check className="h-3 w-3" /> Verified booking</p> : null}
               </div>
             </div>
             <div className="text-right">
-              <div className="flex gap-0.5 text-[var(--gold)]">{Array.from({ length: review.rating }).map((_, i) => <span key={i}>★</span>)}</div>
+              <div className="flex gap-0.5">{Array.from({ length: review.rating }).map((_, i) => <Star key={i} className="h-3 w-3 fill-[var(--gold)] text-[var(--gold)]" />)}</div>
               <p className="mt-1 text-[11px] text-[var(--text-6)]">{new Date(review.created_at).toLocaleDateString()}</p>
             </div>
           </div>

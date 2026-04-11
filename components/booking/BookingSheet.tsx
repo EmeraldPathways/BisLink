@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import type { BusinessProfile } from '@/types';
 import { StepDate } from './StepDate';
 import { StepTime } from './StepTime';
@@ -84,10 +85,10 @@ export function BookingSheet({
               </div>
             )}
             <button
-              className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--color-surface-3)] text-sm text-[var(--color-text-primary)]"
+              className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--color-surface-3)] text-[var(--color-text-primary)]"
               onClick={onClose}
             >
-              ✕
+              <X className="h-4 w-4" />
             </button>
           </div>
 

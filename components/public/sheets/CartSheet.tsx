@@ -1,6 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
 import type { CartLine } from '@/hooks/useCart';
 
@@ -34,7 +35,7 @@ export function CartSheet({
           <div className="flex items-center justify-between">
             <p className="font-display text-[24px] text-[var(--text-1)]">Your Cart</p>
             <button className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--surface-3)]" onClick={onClose}>
-              ✕
+              <X className="h-4 w-4" />
             </button>
           </div>
           <div className="mt-4 space-y-3">

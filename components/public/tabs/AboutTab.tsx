@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import type { BusinessProfile, CredentialRecord, ReviewRecord, SpecialismRecord } from '@/types';
 
 export function AboutTab({
@@ -19,7 +20,7 @@ export function AboutTab({
   const average = published.reduce((sum, review) => sum + review.rating, 0) / Math.max(published.length, 1);
 
   return (
-    <section className="space-y-4 px-5 pb-10 pt-6">
+    <section className="space-y-4 px-2 pb-10 pt-6">
       <div className="rounded-[18px] bg-[var(--void)] px-5 py-6 text-[var(--hero-text-1)]">
         <div className="flex items-center gap-4">
           <div className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-[22px] bg-gradient-to-br from-[var(--gold)] to-[var(--gold-dark)] font-display text-2xl font-semibold text-[var(--void)]">
@@ -59,8 +60,8 @@ export function AboutTab({
         <h3 className="font-display text-[19px] text-[var(--text-1)]">Credentials</h3>
         <div className="mt-4 flex flex-wrap gap-2">
           {credentials.map((credential) => (
-            <span key={credential.id} className="rounded-full bg-[var(--gold-muted)] px-3 py-1.5 text-[11px] font-semibold text-[var(--gold-dark)]">
-              ✓ {credential.label}
+            <span key={credential.id} className="flex items-center gap-1 rounded-full bg-[var(--gold-muted)] px-3 py-1.5 text-[11px] font-semibold text-[var(--gold-dark)]">
+              <Check className="h-3 w-3" /> {credential.label}
             </span>
           ))}
         </div>

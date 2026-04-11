@@ -1,8 +1,10 @@
+import { CheckCircle } from 'lucide-react';
+
 export function Step5Done() {
   return (
     <div className="space-y-4 text-center">
-      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px] bg-gradient-to-br from-[var(--color-void)] to-[#2a2620] text-3xl text-[var(--color-gold)]">
-        ✓
+      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px] bg-gradient-to-br from-[var(--color-void)] to-[#2a2620] text-[var(--color-gold)]">
+        <CheckCircle className="h-9 w-9" />
       </div>
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--color-gold-dark)]">Step 5 of 5</p>

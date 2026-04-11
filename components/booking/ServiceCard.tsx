@@ -1,3 +1,4 @@
+import { Clock } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
 import { Service } from './BookingPage';
 
@@ -24,11 +25,11 @@ export function ServiceCard({ service, onClick }: { service: Service; onClick: (
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="pr-16 text-[15px] font-semibold text-[var(--color-text-primary)]">
-            {service.emoji} {service.name}
+            {service.name}
           </p>
           <p className="mt-1 text-[13px] leading-5 text-[var(--color-text-secondary)]">{service.description}</p>
-          <p className="mt-2 text-[13px] text-[var(--color-text-tertiary)]">
-            ⏱ {service.duration_minutes} min
+          <p className="mt-2 flex items-center gap-1 text-[13px] text-[var(--color-text-tertiary)]">
+            <Clock className="h-3 w-3" /> {service.duration_minutes} min
             <span className="ml-2 text-[16px] font-bold text-[var(--color-text-primary)]">
               {formatPrice(service.price, service.currency)}
             </span>
