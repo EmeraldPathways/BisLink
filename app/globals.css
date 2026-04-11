@@ -28,6 +28,28 @@
   --color-warning: #f59e0b;
   --font-display: 'Cormorant Garamond', serif;
   --font-ui: 'DM Sans', sans-serif;
+
+  /* Shorthand aliases used by public page components */
+  --void: var(--color-void);
+  --gold: var(--color-gold);
+  --gold-dark: var(--color-gold-dark);
+  --gold-muted: var(--color-gold-muted);
+  --bg: var(--color-bg);
+  --border: var(--color-border);
+  --border-hero: var(--color-border-dark);
+  --hero-text-1: var(--color-text-hero);
+  --hero-text-2: var(--color-text-hero-2);
+  --hero-text-3: var(--color-text-hero-3);
+  --text-1: var(--color-text-primary);
+  --text-2: var(--color-text-secondary);
+  --text-3: var(--color-text-tertiary);
+  --text-4: #888888;
+  --text-5: #aaaaaa;
+  --text-6: #aaaaaa;
+  --text-7: #c8c4bc;
+  --green: var(--color-success);
+  --surface-2: var(--color-surface-2);
+  --surface-3: var(--color-surface-3);
 }
 
 * {

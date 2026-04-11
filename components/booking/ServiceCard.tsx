@@ -11,7 +11,7 @@ export function ServiceCard({ service, onClick }: { service: Service; onClick: (
     >
       {service.tag ? (
         <span
-          className={`absolute right-4 top-3 rounded-full px-[9px] py-[3px] text-[9px] font-semibold uppercase tracking-[0.08em] ${
+          className={`absolute right-4 top-3 z-10 rounded-full px-[9px] py-[3px] text-[9px] font-semibold uppercase tracking-[0.08em] ${
             isLightTag
               ? 'bg-[var(--color-gold-muted)] text-[var(--color-gold-dark)]'
               : 'bg-[var(--color-void)] text-[var(--color-gold)]'

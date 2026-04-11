@@ -20,7 +20,7 @@ export function TabBar({ activeTab, onChange }: { activeTab: PublicTab; onChange
             <button
               key={tab.id}
               onClick={() => onChange(tab.id)}
-              className={`relative min-w-[84px] flex-1 px-2 py-3 text-center transition ${active ? 'text-[var(--color-gold)]' : 'text-[#555]'}`}
+              className={`relative flex-1 px-2 py-3 text-center transition ${active ? 'text-[var(--color-gold)]' : 'text-[#555]'}`}
             >
               <div className="text-[12px]">{tab.icon}</div>
               <div className="mt-1 text-[11px] font-medium">{tab.label}</div>
