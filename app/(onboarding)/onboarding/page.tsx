@@ -1,3 +1,11 @@
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+
 export default function OnboardingPage() {
-  return <main className="mx-auto max-w-2xl p-6"><h1 className="font-display text-5xl">Onboarding</h1><p className="text-zinc-600">5-step setup wizard scaffold.</p></main>;
+  return (
+    <main className="min-h-screen bg-[var(--color-bg)] px-6 py-8 md:px-8">
+      <div className="mx-auto max-w-7xl">
+        <OnboardingWizard />
+      </div>
+    </main>
+  );
 }

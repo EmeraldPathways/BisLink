@@ -1,10 +1,67 @@
 'use client';
+
 import { useState } from 'react';
 import { addDays, format } from 'date-fns';
-import { Service } from './BookingPage';
+import type { BusinessProfile } from '@/types';
+import { formatPrice } from '@/lib/utils/formatting';
+import type { Service } from './BookingPage';
 
-export function StepDate({ service, onNext }: { service: Service; onNext: (d: string) => void }) {
-  const [selected, setSelected] = useState<string>('');
-  const days = Array.from({ length: 14 }, (_, i) => addDays(new Date(), i));
-  return <div><h3 className="font-display text-4xl">Pick a date</h3><p className="mb-3 text-sm">{service.duration_minutes} min · ${service.price / 100}</p><div className="grid grid-cols-7 gap-2">{days.map((d) => {const iso=format(d,'yyyy-MM-dd');const disabled=[0,6].includes(d.getDay());return <button disabled={disabled} key={iso} onClick={()=>setSelected(iso)} className={`rounded-xl p-2 text-center text-xs ${selected===iso?'bg-black text-white':'bg-zinc-100'} ${disabled?'opacity-40':''}`}>{format(d,'EEE')}<br />{format(d,'d')}</button>;})}</div><button disabled={!selected} onClick={()=>onNext(selected)} className="mt-4 w-full rounded-2xl bg-black px-4 py-3 text-white disabled:bg-zinc-200 disabled:text-zinc-500">{selected?`Continue — ${selected}`:'Select a date to continue'}</button></div>;
+export function StepDate({
+  business,
+  service,
+  onNext
+}: {
+  business: BusinessProfile;
+  service: Service;
+  onNext: (date: string) => void;
+}) {
+  const days = Array.from({ length: 14 }, (_, index) => addDays(new Date(), index));
+  const weekdayOrder = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const [selected, setSelected] = useState<string | null>(null);
+  void business;
+
+  return (
+    <div>
+      <h3 className="font-display text-[26px] font-semibold">Pick a date</h3>
+      <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+        {service.duration_minutes} min - {formatPrice(service.price, service.currency)}
+      </p>
+      <div className="mt-5 grid grid-cols-7 gap-2">
+        {days.map((day) => {
+          const iso = format(day, 'yyyy-MM-dd');
+          const weekend = [0, 6].includes(day.getDay());
+          const active = selected === iso;
+          return (
+            <button
+              key={iso}
+              disabled={weekend}
+              onClick={() => setSelected(iso)}
+              className={`min-h-[78px] rounded-[14px] px-2 py-3 text-center transition ${
+                active
+                  ? 'bg-[var(--color-void)] text-white'
+                  : weekend
+                    ? 'cursor-default bg-[#f6f6f4] opacity-35'
+                    : 'bg-[var(--color-surface-3)]'
+              }`}
+            >
+              <p className={`text-[9px] uppercase ${active ? 'text-[var(--color-gold)]' : 'text-[var(--color-text-secondary)]'}`}>
+                {weekdayOrder[day.getDay()]}
+              </p>
+              <p className="mt-1 text-[15px] font-semibold">{format(day, 'd')}</p>
+              <p className={`text-[9px] uppercase ${active ? 'text-white/80' : 'text-[var(--color-text-secondary)]'}`}>
+                {format(day, 'MMM')}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+      <button
+        disabled={!selected}
+        onClick={() => selected && onNext(selected)}
+        className="mt-6 w-full rounded-2xl bg-[var(--color-void)] px-4 py-4 text-sm font-semibold text-white disabled:bg-[var(--color-border)] disabled:text-[var(--color-text-tertiary)]"
+      >
+        {selected ? `Continue - ${format(new Date(`${selected}T00:00:00`), 'EEE d MMM')}` : 'Select a date to continue'}
+      </button>
+    </div>
+  );
 }

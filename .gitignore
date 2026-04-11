@@ -1,0 +1,8 @@
+.next/
+node_modules/
+coverage/
+dist/
+ybial-agents/node_modules/
+ybial-agents/coverage/
+ybial-agents/dist/
+*.log
