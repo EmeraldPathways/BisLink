@@ -33,7 +33,7 @@ export function StepTime({
       demoBlockedTimes.map((blocked) => ({ start_time: new Date(blocked.start_time), end_time: new Date(blocked.end_time) })),
       new Date(`${date}T00:00:00`),
       business.timezone
-    );
+    ).slice(0, 8);
   }, [business.timezone, date, service.buffer_after, service.duration_minutes]);
 
   return (
@@ -42,7 +42,7 @@ export function StepTime({
       <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
         {format(new Date(`${date}T00:00:00`), 'EEE, d MMM')} · {service.duration_minutes} min
       </p>
-      <div className="mt-5 grid grid-cols-3 gap-3">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {slots.map((slot) => {
           const active = selected === slot;
           return (

@@ -15,7 +15,7 @@ export function StepDate({
   service: Service;
   onNext: (date: string) => void;
 }) {
-  const days = Array.from({ length: 14 }, (_, index) => addDays(new Date(), index));
+  const days = Array.from({ length: 21 }, (_, index) => addDays(new Date(), index));
   const weekdayOrder = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const [selected, setSelected] = useState<string | null>(null);
   void business;
@@ -26,7 +26,7 @@ export function StepDate({
       <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
         {service.duration_minutes} min - {formatPrice(service.price, service.currency)}
       </p>
-      <div className="mt-5 grid grid-cols-7 gap-2">
+      <div className="mt-5 grid grid-cols-4 gap-2 sm:grid-cols-7">
         {days.map((day) => {
           const iso = format(day, 'yyyy-MM-dd');
           const weekend = [0, 6].includes(day.getDay());

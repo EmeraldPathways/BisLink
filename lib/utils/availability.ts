@@ -15,7 +15,7 @@ export function calculateAvailableSlots(
   const dayEnd = mergeDateAndTime(base, availabilityRecord.end_time);
   const slots: string[] = [];
 
-  for (let curr = new Date(dayStart); curr < dayEnd; curr = new Date(curr.getTime() + 30 * 60000)) {
+  for (let curr = new Date(dayStart); curr < dayEnd; curr = new Date(curr.getTime() + 60 * 60000)) {
     const end = new Date(curr.getTime() + (serviceDuration + bufferAfter) * 60000);
     if (end > dayEnd) continue;
 

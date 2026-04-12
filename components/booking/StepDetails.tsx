@@ -26,14 +26,13 @@ export function StepDetails({
 
   const fields: Array<{
     label: string;
-    placeholder: string;
     value: string;
     setValue: (value: string) => void;
     type: 'text' | 'email' | 'tel';
   }> = [
-    { label: 'Full Name', placeholder: 'Alex Johnson', value: name, setValue: setName, type: 'text' },
-    { label: 'Email Address', placeholder: 'alex@example.com', value: email, setValue: setEmail, type: 'email' },
-    { label: 'Phone', placeholder: '+1 (555) 000-0000', value: phone, setValue: setPhone, type: 'tel' }
+    { label: 'Full Name', value: name, setValue: setName, type: 'text' },
+    { label: 'Email Address', value: email, setValue: setEmail, type: 'email' },
+    { label: 'Phone', value: phone, setValue: setPhone, type: 'tel' }
   ];
 
   return (
@@ -41,16 +40,16 @@ export function StepDetails({
       <h3 className="font-display text-[26px] font-semibold">Your details</h3>
       <p className="mt-1 text-sm text-[var(--color-text-secondary)]">Just the basics - no account needed</p>
 
-      <div className="mt-5 space-y-4">
+      <div className="mt-5 space-y-3">
         {fields.map((field) => (
           <label key={field.label} className="block">
-            <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.09em] text-[#666]">{field.label}</span>
+            <span className="sr-only">{field.label}</span>
             <input
               type={field.type}
               value={field.value}
-              placeholder={field.placeholder}
+              placeholder={field.label}
               onChange={(event) => field.setValue(event.target.value)}
-              className="gold-ring w-full rounded-[13px] border-[1.5px] border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-[14px] text-[15px] outline-none focus:border-[var(--color-void)]"
+              className="gold-ring w-full rounded-[14px] border-[1.5px] border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-[14px] text-[15px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-void)]"
             />
           </label>
         ))}
