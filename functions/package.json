@@ -6,9 +6,9 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json && node scripts/prepare-deploy.cjs",
-    "deploy:booking-lifecycle": "gcloud functions deploy booking-lifecycle --runtime nodejs20 --trigger-http --allow-unauthenticated --entry-point bookingLifecycle --source dist/booking-lifecycle --region us-east1",
-    "deploy:reminder-dispatcher": "gcloud functions deploy reminder-dispatcher --runtime nodejs20 --trigger-http --allow-unauthenticated --entry-point reminderDispatcher --source dist/reminder-dispatcher --region us-east1",
-    "deploy:order-lifecycle": "gcloud functions deploy order-lifecycle --runtime nodejs20 --trigger-http --allow-unauthenticated --entry-point orderLifecycle --source dist/order-lifecycle --region us-east1",
+    "deploy:booking-lifecycle": "gcloud functions deploy booking-lifecycle --runtime nodejs22 --trigger-http --allow-unauthenticated --entry-point bookingLifecycle --source dist/booking-lifecycle --region us-east1",
+    "deploy:reminder-dispatcher": "gcloud functions deploy reminder-dispatcher --runtime nodejs22 --trigger-http --allow-unauthenticated --entry-point reminderDispatcher --source dist/reminder-dispatcher --region us-east1",
+    "deploy:order-lifecycle": "gcloud functions deploy order-lifecycle --runtime nodejs22 --trigger-http --allow-unauthenticated --entry-point orderLifecycle --source dist/order-lifecycle --region us-east1",
     "deploy:all": "npm run deploy:booking-lifecycle && npm run deploy:reminder-dispatcher && npm run deploy:order-lifecycle"
   },
   "dependencies": {

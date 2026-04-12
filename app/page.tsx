@@ -84,6 +84,20 @@ export default function Home() {
           </div>
         ))}
       </section>
+
+      <section className="mx-auto max-w-7xl px-6 pb-14 md:px-10">
+        <div className="flex flex-col gap-3 border-t border-[var(--color-border)] pt-6 text-sm text-[var(--color-text-secondary)] sm:flex-row sm:items-center sm:justify-between">
+          <p>BisLink for service businesses.</p>
+          <div className="flex items-center gap-5">
+            <Link href="/privacy-policy" className="transition-colors hover:text-[var(--color-text-primary)]">
+              Privacy Policy
+            </Link>
+            <Link href="/terms-and-conditions" className="transition-colors hover:text-[var(--color-text-primary)]">
+              Terms and Conditions
+            </Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
