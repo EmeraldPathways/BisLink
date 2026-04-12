@@ -12,7 +12,8 @@
     "deploy:churn": "gcloud functions deploy ybial-churn-nightly --runtime nodejs20 --trigger-http --entry-point churnNightly --source dist",
     "deploy:advisor": "gcloud functions deploy ybial-advisor-weekly --runtime nodejs20 --trigger-http --entry-point advisorWeekly --source dist",
     "deploy:booking-chat": "gcloud functions deploy ybial-booking-chat --runtime nodejs20 --trigger-http --entry-point bookingChatEndpoint --source dist",
-    "deploy:all": "npm run build && npm run deploy:onboarding && npm run deploy:support && npm run deploy:churn && npm run deploy:advisor && npm run deploy:booking-chat"
+    "deploy:manager": "gcloud functions deploy ybial-manager-health --runtime nodejs20 --trigger-http --entry-point managerHealth --source dist",
+    "deploy:all": "npm run build && npm run deploy:onboarding && npm run deploy:support && npm run deploy:churn && npm run deploy:advisor && npm run deploy:booking-chat && npm run deploy:manager"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

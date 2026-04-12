@@ -232,6 +232,39 @@ export interface BookingChatOutput {
   reply: string;
 }
 
+export type AgentHealthStatus = 'healthy' | 'degraded' | 'down';
+export type AgentCheckLevel = 'ok' | 'warn' | 'fail';
+
+export interface AgentHealthCheck {
+  name: string;
+  level: AgentCheckLevel;
+  summary: string;
+  details?: Record<string, unknown>;
+}
+
+export interface ManagerDiagnostics {
+  timestamp: string;
+  mode: 'quick' | 'full';
+  checks: AgentHealthCheck[];
+  summary: {
+    ok: number;
+    warn: number;
+    fail: number;
+  };
+  overallStatus: AgentHealthStatus;
+}
+
+export interface ManagerAgentContext {
+  diagnostics: ManagerDiagnostics;
+}
+
+export interface ManagerAgentOutput {
+  overallStatus: AgentHealthStatus;
+  summary: string;
+  criticalIssues: string[];
+  recommendations: string[];
+}
+
 export interface SupabaseWebhookPayload {
   type: 'INSERT' | 'UPDATE' | 'DELETE';
   table: string;

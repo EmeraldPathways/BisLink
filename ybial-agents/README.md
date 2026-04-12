@@ -9,6 +9,7 @@ This package contains the AI agent layer for Your Business in a Link. It is a se
 - `Churn Prevention Agent`: runs nightly, scores account health, and sends targeted re-engagement emails.
 - `Business Advisor`: sends weekly data-driven insight emails.
 - `Booking Chat Agent`: answers short pre-booking questions on the public booking page.
+- `Manager Agent`: checks shared dependencies, runs synthetic dry-runs against the other agents, and returns an operational status report.
 
 ## Environment Variables
 
@@ -41,7 +42,32 @@ To run an individual agent locally, import it from `src/index.ts` and pass a moc
 - `npm run deploy:churn`
 - `npm run deploy:advisor`
 - `npm run deploy:booking-chat`
+- `npm run deploy:manager`
 - `npm run deploy:all`
+
+## Manager Agent
+
+The manager agent is exposed through the `managerHealth` function. It has two layers:
+
+- Raw diagnostics: env checks, Supabase connectivity, Anthropic connectivity, Resend configuration, and synthetic agent dry-runs
+- Manager interpretation: a dedicated Claude-powered manager agent that summarizes failures and recommends actions
+
+Call it with the shared secret and an optional mode:
+
+```json
+{
+  "secret": "your-webhook-secret-here",
+  "mode": "quick"
+}
+```
+
+Use `mode: "full"` to include synthetic dry-runs for:
+
+- `bookingChat`
+- `supportAgent`
+- `onboardingCoach`
+- `churnPrevention`
+- `businessAdvisor`
 
 ## Google Cloud Scheduler
 
