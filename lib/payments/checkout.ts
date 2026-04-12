@@ -1,0 +1,105 @@
+import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
+import { getStripe } from '@/lib/stripe/client';
+
+const itemSchema = z.object({
+  productId: z.string().uuid(),
+  quantity: z.number().int().min(1).max(10)
+});
+
+export const checkoutSchema = z.object({
+  businessId: z.string().uuid(),
+  items: z.array(itemSchema).min(1).max(10),
+  customerName: z.string().min(1).max(100),
+  customerEmail: z.string().email()
+});
+
+export type CheckoutInput = z.infer<typeof checkoutSchema>;
+
+export type CheckoutResult =
+  | { ok: true; clientSecret: string | null; total: number; paymentIntentId: string | null }
+  | { ok: false; status: number; error: string; details?: unknown };
+
+export async function createCheckoutSession(input: CheckoutInput): Promise<CheckoutResult> {
+  const stripe = getStripe();
+  if (!stripe) {
+    return { ok: false, status: 500, error: 'Stripe is not configured' };
+  }
+
+  const { businessId, items, customerName, customerEmail } = input;
+  const supabase = createClient();
+
+  const { data: business, error: bizError } = await supabase
+    .from('businesses')
+    .select('id, stripe_account_id, stripe_onboarded')
+    .eq('id', businessId)
+    .eq('is_active', true)
+    .single();
+
+  if (bizError || !business) {
+    return { ok: false, status: 404, error: 'Business not found' };
+  }
+
+  if (!business.stripe_onboarded || !business.stripe_account_id) {
+    return { ok: false, status: 400, error: 'Business payments not configured' };
+  }
+
+  const productIds = items.map((item) => item.productId);
+  const { data: products, error: prodError } = await supabase
+    .from('products')
+    .select('id, name, price, currency, in_stock, is_active, emoji')
+    .eq('business_id', businessId)
+    .eq('is_active', true)
+    .in('id', productIds);
+
+  if (prodError || !products) {
+    return { ok: false, status: 500, error: 'Failed to fetch products' };
+  }
+
+  for (const item of items) {
+    const product = products.find((entry) => entry.id === item.productId);
+    if (!product) {
+      return { ok: false, status: 404, error: `Product not found: ${item.productId}` };
+    }
+
+    if (!product.in_stock) {
+      return { ok: false, status: 409, error: `${product.name} is out of stock` };
+    }
+  }
+
+  const lineItems = items.map((item) => {
+    const product = products.find((entry) => entry.id === item.productId)!;
+    return {
+      productId: product.id,
+      name: product.name,
+      emoji: product.emoji,
+      price: product.price,
+      quantity: item.quantity
+    };
+  });
+
+  const total = lineItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: total,
+    currency: products[0]?.currency ?? 'usd',
+    automatic_payment_methods: { enabled: true },
+    application_fee_amount: 0,
+    transfer_data: {
+      destination: business.stripe_account_id
+    },
+    metadata: {
+      type: 'product_order',
+      businessId,
+      customerName,
+      customerEmail,
+      lineItems: JSON.stringify(lineItems)
+    }
+  });
+
+  return {
+    ok: true,
+    clientSecret: paymentIntent.client_secret,
+    total,
+    paymentIntentId: paymentIntent.id
+  };
+}
