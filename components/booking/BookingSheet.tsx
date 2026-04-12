@@ -70,7 +70,7 @@ export function BookingSheet({
           animate={{ y: dragOffset > 0 ? dragOffset : 0 }}
           exit={{ y: '100%' }}
           transition={{ duration: 0.38, ease: [0.32, 0.72, 0, 1] }}
-          className="hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto max-h-[90vh] max-w-[430px] overflow-y-auto rounded-t-[26px] bg-white px-4 pb-6 pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)] xl:right-auto xl:left-[calc(50%-640px)]"
+          className="hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto min-h-[82dvh] max-h-[calc(100dvh-8px)] w-full max-w-[430px] overflow-y-auto overscroll-contain rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)] xl:left-[calc(50%-640px)] xl:right-auto xl:min-h-0 xl:max-h-[calc(100dvh-24px)] xl:rounded-t-[26px] xl:px-4"
         >
           <div className="mx-auto mb-4 h-1 w-[38px] rounded bg-[#e0e0e0]" />
           <div className="mb-4 flex items-center justify-between">

@@ -26,7 +26,7 @@ export function OnboardingWizard() {
       </div>
       <div className="rounded-[32px] border border-[var(--color-border)] bg-[var(--color-bg)] p-6">
         <CurrentStep />
-        <div className="mt-6 flex items-center justify-between">
+        <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] mt-6 flex items-center justify-between rounded-[24px] bg-[var(--color-bg)]/95 py-3 backdrop-blur md:static md:rounded-none md:bg-transparent md:py-0 md:backdrop-blur-none">
           <button disabled={current === 0} onClick={() => setCurrent((value) => value - 1)} className="rounded-2xl border border-[var(--color-border)] px-5 py-3 text-sm font-semibold disabled:opacity-40">
             Back
           </button>

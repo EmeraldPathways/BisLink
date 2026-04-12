@@ -117,7 +117,7 @@ export function PublicPage({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             onClick={() => setCartOpen(true)}
-            className="fixed bottom-5 left-1/2 z-40 flex w-[calc(100%-32px)] max-w-[390px] -translate-x-1/2 items-center justify-between rounded-[16px] bg-[var(--void)] px-4 py-4 text-white shadow-[0_8px_32px_rgba(0,0,0,0.30)]"
+            className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 flex w-[calc(100%-32px)] max-w-[390px] -translate-x-1/2 items-center justify-between rounded-[16px] bg-[var(--void)] px-4 py-4 text-white shadow-[0_8px_32px_rgba(0,0,0,0.30)]"
           >
             <span className="flex items-center gap-3">
               <span className="rounded-full bg-[var(--gold)] px-2 py-1 text-xs font-semibold text-[var(--void)]">{count}</span>

@@ -29,7 +29,7 @@ export function ProductSheet({
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ duration: 0.38, ease: [0.32, 0.72, 0, 1] }}
-          className="absolute bottom-0 left-0 right-0 mx-auto max-w-[430px] rounded-t-[26px] bg-white px-4 pb-6 pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)]"
+          className="hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto min-h-[78dvh] max-h-[calc(100dvh-8px)] w-full max-w-[520px] overflow-y-auto overscroll-contain rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)] md:max-w-[430px] md:rounded-t-[26px] md:px-4"
         >
           <div className="mx-auto mb-4 h-1 w-[38px] rounded bg-[#e0e0e0]" />
           <div className="flex items-center justify-between">
