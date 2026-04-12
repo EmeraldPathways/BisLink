@@ -10,10 +10,10 @@ export default function Home() {
         <div className="relative mx-auto flex max-w-7xl flex-col gap-10 lg:min-h-[calc(100svh-4rem)] lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--color-gold)]">
-              Your Business in a Link
+              BisLink
             </p>
             <h1 className="max-w-xl font-display text-6xl leading-[0.95] tracking-[-1.5px] md:text-7xl">
-              A booking link that runs the whole business.
+              BisLink puts your business in a link.
             </h1>
             <p className="mt-5 max-w-lg text-base leading-7 text-[var(--color-text-hero-2)] md:text-lg">
               Built for trainers, salons, massage studios, consultants, and every service business that lives on social. One link. Real availability. Real payments. Real repeat customers.
