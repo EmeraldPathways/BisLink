@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { demoBusiness } from '@/lib/demo-data';
 import { getStripe } from '@/lib/stripe/client';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const stripe = getStripe();
-  if (!stripe || !demoBusiness.stripe_account_id) {
+  if (!stripe || !demoBusiness.stripe_account_id || demoBusiness.stripe_account_id === 'acct_demo') {
     return NextResponse.json({ url: '/dashboard/payouts?demoConnect=1' });
   }
 

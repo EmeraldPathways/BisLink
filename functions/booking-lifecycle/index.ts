@@ -7,6 +7,11 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SE
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export const bookingLifecycle: HttpFunction = async (req, res) => {
+  if (!isAuthorized(req.headers.authorization)) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.status(405).send('Method not allowed');
     return;
@@ -60,7 +65,7 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
       return;
     }
 
-    const business = booking.business as {
+    const business = booking.business as unknown as {
       id: string;
       name: string;
       slug: string;
@@ -72,7 +77,7 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
         expiry_date?: number;
       } | null;
     };
-    const service = booking.service as { id: string; name: string; duration_minutes: number };
+    const service = booking.service as unknown as { id: string; name: string; duration_minutes: number };
 
     const [emailResult, calResult] = await Promise.allSettled([
       sendConfirmationEmail(booking, business, service),
@@ -271,4 +276,19 @@ async function createCalendarEvent(
   });
 
   return event.data.id ?? null;
+}
+
+function isAuthorized(authorizationHeader?: string): boolean {
+  const expectedToken = process.env.GOOGLE_CLOUD_FUNCTION_TOKEN;
+  if (!expectedToken) {
+    console.warn('[booking-lifecycle] GOOGLE_CLOUD_FUNCTION_TOKEN is not set; allowing request');
+    return true;
+  }
+
+  if (!authorizationHeader) {
+    return false;
+  }
+
+  const normalized = authorizationHeader.startsWith('Bearer ') ? authorizationHeader.slice(7) : authorizationHeader;
+  return normalized === expectedToken;
 }

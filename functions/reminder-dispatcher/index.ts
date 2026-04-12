@@ -7,6 +7,11 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SE
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export const reminderDispatcher: HttpFunction = async (req, res) => {
+  if (!isAuthorized(req.headers.authorization)) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+
   if (req.method !== 'POST' && req.method !== 'GET') {
     res.status(405).send('Method not allowed');
     return;
@@ -291,4 +296,19 @@ function settled(result: PromiseSettledResult<number>): { count?: number; error?
   }
 
   return { error: String(result.reason) };
+}
+
+function isAuthorized(authorizationHeader?: string): boolean {
+  const expectedToken = process.env.GOOGLE_CLOUD_FUNCTION_TOKEN;
+  if (!expectedToken) {
+    console.warn('[reminder-dispatcher] GOOGLE_CLOUD_FUNCTION_TOKEN is not set; allowing request');
+    return true;
+  }
+
+  if (!authorizationHeader) {
+    return false;
+  }
+
+  const normalized = authorizationHeader.startsWith('Bearer ') ? authorizationHeader.slice(7) : authorizationHeader;
+  return normalized === expectedToken;
 }

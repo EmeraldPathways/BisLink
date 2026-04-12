@@ -6,6 +6,11 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SE
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export const orderLifecycle: HttpFunction = async (req, res) => {
+  if (!isAuthorized(req.headers.authorization)) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.status(405).send('Method not allowed');
     return;
@@ -99,6 +104,21 @@ function buildOrderEmail(data: {
       </a>
     </div>
   </div>
-</body>
+  </body>
 </html>`.trim();
+}
+
+function isAuthorized(authorizationHeader?: string): boolean {
+  const expectedToken = process.env.GOOGLE_CLOUD_FUNCTION_TOKEN;
+  if (!expectedToken) {
+    console.warn('[order-lifecycle] GOOGLE_CLOUD_FUNCTION_TOKEN is not set; allowing request');
+    return true;
+  }
+
+  if (!authorizationHeader) {
+    return false;
+  }
+
+  const normalized = authorizationHeader.startsWith('Bearer ') ? authorizationHeader.slice(7) : authorizationHeader;
+  return normalized === expectedToken;
 }

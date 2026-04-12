@@ -12,6 +12,7 @@ Set these in Google Cloud Functions:
 - `EMAIL_FROM`
 - `APP_URL`
 - `REVIEW_TOKEN_SECRET`
+- `GOOGLE_CLOUD_FUNCTION_TOKEN`
 
 Set these for `booking-lifecycle`:
 
@@ -25,7 +26,16 @@ From this folder:
 
 ```bash
 npm install
+npm run build
 npm run deploy:booking-lifecycle
 npm run deploy:reminder-dispatcher
 npm run deploy:order-lifecycle
+```
+
+The build stages deployable artifacts under `dist/<function-name>/` with a colocated `package.json` for Google Cloud Functions.
+
+These functions are deployed with `--allow-unauthenticated` and expect the caller to send:
+
+```http
+Authorization: Bearer <GOOGLE_CLOUD_FUNCTION_TOKEN>
 ```
