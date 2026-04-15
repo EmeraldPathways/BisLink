@@ -79,20 +79,26 @@ export async function PUT(req: NextRequest) {
   const input = parsed.data;
   const desiredSlug = input.business.slug || generateSlug(input.business.name);
 
-  const { data: existingBusiness } = await supabase
+  const { data: existingBusiness, error: existingBusinessError } = await admin
     .from('businesses')
     .select('id,slug')
     .eq('owner_id', user.id)
     .order('created_at', { ascending: true })
     .limit(1)
     .maybeSingle();
+  if (existingBusinessError) {
+    return NextResponse.json({ error: existingBusinessError.message }, { status: 500 });
+  }
 
-  const { data: slugConflict } = await supabase
+  const { data: slugConflict, error: slugConflictError } = await admin
     .from('businesses')
     .select('id')
     .eq('slug', desiredSlug)
-    .neq('owner_id', user.id)
+    .neq('id', existingBusiness?.id ?? '')
     .maybeSingle();
+  if (slugConflictError) {
+    return NextResponse.json({ error: slugConflictError.message }, { status: 500 });
+  }
 
   if (slugConflict) {
     return NextResponse.json({ error: 'Slug is already taken' }, { status: 409 });
