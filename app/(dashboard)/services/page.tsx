@@ -1,9 +1,11 @@
 import { ServiceForm } from '@/components/dashboard/ServiceForm';
+import { ServiceCardActions } from '@/components/dashboard/ServiceCardActions';
 import { getServicesData } from '@/lib/dashboard-data';
 import { formatPrice } from '@/lib/utils/formatting';
 
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams?: { edit?: string } }) {
   const { services } = await getServicesData();
+  const selectedService = services.find((service) => service.id === searchParams?.edit) ?? undefined;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
@@ -26,10 +28,13 @@ export default async function Page() {
                 <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">{service.tag ?? 'Active'}</p>
               </div>
             </div>
+            <div className="mt-4 flex justify-end">
+              <ServiceCardActions serviceId={service.id} isActive={service.is_active} />
+            </div>
           </div>
         ))}
       </div>
-      <ServiceForm service={services[0]} />
+      <ServiceForm service={selectedService} />
     </div>
   );
 }

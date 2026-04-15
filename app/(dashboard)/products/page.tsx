@@ -1,10 +1,12 @@
 import { ProductForm } from '@/components/dashboard/ProductForm';
 import { ProductLimitBar } from '@/components/dashboard/ProductLimitBar';
+import { ProductCardActions } from '@/components/dashboard/ProductCardActions';
 import { getProductsData } from '@/lib/dashboard-data';
 import { formatPrice } from '@/lib/utils/formatting';
 
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams?: { edit?: string } }) {
   const { products, activeProductCount } = await getProductsData();
+  const selectedProduct = products.find((product) => product.id === searchParams?.edit) ?? undefined;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
@@ -31,16 +33,13 @@ export default async function Page() {
               <p className="mt-3 text-sm text-[var(--color-text-secondary)]">{product.description}</p>
               <div className="mt-4 flex items-center justify-between">
                 <p className="text-sm font-semibold">{formatPrice(product.price)}</p>
-                <div className="flex gap-2">
-                  <button disabled className="rounded-xl border border-[var(--color-border)] px-3 py-2 text-[13px] font-medium opacity-60">Edit</button>
-                  <button disabled className="rounded-xl bg-[var(--color-void)] px-3 py-2 text-[13px] font-medium text-white opacity-60">Toggle</button>
-                </div>
+                <ProductCardActions productId={product.id} isActive={product.is_active} />
               </div>
             </div>
           ))}
         </div>
       </div>
-      <ProductForm product={products[0]} />
+      <ProductForm product={selectedProduct} />
     </div>
   );
 }
