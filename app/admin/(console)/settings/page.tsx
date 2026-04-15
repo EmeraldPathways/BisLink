@@ -1,13 +1,17 @@
 import { AdminTopbar } from '@/components/admin/AdminTopbar';
-import { adminSettingsGroups } from '@/lib/admin-data';
+import { requireAdminUser } from '@/lib/admin';
+import { getAdminSettingsData } from '@/lib/admin-console-data';
 
-export default function AdminSettingsPage() {
+export default async function AdminSettingsPage() {
+  await requireAdminUser();
+  const { groups } = await getAdminSettingsData();
+
   return (
     <div className="space-y-6">
       <AdminTopbar title="Admin settings" description="Internal settings and environment visibility for the BisLink platform itself, separate from owner-facing business settings." />
 
       <div className="grid gap-5 xl:grid-cols-3">
-        {adminSettingsGroups.map((group) => (
+        {groups.map((group) => (
           <section key={group.title} className="rounded-[28px] border border-[var(--color-border)] bg-white p-6">
             <h2 className="font-display text-4xl">{group.title}</h2>
             <div className="mt-5 space-y-3">

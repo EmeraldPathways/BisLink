@@ -1,14 +1,17 @@
 import Link from 'next/link';
-import { Activity, Bot, LayoutDashboard, LogOut, Settings2, ShieldCheck } from 'lucide-react';
-import { ADMIN_EMAIL } from '@/lib/admin';
+import { Activity, Bot, Building2, CircleDollarSign, LayoutDashboard, LogOut, MessageSquareWarning, Settings2, ShieldCheck } from 'lucide-react';
+import { ADMIN_EMAIL } from '@/lib/admin-config';
 
 const adminNav = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
+  { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
+  { label: 'Support', href: '/admin/support', icon: MessageSquareWarning },
+  { label: 'Finance', href: '/admin/finance', icon: CircleDollarSign },
   { label: 'Agents', href: '/admin/agents', icon: Bot },
   { label: 'Settings', href: '/admin/settings', icon: Settings2 }
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ adminEmail = ADMIN_EMAIL }: { adminEmail?: string }) {
   return (
     <aside className="hidden w-64 flex-col justify-between border-r border-[var(--color-border)] bg-white p-5 md:flex">
       <div>
@@ -34,7 +37,7 @@ export function AdminSidebar() {
             <ShieldCheck className="h-4 w-4 text-[var(--color-gold-dark)]" />
             Verified admin
           </div>
-          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{ADMIN_EMAIL}</p>
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{adminEmail}</p>
         </div>
         <Link href="/dashboard" className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-3 text-sm font-medium">
           <Activity className="h-4 w-4" />

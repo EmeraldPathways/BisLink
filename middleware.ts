@@ -39,6 +39,10 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    if (isAdminLogin) {
+      return response;
+    }
+
     const loginUrl = new URL(isAdmin ? '/admin/login' : '/login', req.url);
     return NextResponse.redirect(loginUrl);
   }

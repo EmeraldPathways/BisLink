@@ -1,6 +1,36 @@
-export const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? process.env.ADMIN_EMAIL ?? 'info@bislink.app';
+import { redirect } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
+import { ADMIN_EMAIL, isAdminEmail } from '@/lib/admin-config';
 
-export function isAdminEmail(email?: string | null) {
-  if (!email) return false;
-  return email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+export { ADMIN_EMAIL, isAdminEmail } from '@/lib/admin-config';
+
+export async function getAdminUserForRequest(): Promise<{ user: User; isAdmin: boolean } | null> {
+  const supabase = createClient();
+  const {
+    data: { user },
+    error
+  } = await supabase.auth.getUser();
+
+  if (error) throw error;
+  if (!user) return null;
+
+  return {
+    user,
+    isAdmin: isAdminEmail(user.email)
+  };
+}
+
+export async function requireAdminUser() {
+  const context = await getAdminUserForRequest();
+
+  if (!context?.user) {
+    redirect('/admin/login');
+  }
+
+  if (!context.isAdmin) {
+    redirect('/dashboard');
+  }
+
+  return context.user;
 }

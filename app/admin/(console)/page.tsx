@@ -1,14 +1,17 @@
-import { formatPrice } from '@/lib/utils/formatting';
 import { AdminMetricGrid } from '@/components/admin/AdminMetricGrid';
 import { AdminTopbar } from '@/components/admin/AdminTopbar';
-import { adminHealth, adminOverview } from '@/lib/admin-data';
+import { requireAdminUser } from '@/lib/admin';
+import { getAdminOverviewData } from '@/lib/admin-console-data';
+import { formatPrice } from '@/lib/utils/formatting';
 
-export default function AdminOverviewPage() {
+export default async function AdminOverviewPage() {
+  await requireAdminUser();
+  const { metrics: overview, health, diagnostics } = await getAdminOverviewData();
   const metrics = [
-    { label: 'Businesses', value: String(adminOverview.businesses) },
-    { label: 'Customers', value: String(adminOverview.totalCustomers) },
-    { label: 'Monthly revenue', value: formatPrice(adminOverview.monthlyRevenue) },
-    { label: 'Upcoming payouts', value: String(adminOverview.upcomingPayouts) }
+    { label: 'Businesses', value: String(overview.totalBusinesses) },
+    { label: 'Customers', value: String(overview.totalCustomers) },
+    { label: 'Monthly revenue', value: formatPrice(overview.monthlyRevenue) },
+    { label: 'In-transit payouts', value: String(overview.inTransitPayouts) }
   ];
 
   return (
@@ -22,12 +25,12 @@ export default function AdminOverviewPage() {
           <h2 className="font-display text-4xl">Platform snapshot</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {[
-              ['App name', adminOverview.appName],
-              ['Environment', adminOverview.environment],
-              ['Primary admin', adminOverview.primaryAdmin],
-              ['Active services', String(adminOverview.activeServices)],
-              ['Active products', String(adminOverview.activeProducts)],
-              ['Unverified reviews', String(adminOverview.openReviews)]
+              ['Active businesses', String(overview.activeBusinesses)],
+              ['Stripe onboarded', String(overview.stripeReadyBusinesses)],
+              ['Stripe missing', String(overview.stripeMissingBusinesses)],
+              ['Recent bookings', String(overview.recentBookings)],
+              ['Recent orders', String(overview.recentOrders)],
+              ['Needs review', String(overview.unpublishedReviews)]
             ].map(([label, value]) => (
               <div key={label} className="rounded-[20px] bg-[var(--color-surface-2)] p-4">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">{label}</p>
@@ -40,7 +43,7 @@ export default function AdminOverviewPage() {
         <section className="rounded-[28px] border border-[var(--color-border)] bg-white p-6">
           <h2 className="font-display text-4xl">System health</h2>
           <div className="mt-5 space-y-3">
-            {adminHealth.map((item) => (
+            {health.map((item) => (
               <div key={item.label} className="rounded-[20px] border border-[var(--color-border)] p-4">
                 <div className="flex items-center justify-between gap-4">
                   <p className="text-sm font-semibold">{item.label}</p>
@@ -61,6 +64,22 @@ export default function AdminOverviewPage() {
           </div>
         </section>
       </div>
+
+      <section className="rounded-[28px] border border-[var(--color-border)] bg-white p-6">
+        <h2 className="font-display text-4xl">Agent diagnostics</h2>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">Last check: {new Date(diagnostics.timestamp).toLocaleString()}</p>
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          {diagnostics.checks.map((check) => (
+            <div key={check.name} className="rounded-[20px] border border-[var(--color-border)] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold">{check.name}</p>
+                <span className="rounded-full bg-[var(--color-surface-2)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]">{check.level}</span>
+              </div>
+              <p className="mt-3 text-sm text-[var(--color-text-secondary)]">{check.summary}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
