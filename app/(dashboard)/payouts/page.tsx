@@ -1,8 +1,9 @@
-import { demoPayouts, demoRevenue } from '@/lib/demo-data';
+import { getPayoutsData } from '@/lib/dashboard-data';
 import { formatDateTimeLabel, formatPrice } from '@/lib/utils/formatting';
 
-export default function Page() {
-  const max = Math.max(...demoRevenue.map((item) => item.amount));
+export default async function Page() {
+  const { business, payouts, revenue, totals } = await getPayoutsData();
+  const max = Math.max(...revenue.map((item) => item.amount), 1);
 
   return (
     <div className="space-y-6">
@@ -13,9 +14,9 @@ export default function Page() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         {[
-          ['This week', '$765'],
-          ['This month', '$2,140'],
-          ['All time', '$18,420']
+          ['This week', formatPrice(totals.week, business.currency)],
+          ['This month', formatPrice(totals.month, business.currency)],
+          ['All time', formatPrice(totals.allTime, business.currency)]
         ].map(([label, value]) => (
           <div key={label} className="rounded-[22px] border border-[var(--color-border)] bg-white p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">{label}</p>
@@ -32,15 +33,15 @@ export default function Page() {
               <p className="mt-1 text-sm text-[var(--color-text-secondary)]">Daily revenue</p>
             </div>
             <span className="rounded-full bg-[var(--color-gold-muted)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-gold-dark)]">
-              Stripe connected
+              {business.stripe_onboarded ? 'Stripe connected' : 'Stripe setup needed'}
             </span>
           </div>
           <div className="flex h-64 items-end gap-3">
-            {demoRevenue.map((point) => (
+            {revenue.map((point) => (
               <div key={point.label} className="flex flex-1 flex-col items-center gap-3">
                 <div className="flex w-full items-end rounded-t-[18px] bg-[var(--color-surface-2)]" style={{ height: `${(point.amount / max) * 100}%` }}>
                   <div className="w-full rounded-t-[18px] bg-[var(--color-void)] px-2 py-2 text-center text-[11px] font-semibold text-[var(--color-gold)]">
-                    {point.amount ? formatPrice(point.amount) : '—'}
+                    {point.amount ? formatPrice(point.amount, business.currency) : '—'}
                   </div>
                 </div>
                 <span className="text-xs text-[var(--color-text-secondary)]">{point.label}</span>
@@ -52,19 +53,25 @@ export default function Page() {
         <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
           <h2 className="font-display text-4xl">Payout history</h2>
           <div className="mt-5 space-y-3">
-            {demoPayouts.map((payout) => (
-              <div key={payout.id} className="rounded-[18px] bg-[var(--color-surface-2)] px-4 py-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold">{formatPrice(payout.amount)}</p>
-                    <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{formatDateTimeLabel(payout.date, 'America/New_York')}</p>
+            {payouts.length ? (
+              payouts.map((payout) => (
+                <div key={payout.id} className="rounded-[18px] bg-[var(--color-surface-2)] px-4 py-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold">{formatPrice(payout.amount, business.currency)}</p>
+                      <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{formatDateTimeLabel(payout.date, business.timezone)}</p>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+                      {payout.status}
+                    </span>
                   </div>
-                  <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
-                    {payout.status}
-                  </span>
                 </div>
+              ))
+            ) : (
+              <div className="rounded-[18px] bg-[var(--color-surface-2)] px-4 py-4 text-sm text-[var(--color-text-secondary)]">
+                {business.stripe_onboarded ? 'No payouts found yet.' : 'Complete Stripe onboarding to start receiving payouts.'}
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

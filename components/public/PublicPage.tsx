@@ -13,7 +13,7 @@ import type {
 } from '@/types';
 import { useCart } from '@/hooks/useCart';
 import { useProducts } from '@/hooks/useProducts';
-import { getReviewBreakdown } from '@/lib/demo-data';
+import { getReviewBreakdownFromReviews } from '@/lib/reviews';
 import { formatPrice } from '@/lib/utils/formatting';
 import { HeroSection } from './HeroSection';
 import { type PublicTab } from './TabBar';
@@ -80,7 +80,7 @@ export function PublicPage({
           />
         ) : null}
         {activeTab === 'reviews' ? (
-          <ReviewsTab business={business} reviews={reviews} breakdown={getReviewBreakdown()} onBook={() => setActiveTab('bookings')} />
+          <ReviewsTab business={business} reviews={reviews} breakdown={getReviewBreakdownFromReviews(reviews)} onBook={() => setActiveTab('bookings')} />
         ) : null}
         {activeTab === 'about' ? (
           <AboutTab business={business} credentials={credentials} specialisms={specialisms} reviews={reviews} onBook={() => setActiveTab('bookings')} />

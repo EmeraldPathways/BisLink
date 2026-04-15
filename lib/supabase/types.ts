@@ -1,1 +1,410 @@
-export type Database = Record<string, never>;
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export type Database = {
+  public: {
+    Tables: {
+      availability: {
+        Row: {
+          business_id: string;
+          day_of_week: number;
+          end_time: string;
+          id: string;
+          is_active: boolean;
+          start_time: string;
+        };
+        Insert: {
+          business_id: string;
+          day_of_week: number;
+          end_time: string;
+          id?: string;
+          is_active?: boolean;
+          start_time: string;
+        };
+        Update: Partial<Database['public']['Tables']['availability']['Insert']>;
+        Relationships: [];
+      };
+      blocked_times: {
+        Row: {
+          business_id: string;
+          created_at: string | null;
+          end_time: string;
+          id: string;
+          reason: string | null;
+          start_time: string;
+        };
+        Insert: {
+          business_id: string;
+          created_at?: string | null;
+          end_time: string;
+          id?: string;
+          reason?: string | null;
+          start_time: string;
+        };
+        Update: Partial<Database['public']['Tables']['blocked_times']['Insert']>;
+        Relationships: [];
+      };
+      bookings: {
+        Row: {
+          amount_paid: number | null;
+          business_id: string;
+          confirmation_sent: boolean | null;
+          created_at: string | null;
+          currency: string | null;
+          customer_email: string;
+          customer_name: string;
+          customer_phone: string | null;
+          end_time: string;
+          followup_sent: boolean | null;
+          google_event_id: string | null;
+          id: string;
+          microsoft_event_id: string | null;
+          notes: string | null;
+          payment_intent_id: string | null;
+          payment_status: 'unpaid' | 'paid' | 'refunded';
+          reminder_1h_sent: boolean | null;
+          reminder_24h_sent: boolean | null;
+          review_requested_at: string | null;
+          review_token: string | null;
+          service_id: string;
+          start_time: string;
+          status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+          updated_at: string | null;
+        };
+        Insert: {
+          amount_paid?: number | null;
+          business_id: string;
+          confirmation_sent?: boolean | null;
+          created_at?: string | null;
+          currency?: string | null;
+          customer_email: string;
+          customer_name: string;
+          customer_phone?: string | null;
+          end_time: string;
+          followup_sent?: boolean | null;
+          google_event_id?: string | null;
+          id?: string;
+          microsoft_event_id?: string | null;
+          notes?: string | null;
+          payment_intent_id?: string | null;
+          payment_status?: 'unpaid' | 'paid' | 'refunded';
+          reminder_1h_sent?: boolean | null;
+          reminder_24h_sent?: boolean | null;
+          review_requested_at?: string | null;
+          review_token?: string | null;
+          service_id: string;
+          start_time: string;
+          status?: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+          updated_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['bookings']['Insert']>;
+        Relationships: [];
+      };
+      businesses: {
+        Row: {
+          address: string | null;
+          bio: string | null;
+          category: string;
+          clients_served: string | null;
+          contact_email: string | null;
+          contact_phone: string | null;
+          created_at: string | null;
+          credentials: string[] | null;
+          currency: string | null;
+          email: string | null;
+          experience: string | null;
+          full_bio: string | null;
+          google_cal_token: Json | null;
+          google_maps_url: string | null;
+          google_review_url: string | null;
+          id: string;
+          instagram_handle: string | null;
+          is_active: boolean | null;
+          location: string | null;
+          microsoft_cal_token: Json | null;
+          name: string;
+          owner_id: string;
+          parking_notes: string | null;
+          phone: string | null;
+          photo_url: string | null;
+          quote: string | null;
+          slug: string;
+          specialisms: string[] | null;
+          stripe_account_id: string | null;
+          stripe_onboarded: boolean | null;
+          tagline: string | null;
+          tiktok_handle: string | null;
+          timezone: string | null;
+          updated_at: string | null;
+          website_url: string | null;
+          whatsapp_number: string | null;
+          years_experience: number | null;
+        };
+        Insert: {
+          address?: string | null;
+          bio?: string | null;
+          category: string;
+          clients_served?: string | null;
+          contact_email?: string | null;
+          contact_phone?: string | null;
+          created_at?: string | null;
+          credentials?: string[] | null;
+          currency?: string | null;
+          email?: string | null;
+          experience?: string | null;
+          full_bio?: string | null;
+          google_cal_token?: Json | null;
+          google_maps_url?: string | null;
+          google_review_url?: string | null;
+          id?: string;
+          instagram_handle?: string | null;
+          is_active?: boolean | null;
+          location?: string | null;
+          microsoft_cal_token?: Json | null;
+          name: string;
+          owner_id: string;
+          parking_notes?: string | null;
+          phone?: string | null;
+          photo_url?: string | null;
+          quote?: string | null;
+          slug: string;
+          specialisms?: string[] | null;
+          stripe_account_id?: string | null;
+          stripe_onboarded?: boolean | null;
+          tagline?: string | null;
+          tiktok_handle?: string | null;
+          timezone?: string | null;
+          updated_at?: string | null;
+          website_url?: string | null;
+          whatsapp_number?: string | null;
+          years_experience?: number | null;
+        };
+        Update: Partial<Database['public']['Tables']['businesses']['Insert']>;
+        Relationships: [];
+      };
+      credentials: {
+        Row: {
+          business_id: string;
+          id: string;
+          label: string;
+          sort_order: number | null;
+        };
+        Insert: {
+          business_id: string;
+          id?: string;
+          label: string;
+          sort_order?: number | null;
+        };
+        Update: Partial<Database['public']['Tables']['credentials']['Insert']>;
+        Relationships: [];
+      };
+      customers: {
+        Row: {
+          business_id: string;
+          created_at: string | null;
+          email: string;
+          first_activity_at: string | null;
+          first_booking_at: string | null;
+          id: string;
+          last_activity_at: string | null;
+          last_booking_at: string | null;
+          name: string;
+          notes: string | null;
+          phone: string | null;
+          total_bookings: number | null;
+          total_orders: number | null;
+          total_spent: number | null;
+        };
+        Insert: {
+          business_id: string;
+          created_at?: string | null;
+          email: string;
+          first_activity_at?: string | null;
+          first_booking_at?: string | null;
+          id?: string;
+          last_activity_at?: string | null;
+          last_booking_at?: string | null;
+          name: string;
+          notes?: string | null;
+          phone?: string | null;
+          total_bookings?: number | null;
+          total_orders?: number | null;
+          total_spent?: number | null;
+        };
+        Update: Partial<Database['public']['Tables']['customers']['Insert']>;
+        Relationships: [];
+      };
+      orders: {
+        Row: {
+          business_id: string;
+          created_at: string | null;
+          currency: string | null;
+          customer_email: string;
+          customer_name: string;
+          customer_phone: string | null;
+          id: string;
+          items: Json;
+          payment_intent_id: string;
+          shipping_address: Json | null;
+          status: 'pending' | 'paid' | 'fulfilled' | 'refunded';
+          total_amount: number;
+        };
+        Insert: {
+          business_id: string;
+          created_at?: string | null;
+          currency?: string | null;
+          customer_email: string;
+          customer_name: string;
+          customer_phone?: string | null;
+          id?: string;
+          items: Json;
+          payment_intent_id: string;
+          shipping_address?: Json | null;
+          status?: 'pending' | 'paid' | 'fulfilled' | 'refunded';
+          total_amount: number;
+        };
+        Update: Partial<Database['public']['Tables']['orders']['Insert']>;
+        Relationships: [];
+      };
+      products: {
+        Row: {
+          badge: string | null;
+          business_id: string;
+          category: string | null;
+          created_at: string | null;
+          description: string | null;
+          digital_url: string | null;
+          emoji: string | null;
+          id: string;
+          image_url: string | null;
+          in_stock: boolean | null;
+          is_active: boolean | null;
+          is_digital: boolean | null;
+          name: string;
+          original_price: number | null;
+          price: number;
+          rating: number | null;
+          review_count: number | null;
+          sort_order: number | null;
+        };
+        Insert: {
+          badge?: string | null;
+          business_id: string;
+          category?: string | null;
+          created_at?: string | null;
+          description?: string | null;
+          digital_url?: string | null;
+          emoji?: string | null;
+          id?: string;
+          image_url?: string | null;
+          in_stock?: boolean | null;
+          is_active?: boolean | null;
+          is_digital?: boolean | null;
+          name: string;
+          original_price?: number | null;
+          price: number;
+          rating?: number | null;
+          review_count?: number | null;
+          sort_order?: number | null;
+        };
+        Update: Partial<Database['public']['Tables']['products']['Insert']>;
+        Relationships: [];
+      };
+      reviews: {
+        Row: {
+          booking_id: string | null;
+          business_id: string;
+          created_at: string | null;
+          customer_email: string | null;
+          customer_name: string;
+          id: string;
+          is_published: boolean | null;
+          is_verified: boolean | null;
+          rating: number;
+          service_name: string | null;
+          text: string | null;
+        };
+        Insert: {
+          booking_id?: string | null;
+          business_id: string;
+          created_at?: string | null;
+          customer_email?: string | null;
+          customer_name: string;
+          id?: string;
+          is_published?: boolean | null;
+          is_verified?: boolean | null;
+          rating: number;
+          service_name?: string | null;
+          text?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['reviews']['Insert']>;
+        Relationships: [];
+      };
+      services: {
+        Row: {
+          buffer_after: number | null;
+          business_id: string;
+          created_at: string | null;
+          currency: string | null;
+          description: string | null;
+          duration_minutes: number;
+          emoji: string | null;
+          id: string;
+          is_active: boolean | null;
+          max_concurrent: number | null;
+          name: string;
+          price: number;
+          sort_order: number | null;
+          tag: string | null;
+        };
+        Insert: {
+          buffer_after?: number | null;
+          business_id: string;
+          created_at?: string | null;
+          currency?: string | null;
+          description?: string | null;
+          duration_minutes?: number;
+          emoji?: string | null;
+          id?: string;
+          is_active?: boolean | null;
+          max_concurrent?: number | null;
+          name: string;
+          price: number;
+          sort_order?: number | null;
+          tag?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['services']['Insert']>;
+        Relationships: [];
+      };
+      specialisms: {
+        Row: {
+          business_id: string;
+          id: string;
+          label: string;
+          sort_order: number | null;
+        };
+        Insert: {
+          business_id: string;
+          id?: string;
+          label: string;
+          sort_order?: number | null;
+        };
+        Update: Partial<Database['public']['Tables']['specialisms']['Insert']>;
+        Relationships: [];
+      };
+    };
+    Views: Record<string, never>;
+    Functions: {
+      increment_customer_stats: {
+        Args: {
+          p_amount: number;
+          p_booking_at: string;
+          p_business_id: string;
+          p_email: string;
+        };
+        Returns: void;
+      };
+    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+};

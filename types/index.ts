@@ -186,3 +186,22 @@ export type DashboardStats = {
   products: number;
   reviews: number;
 };
+
+export type DashboardBookingRecord = BookingRecord & {
+  service: ServiceRecord | null;
+};
+
+export type ReviewBreakdownPoint = {
+  rating: number;
+  count: number;
+  percent: number;
+};
+
+export type PublicPageData = {
+  business: BusinessProfile;
+  services: ServiceRecord[];
+  products: ProductRecord[];
+  reviews: ReviewRecord[];
+  credentials: CredentialRecord[];
+  specialisms: SpecialismRecord[];
+};

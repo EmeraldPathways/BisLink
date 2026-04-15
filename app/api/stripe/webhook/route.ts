@@ -102,23 +102,49 @@ async function handleProductOrder(intent: Stripe.PaymentIntent, supabase: NonNul
   const total = Array.isArray(items) ? items.reduce((sum, item) => sum + item.price * item.quantity, 0) : 0;
   const now = new Date().toISOString();
 
-  await supabase.from('customers').upsert(
+  const { error: upsertError } = await supabase.from('customers').upsert(
     {
       business_id: businessId,
       name: customerName,
       email: customerEmail,
-      last_booking_at: now,
-      first_booking_at: now
+      last_activity_at: now,
+      first_activity_at: now
     },
     { onConflict: 'business_id,email', ignoreDuplicates: false }
   );
 
-  await supabase.rpc('increment_customer_stats', {
-    p_business_id: businessId,
-    p_email: customerEmail,
-    p_amount: total,
-    p_booking_at: now
-  });
+  if (upsertError) {
+    console.error('[webhook] Failed to upsert customer for order:', intent.id, upsertError);
+    return;
+  }
+
+  const { data: customer, error: customerError } = await supabase
+    .from('customers')
+    .select('total_orders,total_spent,first_activity_at,last_activity_at')
+    .eq('business_id', businessId)
+    .eq('email', customerEmail)
+    .single();
+
+  if (customerError || !customer) {
+    console.error('[webhook] Failed to fetch customer for order stats:', intent.id, customerError);
+    return;
+  }
+
+  const { error: updateError } = await supabase
+    .from('customers')
+    .update({
+      total_orders: (customer.total_orders ?? 0) + 1,
+      total_spent: (customer.total_spent ?? 0) + total,
+      first_activity_at: customer.first_activity_at ?? now,
+      last_activity_at: customer.last_activity_at && customer.last_activity_at > now ? customer.last_activity_at : now
+    })
+    .eq('business_id', businessId)
+    .eq('email', customerEmail);
+
+  if (updateError) {
+    console.error('[webhook] Failed to update customer order stats:', intent.id, updateError);
+    return;
+  }
 
   triggerOrderLifecycle({
     businessId,

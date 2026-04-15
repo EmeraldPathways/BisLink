@@ -1,6 +1,7 @@
 import { CalendarView } from '@/components/dashboard/CalendarView';
-import { demoBookings, demoBusiness } from '@/lib/demo-data';
+import { getCalendarData } from '@/lib/dashboard-data';
 
-export default function Page() {
-  return <CalendarView business={demoBusiness} bookings={demoBookings} />;
+export default async function Page() {
+  const { business, bookings } = await getCalendarData();
+  return <CalendarView business={business} bookings={bookings} />;
 }

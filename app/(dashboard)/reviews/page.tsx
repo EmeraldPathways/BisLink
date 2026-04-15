@@ -1,9 +1,8 @@
 import { ReviewsManager } from '@/components/dashboard/ReviewsManager';
-import { demoReviews } from '@/lib/demo-data';
+import { getReviewsData } from '@/lib/dashboard-data';
 
-export default function Page() {
-  const visible = demoReviews.filter((review) => review.is_published);
-  const average = visible.reduce((sum, review) => sum + review.rating, 0) / Math.max(visible.length, 1);
+export default async function Page() {
+  const { reviews, average } = await getReviewsData();
 
   return (
     <div className="space-y-4">
@@ -17,7 +16,7 @@ export default function Page() {
           <p className="mt-2 text-3xl font-semibold text-[var(--color-gold)]">{average.toFixed(1)}</p>
         </div>
       </div>
-      <ReviewsManager reviews={demoReviews} />
+      <ReviewsManager reviews={reviews} />
     </div>
   );
 }

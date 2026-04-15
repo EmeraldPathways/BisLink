@@ -12,16 +12,24 @@ export function ReviewsManager({ reviews }: { reviews: ReviewRecord[] }) {
               <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{review.text}</p>
             </div>
             <div className="text-right">
-              <p className="flex items-center gap-1 text-sm font-semibold text-[var(--color-gold-dark)]">{review.rating}<Star className="h-3 w-3 fill-current" /></p>
+              <p className="flex items-center gap-1 text-sm font-semibold text-[var(--color-gold-dark)]">
+                {review.rating}
+                <Star className="h-3 w-3 fill-current" />
+              </p>
               <p className="mt-1 text-[11px] text-[var(--color-text-secondary)]">{review.is_verified ? 'Verified' : 'Unverified'}</p>
             </div>
           </div>
           <div className="mt-4 flex gap-2">
-            <button className="rounded-xl border border-[var(--color-border)] px-3 py-2 text-[13px] font-medium">Hide</button>
-            <button className="rounded-xl bg-[var(--color-void)] px-3 py-2 text-[13px] font-medium text-white">Request review</button>
+            <button disabled className="rounded-xl border border-[var(--color-border)] px-3 py-2 text-[13px] font-medium opacity-60">
+              Hide
+            </button>
+            <button disabled className="rounded-xl bg-[var(--color-void)] px-3 py-2 text-[13px] font-medium text-white opacity-60">
+              Request review
+            </button>
           </div>
         </div>
       ))}
+      <p className="text-xs text-[var(--color-text-secondary)]">Review visibility and follow-up actions move to Phase 2.</p>
     </div>
   );
 }

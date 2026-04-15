@@ -1,8 +1,7 @@
 import { formatDateLabel, formatPrice } from '@/lib/utils/formatting';
 import { BookingCard } from './BookingCard';
 import { StatsBar } from './StatsBar';
-import { demoServices } from '@/lib/demo-data';
-import type { BookingRecord, BusinessProfile, DashboardStats } from '@/types';
+import type { BusinessProfile, DashboardBookingRecord, DashboardStats } from '@/types';
 
 export function TodayView({
   business,
@@ -10,7 +9,7 @@ export function TodayView({
   stats
 }: {
   business: BusinessProfile;
-  bookings: BookingRecord[];
+  bookings: DashboardBookingRecord[];
   stats: DashboardStats;
 }) {
   return (
@@ -36,10 +35,7 @@ export function TodayView({
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">Real-time updates appear here when new bookings land.</p>
         </div>
         {bookings.length ? (
-          bookings.map((booking) => {
-            const service = demoServices.find((item) => item.id === booking.service_id)!;
-            return <BookingCard key={booking.id} booking={booking} business={business} service={service} />;
-          })
+          bookings.map((booking) => <BookingCard key={booking.id} booking={booking} business={business} service={booking.service} />)
         ) : (
           <div className="rounded-[28px] border border-dashed border-[var(--color-border)] bg-white p-12 text-center">
             <h3 className="font-display text-4xl">No bookings today</h3>

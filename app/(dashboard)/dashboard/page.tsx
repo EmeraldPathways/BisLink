@@ -1,9 +1,7 @@
 import { TodayView } from '@/components/dashboard/TodayView';
-import { demoBookings, demoBusiness, demoStats } from '@/lib/demo-data';
+import { getTodayViewData } from '@/lib/dashboard-data';
 
-export default function Page() {
-  const today = new Date().toISOString().slice(0, 10);
-  const todayBookings = demoBookings.filter((booking) => booking.start_time.startsWith(today));
-
-  return <TodayView business={demoBusiness} bookings={todayBookings} stats={demoStats} />;
+export default async function Page() {
+  const { business, bookings, stats } = await getTodayViewData();
+  return <TodayView business={business} bookings={bookings} stats={stats} />;
 }
