@@ -18,19 +18,28 @@ export default function Home() {
             <p className="mt-5 max-w-lg text-base leading-7 text-[var(--color-text-hero-2)] md:text-lg">
               Built for trainers, salons, massage studios, consultants, and every service business that lives on social. One link. Real availability. Real payments. Real repeat customers.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 max-w-md">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/onboarding"
+                  className="inline-flex items-center justify-center rounded-2xl bg-[var(--color-gold)] px-6 py-4 text-sm font-semibold text-[var(--color-void)]"
+                >
+                  Sign Up
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-2xl border border-[var(--color-border-dark)] px-6 py-4 text-sm font-semibold text-[var(--color-text-hero)]"
+                >
+                  Sign In to Owner Dashboard
+                </Link>
+              </div>
+              <div className="my-4 h-px w-28 bg-[var(--color-border-dark)]/80" />
               <Link
                 href="/studio-eleven"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--color-gold)] px-6 py-4 text-sm font-semibold text-[var(--color-void)]"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--color-border-dark)]/70 px-5 py-3 text-sm font-semibold text-[var(--color-text-hero-2)] transition-colors hover:text-[var(--color-text-hero)]"
               >
                 View Demo Link
                 <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center rounded-2xl border border-[var(--color-border-dark)] px-6 py-4 text-sm font-semibold text-[var(--color-text-hero)]"
-              >
-                Open Owner Dashboard
               </Link>
             </div>
           </div>
