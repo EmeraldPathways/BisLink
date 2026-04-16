@@ -21,7 +21,7 @@ export default function Home() {
             <div className="mt-8 max-w-md">
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/onboarding"
+                  href="/signup"
                   className="inline-flex items-center justify-center rounded-2xl bg-[var(--color-gold)] px-6 py-4 text-sm font-semibold text-[var(--color-void)]"
                 >
                   Sign Up
