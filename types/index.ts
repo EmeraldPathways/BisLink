@@ -14,6 +14,7 @@ export type BusinessProfile = {
   location?: string | null;
   address?: string | null;
   parking_notes?: string | null;
+  google_maps_url?: string | null;
   website_url?: string | null;
   instagram_handle?: string | null;
   tiktok_handle?: string | null;
@@ -102,6 +103,7 @@ export type OrderRecord = {
   total_amount: number;
   currency: string;
   status: 'pending' | 'paid' | 'fulfilled' | 'refunded';
+  confirmation_sent?: boolean;
   payment_intent_id?: string | null;
   shipping_address?: {
     line1?: string;
@@ -111,6 +113,13 @@ export type OrderRecord = {
     country?: string;
   } | null;
   created_at: string;
+};
+
+export type PublicContactSubmission = {
+  businessId: string;
+  senderName: string;
+  senderEmail: string;
+  message: string;
 };
 
 export type AvailabilityRecord = {

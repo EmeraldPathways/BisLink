@@ -53,6 +53,7 @@ export function normalizeBusiness(record: Record<string, unknown>): BusinessProf
     location: asNullableString(record.location),
     address: asNullableString(record.address),
     parking_notes: asNullableString(record.parking_notes),
+    google_maps_url: asNullableString(record.google_maps_url),
     website_url: asNullableString(record.website_url),
     instagram_handle: asNullableString(record.instagram_handle),
     tiktok_handle: asNullableString(record.tiktok_handle),

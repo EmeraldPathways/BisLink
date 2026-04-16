@@ -1,6 +1,11 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
+import { Elements } from '@stripe/react-stripe-js';
 import { format } from 'date-fns';
+import type { StripeElements, Stripe } from '@stripe/stripe-js';
+import { EmbeddedPaymentForm } from '@/components/payments/EmbeddedPaymentForm';
+import { getStripeJs } from '@/lib/stripe/browser';
 import { formatPrice, formatTimeLabel } from '@/lib/utils/formatting';
 import type { BusinessProfile } from '@/types';
 import type { Service } from './BookingPage';
@@ -10,6 +15,7 @@ export function StepPayment({
   service,
   date,
   time,
+  details,
   onNext
 }: {
   business: BusinessProfile;
@@ -18,8 +24,104 @@ export function StepPayment({
   time: string;
   details: { name: string; email: string; phone?: string };
   onBack: () => void;
-  onNext: () => void;
+  onNext: (bookingId: string) => void;
 }) {
+  const stripePromise = useMemo(() => getStripeJs(), []);
+  const [bookingId, setBookingId] = useState<string | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [loadingIntent, setLoadingIntent] = useState(true);
+  const [processingMessage, setProcessingMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function createIntent() {
+      setLoadingIntent(true);
+      setError(null);
+      setProcessingMessage(null);
+      setClientSecret(null);
+      setBookingId(null);
+
+      try {
+        const response = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            businessId: business.id,
+            serviceId: service.id,
+            startTime: new Date(`${date}T${time}:00`).toISOString(),
+            customerName: details.name,
+            customerEmail: details.email,
+            customerPhone: details.phone
+          })
+        });
+
+        const payload = (await response.json()) as { bookingId?: string; clientSecret?: string | null; error?: string };
+        if (!response.ok || !payload.bookingId || !payload.clientSecret) {
+          throw new Error(payload.error || 'Could not prepare payment');
+        }
+
+        setBookingId(payload.bookingId);
+        setClientSecret(payload.clientSecret);
+      } catch (intentError) {
+        if (controller.signal.aborted) return;
+        setError(intentError instanceof Error ? intentError.message : 'Could not prepare payment');
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoadingIntent(false);
+        }
+      }
+    }
+
+    void createIntent();
+
+    return () => controller.abort();
+  }, [business.id, date, details.email, details.name, details.phone, service.id, time]);
+
+  async function confirmBookingPayment({ stripe, elements }: { stripe: Stripe; elements: StripeElements }) {
+    if (!bookingId) {
+      throw new Error('Booking is not ready yet');
+    }
+
+    const result = await stripe.confirmPayment({
+      elements,
+      confirmParams: {},
+      redirect: 'if_required'
+    });
+
+    if (result.error) {
+      throw new Error(result.error.message || 'Payment failed');
+    }
+
+    setProcessingMessage('Payment received. Confirming your booking...');
+    await waitForBookingConfirmation(bookingId);
+    onNext(bookingId);
+  }
+
+  async function waitForBookingConfirmation(id: string) {
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      const response = await fetch(`/api/bookings/${id}`, { cache: 'no-store' });
+      const payload = (await response.json()) as {
+        booking?: { status: string; payment_status: string };
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.error || 'Could not confirm booking status');
+      }
+
+      if (payload.booking?.status === 'confirmed' && payload.booking.payment_status === 'paid') {
+        return;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+
+    throw new Error('Payment succeeded but booking confirmation is still processing. Please wait a moment and try again.');
+  }
+
   return (
     <div>
       <h3 className="font-display text-[26px] font-semibold">Payment</h3>
@@ -35,33 +137,36 @@ export function StepPayment({
         <p className="text-[20px] font-bold">{formatPrice(service.price, service.currency)}</p>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <button className="rounded-xl border-[1.5px] border-[#e0e0e0] bg-white px-4 py-3 text-sm font-semibold">Apple Pay</button>
-        <button className="rounded-xl border-[1.5px] border-[#e0e0e0] bg-white px-4 py-3 text-sm font-semibold">Google Pay</button>
-      </div>
+      {!stripePromise ? <p className="mt-5 text-sm text-red-600">Stripe is not configured for this environment.</p> : null}
+      {loadingIntent ? <p className="mt-5 text-sm text-[var(--color-text-secondary)]">Preparing your secure payment form...</p> : null}
+      {error ? <p className="mt-5 text-sm text-red-600">{error}</p> : null}
+      {processingMessage ? <p className="mt-5 text-sm text-[var(--color-text-secondary)]">{processingMessage}</p> : null}
 
-      <div className="my-5 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-[#c0c0be]">
-        <div className="h-px flex-1 bg-[var(--color-border)]" />
-        <span>Or pay by card</span>
-        <div className="h-px flex-1 bg-[var(--color-border)]" />
-      </div>
-
-      <div className="space-y-3">
-        <input className="gold-ring w-full rounded-[13px] border-[1.5px] border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-[14px] text-[15px]" placeholder="Card number" />
-        <div className="grid grid-cols-2 gap-3">
-          <input className="gold-ring w-full rounded-[13px] border-[1.5px] border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-[14px] text-[15px]" placeholder="MM / YY" />
-          <input className="gold-ring w-full rounded-[13px] border-[1.5px] border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-[14px] text-[15px]" placeholder="CVC" />
+      {stripePromise && clientSecret ? (
+        <div className="mt-5">
+          <Elements
+            stripe={stripePromise}
+            options={{
+              clientSecret,
+              appearance: {
+                theme: 'stripe',
+                variables: {
+                  colorPrimary: '#0C0B09',
+                  colorBackground: '#FAFAF8',
+                  colorText: '#111111',
+                  borderRadius: '14px'
+                }
+              }
+            }}
+          >
+            <EmbeddedPaymentForm
+              onConfirm={confirmBookingPayment}
+              submitLabel={`Pay ${formatPrice(service.price, service.currency)} - Confirm Booking`}
+              processingLabel="Confirming payment..."
+            />
+          </Elements>
         </div>
-      </div>
-
-      <p className="mt-4 text-xs text-[#c0bcb6]">Your card details are encrypted and never stored</p>
-
-      <button
-        onClick={onNext}
-        className="mt-6 w-full rounded-2xl bg-[var(--color-void)] px-4 py-4 text-sm font-semibold text-white"
-      >
-        Pay {formatPrice(service.price, service.currency)} - Confirm Booking
-      </button>
+      ) : null}
     </div>
   );
 }

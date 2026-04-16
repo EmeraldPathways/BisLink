@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 
 const schema = z.object({
@@ -10,6 +11,11 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  const rateLimit = checkRateLimit(getRateLimitKey(req, 'reviews'), 5, 60_000);
+  if (!rateLimit.ok) {
+    return NextResponse.json({ error: 'Too many review submissions. Please try again shortly.' }, { status: 429 });
+  }
+
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 

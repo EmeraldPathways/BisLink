@@ -11,9 +11,9 @@ export function CustomerRow({ customer, timezone }: { customer: CustomerRecord; 
       <span>{customer.total_bookings}</span>
       <span>{formatPrice(customer.total_spent)}</span>
       <span>{customer.last_booking_at ? formatDateTimeLabel(customer.last_booking_at, timezone) : '—'}</span>
-      <button disabled className="rounded-xl border border-[var(--color-border)] px-3 py-2 text-[13px] font-medium opacity-60">
-        View history
-      </button>
+      <div className="rounded-xl border border-[var(--color-border)] px-3 py-2 text-center text-[13px] font-medium text-[var(--color-text-secondary)]">
+        {customer.total_orders ? `${customer.total_orders} orders` : 'Bookings only'}
+      </div>
     </div>
   );
 }

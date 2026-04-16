@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     const tokenPayload = {
       access_token: tokens.access_token ?? undefined,
       refresh_token: tokens.refresh_token ?? undefined,
-      expiry_date: tokens.expiry_date ?? undefined,
+      expiry_date: tokens.expiry_date ?? (tokens.expires_in ? Date.now() + tokens.expires_in * 1000 : undefined),
       token_type: tokens.token_type ?? undefined,
       scope: tokens.scope ?? undefined
     };

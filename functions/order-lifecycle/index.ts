@@ -16,18 +16,18 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
     return;
   }
 
-  const { businessId, customerName, customerEmail, items, total, paymentIntentId } = req.body;
+  const { businessId, customerName, customerEmail, customerPhone, shippingAddress, items, total, paymentIntentId } = req.body;
   if (!businessId || !customerEmail || !items || !paymentIntentId) {
     res.status(400).send('Missing required fields');
     return;
   }
 
   try {
-    const { data: existing } = await supabase.from('orders').select('id').eq('payment_intent_id', paymentIntentId).single();
-    if (existing) {
-      res.status(200).send('Already processed');
-      return;
-    }
+    const { data: existing } = await supabase
+      .from('orders')
+      .select('id, business_id, customer_email, total_amount, created_at, confirmation_sent')
+      .eq('payment_intent_id', paymentIntentId)
+      .maybeSingle();
 
     const { data: business } = await supabase.from('businesses').select('name, slug, currency').eq('id', businessId).single();
     if (!business) {
@@ -35,35 +35,133 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
       return;
     }
 
-    await supabase.from('orders').insert({
-      business_id: businessId,
-      customer_name: customerName,
-      customer_email: customerEmail,
-      items,
-      total_amount: total,
-      currency: business.currency ?? 'usd',
-      payment_intent_id: paymentIntentId,
-      status: 'paid'
-    });
+    let orderId = existing?.id ?? null;
+    let orderCreatedAt = existing?.created_at ?? new Date().toISOString();
 
-    await resend.emails.send({
-      from: process.env.EMAIL_FROM!,
-      to: customerEmail,
-      subject: `Order confirmed - ${business.name}`,
-      html: buildOrderEmail({
-        businessName: business.name,
-        items,
+    if (!existing) {
+      const { data: insertedOrder, error: insertError } = await supabase
+        .from('orders')
+        .insert({
+          business_id: businessId,
+          customer_name: customerName,
+          customer_email: customerEmail,
+          customer_phone: customerPhone ?? null,
+          items,
+          total_amount: total,
+          currency: business.currency ?? 'usd',
+          payment_intent_id: paymentIntentId,
+          shipping_address: shippingAddress ?? null,
+          status: 'paid',
+          confirmation_sent: false
+        })
+        .select('id, created_at')
+        .single();
+
+      if (insertError || !insertedOrder) {
+        logOrderLifecycle('order_insert_failed', { payment_intent_id: paymentIntentId, business_id: businessId, error: insertError?.message ?? 'Insert failed' }, 'error');
+        res.status(500).send('Failed to persist order');
+        return;
+      }
+
+      orderId = insertedOrder.id;
+      orderCreatedAt = insertedOrder.created_at ?? orderCreatedAt;
+
+      await upsertCustomerOrderStats({
+        businessId,
+        customerName,
+        customerEmail,
+        customerPhone: customerPhone ?? null,
         total,
-        businessSlug: business.slug
-      })
+        activityAt: orderCreatedAt
+      });
+    }
+
+    if (!existing?.confirmation_sent) {
+      if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+        logOrderLifecycle('order_email_missing_config', { payment_intent_id: paymentIntentId, order_id: orderId, business_id: businessId }, 'warn');
+      } else {
+        await resend.emails.send({
+          from: process.env.EMAIL_FROM,
+          to: customerEmail,
+          subject: `Order confirmed - ${business.name}`,
+          html: buildOrderEmail({
+            businessName: business.name,
+            items,
+            total,
+            businessSlug: business.slug
+          })
+        });
+      }
+
+      await supabase.from('orders').update({ confirmation_sent: true }).eq('payment_intent_id', paymentIntentId);
+    }
+
+    logOrderLifecycle('order_processed', {
+      payment_intent_id: paymentIntentId,
+      order_id: orderId,
+      business_id: businessId,
+      confirmation_sent: true
     });
 
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, orderId, alreadyExisted: Boolean(existing) });
   } catch (error) {
-    console.error('[order-lifecycle]', error);
+    logOrderLifecycle('order_unhandled_error', { payment_intent_id: req.body?.paymentIntentId ?? null, business_id: req.body?.businessId ?? null, error: toErrorMessage(error) }, 'error');
     res.status(500).send('Internal error');
   }
 };
+
+async function upsertCustomerOrderStats(input: {
+  businessId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string | null;
+  total: number;
+  activityAt: string;
+}) {
+  const { businessId, customerName, customerEmail, customerPhone, total, activityAt } = input;
+
+  const { error: upsertError } = await supabase.from('customers').upsert(
+    {
+      business_id: businessId,
+      name: customerName,
+      email: customerEmail,
+      phone: customerPhone,
+      last_activity_at: activityAt,
+      first_activity_at: activityAt
+    },
+    { onConflict: 'business_id,email', ignoreDuplicates: false }
+  );
+
+  if (upsertError) {
+    throw upsertError;
+  }
+
+  const { data: customer, error: customerError } = await supabase
+    .from('customers')
+    .select('total_orders,total_spent,first_activity_at,last_activity_at')
+    .eq('business_id', businessId)
+    .eq('email', customerEmail)
+    .single();
+
+  if (customerError || !customer) {
+    throw customerError ?? new Error('Customer not found after upsert');
+  }
+
+  const { error: updateError } = await supabase
+    .from('customers')
+    .update({
+      total_orders: (customer.total_orders ?? 0) + 1,
+      total_spent: (customer.total_spent ?? 0) + total,
+      first_activity_at: customer.first_activity_at ?? activityAt,
+      last_activity_at: customer.last_activity_at && customer.last_activity_at > activityAt ? customer.last_activity_at : activityAt
+    })
+    .eq('business_id', businessId)
+    .eq('email', customerEmail);
+
+  if (updateError) {
+    throw updateError;
+  }
+}
 
 function buildOrderEmail(data: {
   businessName: string;
@@ -121,4 +219,12 @@ function isAuthorized(authorizationHeader?: string): boolean {
 
   const normalized = authorizationHeader.startsWith('Bearer ') ? authorizationHeader.slice(7) : authorizationHeader;
   return normalized === expectedToken;
+}
+
+function logOrderLifecycle(event: string, payload: Record<string, unknown>, level: 'log' | 'warn' | 'error' = 'log') {
+  console[level]('[order-lifecycle]', JSON.stringify({ event, ...payload }));
+}
+
+function toErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }

@@ -1,7 +1,10 @@
 .next/
+.npm-cache/
+.playwright-cli/
 node_modules/
 coverage/
 dist/
+tsconfig.tsbuildinfo
 .env
 .env.local
 import.env

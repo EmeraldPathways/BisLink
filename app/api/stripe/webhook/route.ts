@@ -3,6 +3,8 @@ import Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/server';
 
+type AdminClient = NonNullable<ReturnType<typeof createAdminClient>>;
+
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
   const signature = req.headers.get('stripe-signature');
@@ -60,8 +62,38 @@ async function handlePaymentSucceeded(intent: Stripe.PaymentIntent, supabase: No
   await handleBookingPayment(intent, supabase);
 }
 
-async function handleBookingPayment(intent: Stripe.PaymentIntent, supabase: NonNullable<ReturnType<typeof createAdminClient>>) {
+async function handleBookingPayment(intent: Stripe.PaymentIntent, supabase: AdminClient) {
   const { customerEmail, customerName } = intent.metadata;
+  const { data: existingBooking, error: existingBookingError } = await supabase
+    .from('bookings')
+    .select('id, business_id, start_time, amount_paid, customer_name, customer_email, status, payment_status, confirmation_sent, google_event_id')
+    .eq('payment_intent_id', intent.id)
+    .maybeSingle();
+
+  if (existingBookingError || !existingBooking) {
+    logWebhook('booking_lookup_failed', { payment_intent_id: intent.id, error: existingBookingError?.message ?? 'Booking not found' }, 'error');
+    return;
+  }
+
+  const isAlreadyPaid = existingBooking.status === 'confirmed' && existingBooking.payment_status === 'paid';
+  if (isAlreadyPaid) {
+    logWebhook('booking_already_confirmed', {
+      payment_intent_id: intent.id,
+      booking_id: existingBooking.id,
+      business_id: existingBooking.business_id
+    });
+
+    if (!existingBooking.confirmation_sent || !existingBooking.google_event_id) {
+      triggerBookingLifecycle(existingBooking.id, intent.id).catch((error) =>
+        logWebhook(
+          'booking_lifecycle_trigger_failed',
+          { payment_intent_id: intent.id, booking_id: existingBooking.id, business_id: existingBooking.business_id, error: toErrorMessage(error) },
+          'error'
+        )
+      );
+    }
+    return;
+  }
 
   const { data: booking, error } = await supabase
     .from('bookings')
@@ -71,7 +103,7 @@ async function handleBookingPayment(intent: Stripe.PaymentIntent, supabase: NonN
     .single();
 
   if (error || !booking) {
-    console.error('[webhook] Failed to confirm booking:', intent.id, error);
+    logWebhook('booking_confirm_failed', { payment_intent_id: intent.id, error: error?.message ?? 'Unknown booking update error' }, 'error');
     return;
   }
 
@@ -93,56 +125,43 @@ async function handleBookingPayment(intent: Stripe.PaymentIntent, supabase: NonN
     p_booking_at: booking.start_time
   });
 
-  triggerBookingLifecycle(booking.id).catch((error) => console.error('[webhook] Lifecycle trigger failed:', error));
+  logWebhook('booking_confirmed', {
+    payment_intent_id: intent.id,
+    booking_id: booking.id,
+    business_id: booking.business_id
+  });
+
+  triggerBookingLifecycle(booking.id, intent.id).catch((error) =>
+    logWebhook(
+      'booking_lifecycle_trigger_failed',
+      { payment_intent_id: intent.id, booking_id: booking.id, business_id: booking.business_id, error: toErrorMessage(error) },
+      'error'
+    )
+  );
 }
 
-async function handleProductOrder(intent: Stripe.PaymentIntent, supabase: NonNullable<ReturnType<typeof createAdminClient>>) {
-  const { businessId, customerName, customerEmail, lineItems } = intent.metadata;
+async function handleProductOrder(intent: Stripe.PaymentIntent, supabase: AdminClient) {
+  const { businessId, customerName, customerEmail, customerPhone, shippingAddress, lineItems } = intent.metadata;
   const items = lineItems ? JSON.parse(lineItems) : [];
+  const parsedShippingAddress = shippingAddress ? JSON.parse(shippingAddress) : null;
   const total = Array.isArray(items) ? items.reduce((sum, item) => sum + item.price * item.quantity, 0) : 0;
-  const now = new Date().toISOString();
+  const { data: existingOrder, error: existingOrderError } = await supabase
+    .from('orders')
+    .select('id, business_id, confirmation_sent')
+    .eq('payment_intent_id', intent.id)
+    .maybeSingle();
 
-  const { error: upsertError } = await supabase.from('customers').upsert(
-    {
-      business_id: businessId,
-      name: customerName,
-      email: customerEmail,
-      last_activity_at: now,
-      first_activity_at: now
-    },
-    { onConflict: 'business_id,email', ignoreDuplicates: false }
-  );
-
-  if (upsertError) {
-    console.error('[webhook] Failed to upsert customer for order:', intent.id, upsertError);
+  if (existingOrderError) {
+    logWebhook('order_lookup_failed', { payment_intent_id: intent.id, error: existingOrderError.message }, 'error');
     return;
   }
 
-  const { data: customer, error: customerError } = await supabase
-    .from('customers')
-    .select('total_orders,total_spent,first_activity_at,last_activity_at')
-    .eq('business_id', businessId)
-    .eq('email', customerEmail)
-    .single();
-
-  if (customerError || !customer) {
-    console.error('[webhook] Failed to fetch customer for order stats:', intent.id, customerError);
-    return;
-  }
-
-  const { error: updateError } = await supabase
-    .from('customers')
-    .update({
-      total_orders: (customer.total_orders ?? 0) + 1,
-      total_spent: (customer.total_spent ?? 0) + total,
-      first_activity_at: customer.first_activity_at ?? now,
-      last_activity_at: customer.last_activity_at && customer.last_activity_at > now ? customer.last_activity_at : now
-    })
-    .eq('business_id', businessId)
-    .eq('email', customerEmail);
-
-  if (updateError) {
-    console.error('[webhook] Failed to update customer order stats:', intent.id, updateError);
+  if (existingOrder?.confirmation_sent) {
+    logWebhook('order_already_processed', {
+      payment_intent_id: intent.id,
+      order_id: existingOrder.id,
+      business_id: existingOrder.business_id
+    });
     return;
   }
 
@@ -150,44 +169,52 @@ async function handleProductOrder(intent: Stripe.PaymentIntent, supabase: NonNul
     businessId,
     customerName,
     customerEmail,
+    customerPhone: customerPhone || null,
+    shippingAddress: parsedShippingAddress,
     items,
     total,
     paymentIntentId: intent.id
-  }).catch((error) => console.error('[webhook] Order lifecycle trigger failed:', error));
+  }).catch((error) =>
+    logWebhook(
+      'order_lifecycle_trigger_failed',
+      { payment_intent_id: intent.id, order_id: existingOrder?.id ?? null, business_id: businessId, error: toErrorMessage(error) },
+      'error'
+    )
+  );
 }
 
-async function handlePaymentFailed(intent: Stripe.PaymentIntent, supabase: NonNullable<ReturnType<typeof createAdminClient>>) {
+async function handlePaymentFailed(intent: Stripe.PaymentIntent, supabase: AdminClient) {
   const type = intent.metadata.type ?? 'booking';
 
   if (type === 'product_order' || type === 'order') {
     const { error } = await supabase.from('orders').update({ status: 'refunded' }).eq('payment_intent_id', intent.id);
     if (error) {
-      console.error('[webhook] Failed to update order payment failure:', intent.id, error);
+      logWebhook('order_payment_failed_update_failed', { payment_intent_id: intent.id, error: error.message }, 'error');
     }
     return;
   }
 
   const { error } = await supabase.from('bookings').update({ status: 'cancelled' }).eq('payment_intent_id', intent.id);
   if (error) {
-    console.error('[webhook] Failed to cancel booking:', intent.id, error);
+    logWebhook('booking_cancel_failed', { payment_intent_id: intent.id, error: error.message }, 'error');
   }
 }
 
-async function handleAccountUpdated(account: Stripe.Account, supabase: NonNullable<ReturnType<typeof createAdminClient>>) {
+async function handleAccountUpdated(account: Stripe.Account, supabase: AdminClient) {
   if (!account.charges_enabled || !account.details_submitted) {
     return;
   }
 
   const { error } = await supabase.from('businesses').update({ stripe_onboarded: true }).eq('stripe_account_id', account.id);
   if (error) {
-    console.error('[webhook] Failed to update stripe_onboarded:', account.id, error);
+    logWebhook('stripe_account_update_failed', { stripe_account_id: account.id, error: error.message }, 'error');
   }
 }
 
-async function triggerBookingLifecycle(bookingId: string) {
+async function triggerBookingLifecycle(bookingId: string, paymentIntentId?: string) {
   const url = process.env.BOOKING_LIFECYCLE_FUNCTION_URL;
   if (!url) {
-    console.warn('[webhook] BOOKING_LIFECYCLE_FUNCTION_URL not set');
+    logWebhook('booking_lifecycle_missing_config', { payment_intent_id: paymentIntentId ?? null, booking_id: bookingId }, 'warn');
     return;
   }
 
@@ -209,13 +236,21 @@ async function triggerOrderLifecycle(payload: {
   businessId: string;
   customerName: string;
   customerEmail: string;
+  customerPhone: string | null;
+  shippingAddress: {
+    line1?: string;
+    city?: string;
+    region?: string;
+    postalCode?: string;
+    country?: string;
+  } | null;
   items: Array<{ productId: string; name: string; emoji: string; price: number; quantity: number }>;
   total: number;
   paymentIntentId: string;
 }) {
   const url = process.env.ORDER_LIFECYCLE_FUNCTION_URL;
   if (!url) {
-    console.warn('[webhook] ORDER_LIFECYCLE_FUNCTION_URL not set');
+    logWebhook('order_lifecycle_missing_config', { payment_intent_id: payload.paymentIntentId, business_id: payload.businessId }, 'warn');
     return;
   }
 
@@ -231,4 +266,12 @@ async function triggerOrderLifecycle(payload: {
   if (!res.ok) {
     throw new Error(`Order lifecycle returned ${res.status}`);
   }
+}
+
+function logWebhook(event: string, payload: Record<string, unknown>, level: 'log' | 'warn' | 'error' = 'log') {
+  console[level]('[webhook]', JSON.stringify({ event, ...payload }));
+}
+
+function toErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }

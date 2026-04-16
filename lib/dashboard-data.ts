@@ -196,9 +196,15 @@ export async function getPayoutsData() {
   const supabase = createClient();
   const since = subDays(new Date(), 31).toISOString();
 
-  const [{ data: bookings }, { data: orders }] = await Promise.all([
+  const [{ data: bookings }, { data: orders }, { data: recentOrders }] = await Promise.all([
     supabase.from('bookings').select('amount_paid,payment_status,status,start_time').eq('business_id', business.id).gte('start_time', since),
-    supabase.from('orders').select('total_amount,status,created_at').eq('business_id', business.id).gte('created_at', since)
+    supabase.from('orders').select('total_amount,status,created_at').eq('business_id', business.id).gte('created_at', since),
+    supabase
+      .from('orders')
+      .select('id,customer_name,customer_email,total_amount,status,created_at')
+      .eq('business_id', business.id)
+      .order('created_at', { ascending: false })
+      .limit(8)
   ]);
 
   const paidBookings = (bookings ?? []) as Array<{ amount_paid: number | null; payment_status: string; status: string; start_time: string }>;
@@ -207,6 +213,15 @@ export async function getPayoutsData() {
   return {
     business,
     payouts: await fetchPayouts(business),
+    recentOrders:
+      (recentOrders ?? []) as Array<{
+        id: string;
+        customer_name: string;
+        customer_email: string;
+        total_amount: number;
+        status: string;
+        created_at: string | null;
+      }>,
     revenue: buildRevenueSeries(business, paidBookings, paidOrders),
     totals: {
       week: revenueWithinWindow(business, paidBookings, paidOrders, 7),

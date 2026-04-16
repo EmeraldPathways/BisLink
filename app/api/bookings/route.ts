@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { getStripe } from '@/lib/stripe/client';
 
 const schema = z.object({
@@ -14,6 +15,11 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const rateLimit = checkRateLimit(getRateLimitKey(req, 'bookings'), 10, 60_000);
+    if (!rateLimit.ok) {
+      return NextResponse.json({ error: 'Too many booking attempts. Please try again shortly.' }, { status: 429 });
+    }
+
     const body = await req.json();
     const parsed = schema.safeParse(body);
 

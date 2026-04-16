@@ -17,7 +17,7 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
     return;
   }
 
-  const { bookingId } = req.body;
+  const { bookingId } = req.body ?? {};
   if (!bookingId) {
     res.status(400).send('Missing bookingId');
     return;
@@ -36,6 +36,7 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
         amount_paid,
         currency,
         confirmation_sent,
+        google_event_id,
         business:businesses (
           id,
           name,
@@ -55,12 +56,13 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
       .single();
 
     if (error || !booking) {
-      console.error('[lifecycle] Booking not found or not confirmed:', bookingId, error);
+      logLifecycle('booking_lookup_failed', { booking_id: bookingId, error: error?.message ?? 'Booking not found' }, 'error');
       res.status(404).send('Booking not found');
       return;
     }
 
-    if (booking.confirmation_sent) {
+    if (booking.confirmation_sent && booking.google_event_id) {
+      logLifecycle('booking_already_processed', { booking_id: booking.id });
       res.status(200).send('Already processed');
       return;
     }
@@ -80,33 +82,45 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
     const service = booking.service as unknown as { id: string; name: string; duration_minutes: number };
 
     const [emailResult, calResult] = await Promise.allSettled([
-      sendConfirmationEmail(booking, business, service),
-      createCalendarEvent(booking, business, service)
+      booking.confirmation_sent ? Promise.resolve() : sendConfirmationEmail(booking, business, service),
+      booking.google_event_id ? Promise.resolve(booking.google_event_id) : createCalendarEvent(booking, business, service)
     ]);
 
     if (emailResult.status === 'rejected') {
-      console.error('[lifecycle] Email failed:', emailResult.reason);
+      logLifecycle('booking_confirmation_email_failed', { booking_id: booking.id, business_id: business.id, error: toErrorMessage(emailResult.reason) }, 'error');
     }
     if (calResult.status === 'rejected') {
-      console.error('[lifecycle] Calendar failed:', calResult.reason);
+      logLifecycle('booking_calendar_failed', { booking_id: booking.id, business_id: business.id, error: toErrorMessage(calResult.reason) }, 'error');
     }
 
     const updates: Record<string, unknown> = {
-      confirmation_sent: emailResult.status === 'fulfilled'
+      confirmation_sent: booking.confirmation_sent || emailResult.status === 'fulfilled'
     };
-    if (calResult.status === 'fulfilled' && calResult.value) {
-      updates.google_event_id = calResult.value;
+    const googleEventId = booking.google_event_id || (calResult.status === 'fulfilled' ? calResult.value : null);
+    if (googleEventId) {
+      updates.google_event_id = googleEventId;
     }
 
-    await supabase.from('bookings').update(updates).eq('id', bookingId);
+    const { error: updateError } = await supabase.from('bookings').update(updates).eq('id', bookingId);
+    if (updateError) {
+      logLifecycle('booking_update_failed', { booking_id: booking.id, business_id: business.id, error: updateError.message }, 'error');
+    }
+
+    logLifecycle('booking_processed', {
+      booking_id: booking.id,
+      business_id: business.id,
+      confirmation_sent: updates.confirmation_sent,
+      google_event_id: googleEventId
+    });
 
     res.status(200).json({
       bookingId,
-      emailSent: emailResult.status === 'fulfilled',
-      calendarCreated: calResult.status === 'fulfilled'
+      emailSent: booking.confirmation_sent || emailResult.status === 'fulfilled',
+      calendarCreated: Boolean(googleEventId),
+      googleEventId
     });
   } catch (error) {
-    console.error('[lifecycle] Unhandled error:', error);
+    logLifecycle('booking_unhandled_error', { booking_id: bookingId, error: toErrorMessage(error) }, 'error');
     res.status(500).send('Internal error');
   }
 };
@@ -121,6 +135,10 @@ async function sendConfirmationEmail(
   business: { name: string; slug: string; timezone: string; location: string | null },
   service: { name: string; duration_minutes: number }
 ) {
+  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+    throw new Error('Email configuration is missing');
+  }
+
   const start = new Date(booking.start_time);
   const formattedDate = start.toLocaleDateString('en-US', {
     timeZone: business.timezone,
@@ -136,7 +154,7 @@ async function sendConfirmationEmail(
   const price = booking.amount_paid ? `$${Math.floor(booking.amount_paid / 100)}` : 'Paid';
 
   await resend.emails.send({
-    from: process.env.EMAIL_FROM!,
+    from: process.env.EMAIL_FROM,
     to: booking.customer_email,
     subject: `Booking confirmed - ${service.name} on ${formattedDate}`,
     html: buildConfirmationEmail({
@@ -224,15 +242,19 @@ async function createCalendarEvent(
   },
   service: { name: string; duration_minutes: number }
 ): Promise<string | null> {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) {
+    throw new Error('Google OAuth configuration is missing');
+  }
+
   if (!business.google_cal_token) {
     return null;
   }
 
   const token = business.google_cal_token;
   const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID!,
-    process.env.GOOGLE_CLIENT_SECRET!,
-    process.env.GOOGLE_REDIRECT_URI!
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
   );
 
   oauth2Client.setCredentials({
@@ -291,4 +313,12 @@ function isAuthorized(authorizationHeader?: string): boolean {
 
   const normalized = authorizationHeader.startsWith('Bearer ') ? authorizationHeader.slice(7) : authorizationHeader;
   return normalized === expectedToken;
+}
+
+function logLifecycle(event: string, payload: Record<string, unknown>, level: 'log' | 'warn' | 'error' = 'log') {
+  console[level]('[booking-lifecycle]', JSON.stringify({ event, ...payload }));
+}
+
+function toErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }

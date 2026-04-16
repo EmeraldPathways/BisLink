@@ -26,6 +26,7 @@ export function BookingSheet({
   const [date, setDate] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
   const [details, setDetails] = useState<Details | null>(null);
+  const [bookingId, setBookingId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
   const dragControls = useDragControls();
 
@@ -44,9 +45,10 @@ export function BookingSheet({
       setDate(null);
       setTime(null);
       setDetails(null);
+      setBookingId(null);
       setDragOffset(0);
     }
-  }, [service?.id]);
+  }, [service]);
 
   const progress = useMemo(() => [1, 2, 3, 4].map((value) => value <= Math.min(step, 4)), [step]);
 
@@ -162,14 +164,17 @@ export function BookingSheet({
                   time={time}
                   details={details}
                   onBack={() => setStep(3)}
-                  onNext={() => setStep(5)}
+                  onNext={(confirmedBookingId) => {
+                    setBookingId(confirmedBookingId);
+                    setStep(5);
+                  }}
                 />
               </motion.div>
             ) : null}
 
-            {step === 5 && date && time && details ? (
+            {step === 5 && date && time && details && bookingId ? (
               <motion.div key="confirm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}>
-                <StepConfirm business={business} service={service} date={date} time={time} details={details} onReset={onClose} />
+                <StepConfirm business={business} service={service} date={date} time={time} details={details} bookingId={bookingId} onReset={onClose} />
               </motion.div>
             ) : null}
           </AnimatePresence>

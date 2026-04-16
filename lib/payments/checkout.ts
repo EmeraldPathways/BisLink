@@ -11,7 +11,17 @@ export const checkoutSchema = z.object({
   businessId: z.string().uuid(),
   items: z.array(itemSchema).min(1).max(10),
   customerName: z.string().min(1).max(100),
-  customerEmail: z.string().email()
+  customerEmail: z.string().email(),
+  customerPhone: z.string().trim().max(40).optional(),
+  shippingAddress: z
+    .object({
+      line1: z.string().trim().max(200).optional(),
+      city: z.string().trim().max(120).optional(),
+      region: z.string().trim().max(120).optional(),
+      postalCode: z.string().trim().max(40).optional(),
+      country: z.string().trim().max(120).optional()
+    })
+    .optional()
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
@@ -26,7 +36,7 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
     return { ok: false, status: 500, error: 'Stripe is not configured' };
   }
 
-  const { businessId, items, customerName, customerEmail } = input;
+  const { businessId, items, customerName, customerEmail, customerPhone, shippingAddress } = input;
   const supabase = createClient();
 
   const { data: business, error: bizError } = await supabase
@@ -92,6 +102,8 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
       businessId,
       customerName,
       customerEmail,
+      customerPhone: customerPhone ?? '',
+      shippingAddress: shippingAddress ? JSON.stringify(shippingAddress) : '',
       lineItems: JSON.stringify(lineItems)
     }
   });

@@ -101,11 +101,11 @@ export function PublicPage({
       />
       <CartSheet
         open={cartOpen}
+        business={business}
         items={items}
         total={total}
         onClose={() => setCartOpen(false)}
         onCheckout={() => {
-          setCartOpen(false);
           clear();
         }}
       />

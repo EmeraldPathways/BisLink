@@ -12,6 +12,7 @@ export function StepConfirm({
   date,
   time,
   details,
+  bookingId,
   onReset
 }: {
   business: BusinessProfile;
@@ -19,6 +20,7 @@ export function StepConfirm({
   date: string;
   time: string;
   details: { name: string; email: string };
+  bookingId: string;
   onReset: () => void;
 }) {
   return (
@@ -73,9 +75,9 @@ export function StepConfirm({
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-5 space-y-3">
-        <button className="w-full rounded-2xl bg-[var(--color-surface-3)] px-4 py-4 text-sm font-semibold text-[var(--color-text-primary)]">
-          Add to Calendar
-        </button>
+        <div className="rounded-2xl bg-[var(--color-surface-3)] px-4 py-4 text-sm font-semibold text-[var(--color-text-primary)]">
+          Booking reference: {bookingId.slice(0, 8).toUpperCase()}
+        </div>
         <button onClick={onReset} className="w-full rounded-2xl bg-transparent px-4 py-3 text-sm font-semibold text-[#c0bcb6]">
           Back to services
         </button>

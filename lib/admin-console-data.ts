@@ -150,6 +150,11 @@ export async function getAdminAgentsData() {
 
 export async function getAdminSettingsData() {
   const diagnostics = await getAgentDiagnostics('quick');
+  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const hasStripe = Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET);
+  const hasResend = Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
+  const hasGoogleOAuth = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REDIRECT_URI);
+  const hasLifecycleAuth = Boolean(process.env.GOOGLE_CLOUD_FUNCTION_TOKEN);
 
   return {
     groups: [
@@ -164,17 +169,19 @@ export async function getAdminSettingsData() {
       {
         title: 'Integrations',
         items: [
-          { label: 'Supabase', value: process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Configured' : 'Missing config' },
-          { label: 'Stripe', value: process.env.STRIPE_SECRET_KEY ? 'Configured' : 'Missing config' },
-          { label: 'Resend', value: process.env.RESEND_API_KEY ? 'Configured' : 'Missing config' },
-          { label: 'Google OAuth', value: process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? 'Configured' : 'Missing config' }
+          { label: 'Supabase admin', value: hasSupabase ? 'Configured' : 'Missing config' },
+          { label: 'Stripe', value: hasStripe ? 'Configured' : 'Missing key or webhook secret' },
+          { label: 'Resend', value: hasResend ? 'Configured' : 'Missing API key or sender' },
+          { label: 'Google OAuth', value: hasGoogleOAuth ? 'Configured' : 'Missing client or redirect config' }
         ]
       },
       {
         title: 'Operations',
         items: [
-          { label: 'Booking lifecycle', value: process.env.BOOKING_LIFECYCLE_FUNCTION_URL ? 'Configured' : 'Missing config' },
-          { label: 'Order lifecycle', value: process.env.ORDER_LIFECYCLE_FUNCTION_URL ? 'Configured' : 'Missing config' },
+          { label: 'Booking lifecycle', value: process.env.BOOKING_LIFECYCLE_FUNCTION_URL ? 'Configured' : 'Missing function URL' },
+          { label: 'Order lifecycle', value: process.env.ORDER_LIFECYCLE_FUNCTION_URL ? 'Configured' : 'Missing function URL' },
+          { label: 'Lifecycle auth token', value: hasLifecycleAuth ? 'Configured' : 'Missing shared auth token' },
+          { label: 'App URL', value: process.env.APP_URL ? process.env.APP_URL : 'Missing APP_URL' },
           { label: 'Agent diagnostics', value: `${diagnostics.overallStatus} at ${new Date(diagnostics.timestamp).toLocaleString()}` }
         ]
       }

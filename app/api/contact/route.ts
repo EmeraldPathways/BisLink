@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { resend } from '@/lib/resend/client';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 
@@ -12,6 +13,11 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const rateLimit = checkRateLimit(getRateLimitKey(req, 'contact'), 5, 60_000);
+    if (!rateLimit.ok) {
+      return NextResponse.json({ error: 'Too many messages sent. Please try again shortly.' }, { status: 429 });
+    }
+
     if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
       return NextResponse.json({ error: 'Email is not configured' }, { status: 500 });
     }

@@ -9,8 +9,20 @@ export function createClient() {
       get(name: string) {
         return cookieStore.get(name)?.value;
       },
-      set() {},
-      remove() {}
+      set(name: string, value: string, options: any) {
+        try {
+          cookieStore.set({ name, value, ...options });
+        } catch {
+          // Server components can be read-only; middleware/route handlers still persist cookies.
+        }
+      },
+      remove(name: string, options: any) {
+        try {
+          cookieStore.set({ name, value: '', ...options, maxAge: 0 });
+        } catch {
+          // Server components can be read-only; middleware/route handlers still persist cookies.
+        }
+      }
     }
   });
 }
