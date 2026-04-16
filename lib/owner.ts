@@ -39,7 +39,7 @@ async function resolveCurrentOwnerBusiness(): Promise<OwnerContext | { user: Use
   };
 }
 
-function normalizeBusiness(record: Record<string, unknown>): BusinessProfile {
+export function normalizeBusiness(record: Record<string, unknown>): BusinessProfile {
   return {
     id: String(record.id),
     owner_id: String(record.owner_id),

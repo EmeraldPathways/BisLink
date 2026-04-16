@@ -1,32 +1,21 @@
 import { notFound } from 'next/navigation';
 import { PublicPage } from '@/components/public/PublicPage';
-import {
-  demoCredentials,
-  demoProducts,
-  demoReviews,
-  demoServices,
-  demoSpecialisms,
-  getDemoBusinessBySlug
-} from '@/lib/demo-data';
+import { getPublicBusinessPageBySlug } from '@/lib/public-page-data';
 
 export const revalidate = 60;
 
-export async function generateStaticParams() {
-  return [{ slug: 'studio-eleven' }];
-}
-
 export default async function SlugPage({ params }: { params: { slug: string } }) {
-  const business = getDemoBusinessBySlug(params.slug);
-  if (!business) return notFound();
+  const publicPage = await getPublicBusinessPageBySlug(params.slug);
+  if (!publicPage) return notFound();
 
   return (
     <PublicPage
-      business={business}
-      services={demoServices}
-      products={demoProducts}
-      reviews={demoReviews}
-      credentials={demoCredentials}
-      specialisms={demoSpecialisms}
+      business={publicPage.business}
+      services={publicPage.services}
+      products={publicPage.products}
+      reviews={publicPage.reviews}
+      credentials={publicPage.credentials}
+      specialisms={publicPage.specialisms}
     />
   );
 }

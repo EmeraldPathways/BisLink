@@ -35,7 +35,7 @@ export default function Home() {
               </div>
               <div className="my-4 h-px w-28 bg-[var(--color-border-dark)]/80" />
               <Link
-                href="/studio-eleven"
+                href="/demo"
                 className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--color-border-dark)]/70 px-5 py-3 text-sm font-semibold text-[var(--color-text-hero-2)] transition-colors hover:text-[var(--color-text-hero)]"
               >
                 View Demo Link

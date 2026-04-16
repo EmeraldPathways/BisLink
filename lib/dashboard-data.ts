@@ -328,7 +328,7 @@ function getTimeZoneDateKey(date: Date, timezone: string) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 }
 
-function normalizeService(service: ServiceRecord): ServiceRecord {
+export function normalizeService(service: ServiceRecord): ServiceRecord {
   return {
     ...service,
     description: service.description ?? '',
@@ -342,7 +342,7 @@ function normalizeService(service: ServiceRecord): ServiceRecord {
   };
 }
 
-function normalizeProduct(product: ProductRecord): ProductRecord {
+export function normalizeProduct(product: ProductRecord): ProductRecord {
   return {
     ...product,
     description: product.description ?? '',
@@ -361,7 +361,7 @@ function normalizeProduct(product: ProductRecord): ProductRecord {
   };
 }
 
-function normalizeReview(review: ReviewRecord): ReviewRecord {
+export function normalizeReview(review: ReviewRecord): ReviewRecord {
   return {
     ...review,
     booking_id: review.booking_id ?? null,
@@ -373,11 +373,11 @@ function normalizeReview(review: ReviewRecord): ReviewRecord {
   };
 }
 
-function normalizeCredential(record: CredentialRecord): CredentialRecord {
+export function normalizeCredential(record: CredentialRecord): CredentialRecord {
   return { ...record, sort_order: record.sort_order ?? 0 };
 }
 
-function normalizeSpecialism(record: SpecialismRecord): SpecialismRecord {
+export function normalizeSpecialism(record: SpecialismRecord): SpecialismRecord {
   return { ...record, sort_order: record.sort_order ?? 0 };
 }
 

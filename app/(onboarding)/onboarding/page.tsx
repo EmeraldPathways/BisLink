@@ -25,7 +25,7 @@ export default async function OnboardingPage() {
               Continue to Sign Up
             </Link>
             <Link
-              href="/studio-eleven"
+              href="/demo"
               className="inline-flex items-center justify-center rounded-2xl border border-[var(--color-border)] px-5 py-3 text-sm font-semibold"
             >
               View Demo Instead
