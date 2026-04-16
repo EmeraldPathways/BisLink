@@ -39,7 +39,7 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    if (isAdminLogin) {
+    if (isAdminLogin || isOnboarding) {
       return response;
     }
 
