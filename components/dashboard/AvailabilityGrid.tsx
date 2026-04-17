@@ -115,8 +115,12 @@ export function AvailabilityGrid({
                 </button>
                 <input type="time" value={record.start_time} disabled={!record.is_active} onChange={(event) => updateDay(index, { start_time: event.target.value })} className="rounded-xl bg-white px-3 py-2 text-sm disabled:opacity-50" />
                 <input type="time" value={record.end_time} disabled={!record.is_active} onChange={(event) => updateDay(index, { end_time: event.target.value })} className="rounded-xl bg-white px-3 py-2 text-sm disabled:opacity-50" />
-                <button onClick={() => saveDay(index)} disabled={isPending} className="rounded-xl border border-[var(--color-border)] px-3 py-2 text-xs font-medium disabled:opacity-60">
-                  Save
+                <button
+                  onClick={() => saveDay(index)}
+                  disabled={isPending}
+                  className="rounded-xl border border-[var(--color-border)] px-3 py-2 text-xs font-medium disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+                >
+                  {isPending ? '…' : 'Save'}
                 </button>
               </div>
             );

@@ -62,11 +62,18 @@ html {
 
 body {
   margin: 0;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top left, rgba(201, 164, 92, 0.08), transparent 26%),
     linear-gradient(180deg, #fcfbf8 0%, #fafaf8 100%);
   color: var(--color-text-primary);
   font-family: var(--font-ui);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-void);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 a {

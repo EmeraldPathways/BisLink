@@ -50,25 +50,45 @@ export function CustomersList({ customers, timezone }: { customers: CustomerReco
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+      <div>
         <div>
           <h1 className="font-display text-5xl">Customers</h1>
           <p className="mt-2 text-sm text-[var(--color-text-secondary)]">Search, sort, and review booking history for repeat clients.</p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+      </div>
+
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <label className="sr-only" htmlFor="customer-search">
+          Search customers
+        </label>
+        <input
+          id="customer-search"
+          type="search"
+          className="w-full rounded-xl border border-[var(--color-border)] bg-white px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] md:min-w-[240px] md:flex-1"
+          placeholder="Search by name or email"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <div className="flex gap-3">
+          <label className="sr-only" htmlFor="customer-date-filter">
+            Active after date
+          </label>
           <input
-            className="rounded-xl border border-[var(--color-border)] bg-white px-4 py-3"
-            placeholder="Search by name or email"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          <input
-            className="rounded-xl border border-[var(--color-border)] bg-white px-4 py-3"
+            id="customer-date-filter"
+            className="w-full rounded-xl border border-[var(--color-border)] bg-white px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] md:w-auto"
             type="date"
             value={activeAfter}
             onChange={(event) => setActiveAfter(event.target.value)}
           />
-          <select className="rounded-xl border border-[var(--color-border)] bg-white px-4 py-3" value={sortKey} onChange={(event) => setSortKey(event.target.value as SortKey)}>
+          <label className="sr-only" htmlFor="customer-sort">
+            Sort customers by
+          </label>
+          <select
+            id="customer-sort"
+            className="w-full rounded-xl border border-[var(--color-border)] bg-white px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] md:w-auto"
+            value={sortKey}
+            onChange={(event) => setSortKey(event.target.value as SortKey)}
+          >
             <option value="recent">Most recent</option>
             <option value="bookings">Most bookings</option>
             <option value="spend">Highest spend</option>

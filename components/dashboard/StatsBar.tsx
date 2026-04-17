@@ -3,7 +3,7 @@ import type { DashboardStats } from '@/types';
 
 export function StatsBar({ stats }: { stats: DashboardStats }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
       {[
         ['Today', `${stats.todayBookings} bookings`],
         ['This Week', `${stats.weekBookings} bookings · ${formatPrice(stats.weekRevenue)}`],

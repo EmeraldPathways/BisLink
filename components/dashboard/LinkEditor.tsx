@@ -57,16 +57,119 @@ export function LinkEditor({ business }: { business: BusinessProfile }) {
 
   return (
     <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
-      <div className="space-y-3">
-        <input value={form.name} onChange={(event) => updateField('name', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" />
-        <input value={form.category} onChange={(event) => updateField('category', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" />
-        <textarea value={form.bio} onChange={(event) => updateField('bio', event.target.value)} className="min-h-[100px] w-full rounded-xl border border-[var(--color-border)] px-4 py-3" />
-        <input value={form.tagline} onChange={(event) => updateField('tagline', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" />
-        <textarea value={form.full_bio} onChange={(event) => updateField('full_bio', event.target.value)} className="min-h-[140px] w-full rounded-xl border border-[var(--color-border)] px-4 py-3" />
-        <input value={form.location} onChange={(event) => updateField('location', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" />
-        <input value={form.address} onChange={(event) => updateField('address', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" />
-        <input value={form.instagram_handle} onChange={(event) => updateField('instagram_handle', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" />
-        <input value={form.slug} onChange={(event) => updateField('slug', event.target.value.toLowerCase())} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" />
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <label htmlFor="link-name" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Business name
+          </label>
+          <input
+            id="link-name"
+            value={form.name}
+            onChange={(event) => updateField('name', event.target.value)}
+            className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="link-category" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Category
+          </label>
+          <input
+            id="link-category"
+            value={form.category}
+            onChange={(event) => updateField('category', event.target.value)}
+            className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="link-bio" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Short bio{' '}
+            <span className="font-normal normal-case text-[var(--color-text-tertiary)]">(hero section)</span>
+          </label>
+          <textarea
+            id="link-bio"
+            value={form.bio}
+            onChange={(event) => updateField('bio', event.target.value)}
+            className="min-h-[100px] w-full rounded-xl border border-[var(--color-border)] px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="link-tagline" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Tagline
+          </label>
+          <input
+            id="link-tagline"
+            value={form.tagline}
+            onChange={(event) => updateField('tagline', event.target.value)}
+            className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="link-full-bio" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Full bio{' '}
+            <span className="font-normal normal-case text-[var(--color-text-tertiary)]">(About tab)</span>
+          </label>
+          <textarea
+            id="link-full-bio"
+            value={form.full_bio}
+            onChange={(event) => updateField('full_bio', event.target.value)}
+            className="min-h-[140px] w-full rounded-xl border border-[var(--color-border)] px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="link-location" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Location{' '}
+            <span className="font-normal normal-case text-[var(--color-text-tertiary)]">(e.g. Brooklyn, NY)</span>
+          </label>
+          <input
+            id="link-location"
+            value={form.location}
+            onChange={(event) => updateField('location', event.target.value)}
+            className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="link-address" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Full address
+          </label>
+          <input
+            id="link-address"
+            value={form.address}
+            onChange={(event) => updateField('address', event.target.value)}
+            className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="link-instagram" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Instagram handle{' '}
+            <span className="font-normal normal-case text-[var(--color-text-tertiary)]">(without @)</span>
+          </label>
+          <input
+            id="link-instagram"
+            value={form.instagram_handle}
+            onChange={(event) => updateField('instagram_handle', event.target.value)}
+            className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="link-slug" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Link slug{' '}
+            <span className="font-normal normal-case text-[var(--color-text-tertiary)]">(bislink.app/your-slug)</span>
+          </label>
+          <input
+            id="link-slug"
+            value={form.slug}
+            onChange={(event) => updateField('slug', event.target.value.toLowerCase())}
+            className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3 font-mono text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)]"
+          />
+        </div>
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <button onClick={copyLink} className="rounded-2xl bg-[var(--color-void)] px-4 py-3 text-sm font-semibold text-white">
@@ -76,7 +179,7 @@ export function LinkEditor({ business }: { business: BusinessProfile }) {
           Open Link
         </a>
         <button onClick={save} disabled={isPending} className="rounded-2xl border border-[var(--color-border)] px-4 py-3 text-sm font-semibold disabled:opacity-60">
-          Save Changes
+          {isPending ? 'Saving…' : 'Save Changes'}
         </button>
       </div>
       {message ? <p className="mt-4 text-xs text-green-700">{message}</p> : null}

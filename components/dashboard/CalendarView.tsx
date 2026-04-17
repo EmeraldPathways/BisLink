@@ -1,13 +1,22 @@
+'use client';
+
 import { addDays, startOfWeek } from 'date-fns';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 import { formatTimeLabel } from '@/lib/utils/formatting';
 import type { BusinessProfile, DashboardBookingRecord } from '@/types';
+import { MobileCalendar } from './MobileCalendar';
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const hours = Array.from({ length: 14 }, (_, index) => 7 + index);
 
 export function CalendarView({ business, bookings }: { business: BusinessProfile; bookings: DashboardBookingRecord[] }) {
+  const isMobile = useIsMobile();
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
+
+  if (isMobile) {
+    return <MobileCalendar business={business} bookings={bookings} />;
+  }
 
   return (
     <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">

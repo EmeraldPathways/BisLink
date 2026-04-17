@@ -67,7 +67,7 @@ export function ProductForm({ product }: { product?: ProductRecord }) {
   }
 
   return (
-    <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
+    <div className="w-full max-w-full rounded-[28px] border border-[var(--color-border)] bg-white p-5">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-4xl">{product ? 'Edit product' : 'Add product'}</h2>
         {product ? (
@@ -93,14 +93,14 @@ export function ProductForm({ product }: { product?: ProductRecord }) {
             </button>
           ))}
         </div>
-        <input value={form.name} onChange={(event) => updateField('name', event.target.value)} className="rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Product name" />
-        <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} className="min-h-[100px] rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Description" />
-        <input value={form.category} onChange={(event) => updateField('category', event.target.value)} className="rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Category" />
+        <input value={form.name} onChange={(event) => updateField('name', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Product name" />
+        <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} className="min-h-[100px] w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Description" />
+        <input value={form.category} onChange={(event) => updateField('category', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Category" />
         <div className="grid grid-cols-2 gap-3">
-          <input value={form.price} onChange={(event) => updateField('price', event.target.value)} className="rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Price" type="number" min="0" step="0.01" />
-          <input value={form.original_price} onChange={(event) => updateField('original_price', event.target.value)} className="rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Original price" type="number" min="0" step="0.01" />
+          <input value={form.price} onChange={(event) => updateField('price', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Price" type="number" min="0" step="0.01" />
+          <input value={form.original_price} onChange={(event) => updateField('original_price', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Original price" type="number" min="0" step="0.01" />
         </div>
-        <select value={form.badge} onChange={(event) => updateField('badge', event.target.value)} className="rounded-xl border border-[var(--color-border)] px-4 py-3">
+        <select value={form.badge} onChange={(event) => updateField('badge', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3">
           <option value="">No badge</option>
           <option value="Best Seller">Best Seller</option>
           <option value="New">New</option>

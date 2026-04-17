@@ -14,14 +14,14 @@ export function TodayView({
 }) {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h1 className="font-display text-5xl tracking-[-0.6px]">Good morning, Studio</h1>
           <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
             {formatDateLabel(new Date(), business.timezone, { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        <div className="rounded-[22px] bg-[var(--color-void)] px-6 py-5 text-white">
+        <div className="shrink-0 rounded-[22px] bg-[var(--color-void)] px-6 py-5 text-white">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-gold)]">Revenue today</p>
           <p className="mt-2 text-3xl font-semibold text-[var(--color-gold)]">{formatPrice(stats.todayRevenue)}</p>
         </div>

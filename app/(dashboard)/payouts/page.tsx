@@ -16,14 +16,14 @@ export default async function Page() {
         <p className="mt-2 text-sm text-[var(--color-text-secondary)]">Stripe Connect status, revenue totals, and payout history in one place.</p>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatusCard label="Stripe" value={business.stripe_onboarded ? 'Connected' : 'Setup needed'} tone={business.stripe_onboarded ? 'good' : 'warn'} />
         <StatusCard label="Calendar" value={calendarStatus} tone={calendarStatus === 'Connected' ? 'good' : 'warn'} />
         <StatusCard label="Contact" value={contactStatus} tone={hasContactRecipient ? 'good' : 'warn'} />
         <StatusCard label="Orders" value={pendingOrders ? `${pendingOrders} pending confirmation` : 'No pending confirmations'} tone={pendingOrders ? 'warn' : 'good'} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           ['This week', formatPrice(totals.week, business.currency)],
           ['This month', formatPrice(totals.month, business.currency)],
