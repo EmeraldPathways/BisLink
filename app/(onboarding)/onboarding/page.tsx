@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { getPostAuthRedirectPath } from '@/lib/auth-redirect';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function OnboardingPage() {
@@ -34,6 +36,11 @@ export default async function OnboardingPage() {
         </div>
       </main>
     );
+  }
+
+  const redirectPath = await getPostAuthRedirectPath();
+  if (redirectPath && redirectPath !== '/onboarding') {
+    redirect(redirectPath);
   }
 
   return (

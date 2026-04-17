@@ -1,9 +1,10 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextRequest, NextResponse } from 'next/server';
+import { resolvePostAuthRedirectPathForUser } from '@/lib/auth-redirect';
 
 export async function GET(req: NextRequest) {
-  const redirectUrl = new URL('/dashboard', req.url);
-  const response = NextResponse.redirect(redirectUrl);
+  const fallbackLoginUrl = new URL('/login', req.url);
+  const response = NextResponse.redirect(new URL('/dashboard', req.url));
 
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {
@@ -23,11 +24,28 @@ export async function GET(req: NextRequest) {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
-      const errorRedirect = new URL('/login', req.url);
-      errorRedirect.searchParams.set('error', error.message);
-      return NextResponse.redirect(errorRedirect);
+      fallbackLoginUrl.searchParams.set('error', error.message);
+      return NextResponse.redirect(fallbackLoginUrl);
     }
   }
 
-  return response;
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    fallbackLoginUrl.searchParams.set('error', userError?.message ?? 'Authentication session could not be established.');
+    return NextResponse.redirect(fallbackLoginUrl);
+  }
+
+  const redirectPath = await resolvePostAuthRedirectPathForUser({
+    userId: user.id,
+    email: user.email,
+    lookupClient: supabase
+  });
+
+  return NextResponse.redirect(new URL(redirectPath, req.url), {
+    headers: response.headers
+  });
 }
