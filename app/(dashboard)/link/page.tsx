@@ -2,6 +2,8 @@ import { LinkEditor } from '@/components/dashboard/LinkEditor';
 import { PublicPage } from '@/components/public/PublicPage';
 import { getLinkData } from '@/lib/dashboard-data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const { business, publicPage } = await getLinkData();
 

@@ -34,11 +34,11 @@ export async function getTodayViewData() {
   const [{ data: bookings }, { data: orders }, { count: customerCount }, { count: productCount }, { count: reviewCount }] = await Promise.all([
     supabase
       .from('bookings')
-      .select('id,business_id,service_id,customer_name,customer_email,customer_phone,start_time,end_time,status,payment_status,payment_intent_id,amount_paid,currency,review_token,notes')
+      .select('id,business_id,service_id,customer_name,customer_email,customer_phone,start_time,end_time,status,payment_status,payment_intent_id,amount_paid,currency,review_token,notes,confirmation_sent,google_event_id')
       .eq('business_id', business.id)
       .gte('start_time', startDate)
       .order('start_time', { ascending: true }),
-    supabase.from('orders').select('total_amount,status,created_at').eq('business_id', business.id).gte('created_at', startDate),
+    supabase.from('orders').select('total_amount,status,created_at,confirmation_sent').eq('business_id', business.id).gte('created_at', startDate),
     supabase.from('customers').select('*', { count: 'exact', head: true }).eq('business_id', business.id),
     supabase.from('products').select('*', { count: 'exact', head: true }).eq('business_id', business.id).eq('is_active', true),
     supabase.from('reviews').select('*', { count: 'exact', head: true }).eq('business_id', business.id).eq('is_published', true)
@@ -67,7 +67,7 @@ export async function getCalendarData() {
   const weekEnd = addDays(weekStart, 7);
   const { data: bookings } = await supabase
     .from('bookings')
-    .select('id,business_id,service_id,customer_name,customer_email,customer_phone,start_time,end_time,status,payment_status,payment_intent_id,amount_paid,currency,review_token,notes')
+    .select('id,business_id,service_id,customer_name,customer_email,customer_phone,start_time,end_time,status,payment_status,payment_intent_id,amount_paid,currency,review_token,notes,confirmation_sent,google_event_id')
     .eq('business_id', business.id)
     .gte('start_time', weekStart.toISOString())
     .lt('start_time', weekEnd.toISOString())
@@ -192,16 +192,16 @@ export async function getLinkData() {
 }
 
 export async function getPayoutsData() {
-  const { business } = await getCurrentOwnerBusiness();
+  const { business, user } = await getCurrentOwnerBusiness();
   const supabase = createClient();
   const since = subDays(new Date(), 31).toISOString();
 
   const [{ data: bookings }, { data: orders }, { data: recentOrders }] = await Promise.all([
     supabase.from('bookings').select('amount_paid,payment_status,status,start_time').eq('business_id', business.id).gte('start_time', since),
-    supabase.from('orders').select('total_amount,status,created_at').eq('business_id', business.id).gte('created_at', since),
+    supabase.from('orders').select('total_amount,status,created_at,confirmation_sent').eq('business_id', business.id).gte('created_at', since),
     supabase
       .from('orders')
-      .select('id,customer_name,customer_email,total_amount,status,created_at')
+      .select('id,customer_name,customer_email,total_amount,status,created_at,confirmation_sent')
       .eq('business_id', business.id)
       .order('created_at', { ascending: false })
       .limit(8)
@@ -212,6 +212,8 @@ export async function getPayoutsData() {
 
   return {
     business,
+    hasContactRecipient: Boolean(business.email || user.email),
+    calendarStatus: getCalendarConnectionStatus(business.google_cal_token),
     payouts: await fetchPayouts(business),
     recentOrders:
       (recentOrders ?? []) as Array<{
@@ -221,6 +223,7 @@ export async function getPayoutsData() {
         total_amount: number;
         status: string;
         created_at: string | null;
+        confirmation_sent?: boolean | null;
       }>,
     revenue: buildRevenueSeries(business, paidBookings, paidOrders),
     totals: {
@@ -231,6 +234,15 @@ export async function getPayoutsData() {
         paidOrders.filter((item) => item.status === 'paid' || item.status === 'fulfilled').reduce((sum, item) => sum + item.total_amount, 0)
     }
   };
+}
+
+function getCalendarConnectionStatus(token: unknown) {
+  if (!token) return 'Not connected';
+  if (typeof token === 'object' && token && 'refresh_token' in token && (token as { refresh_token?: string | null }).refresh_token) {
+    return 'Connected';
+  }
+
+  return 'Reconnect needed';
 }
 
 async function getServiceMap(businessId: string) {

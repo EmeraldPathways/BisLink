@@ -3,6 +3,8 @@ import { ServiceCardActions } from '@/components/dashboard/ServiceCardActions';
 import { getServicesData } from '@/lib/dashboard-data';
 import { formatPrice } from '@/lib/utils/formatting';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({ searchParams }: { searchParams?: { edit?: string } }) {
   const { services } = await getServicesData();
   const selectedService = services.find((service) => service.id === searchParams?.edit) ?? undefined;

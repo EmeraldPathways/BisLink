@@ -3,6 +3,8 @@ import { AdminTopbar } from '@/components/admin/AdminTopbar';
 import { requireAdminUser } from '@/lib/admin';
 import { getAdminBusinessesData } from '@/lib/admin-console-data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminBusinessesPage({
   searchParams
 }: {

@@ -1,6 +1,8 @@
 import { AvailabilityGrid } from '@/components/dashboard/AvailabilityGrid';
 import { getAvailabilityData } from '@/lib/dashboard-data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const { availability, blockedTimes, business } = await getAvailabilityData();
 

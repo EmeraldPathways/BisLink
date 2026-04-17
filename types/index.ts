@@ -1,5 +1,28 @@
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
 export type PaymentStatus = 'unpaid' | 'paid' | 'refunded';
+export type DiagnosticLevel = 'ok' | 'warn' | 'fail';
+export type DiagnosticState = 'configured' | 'missing' | 'partial' | 'reconnect needed' | 'pending processing';
+
+export type DiagnosticCheck = {
+  name: string;
+  label: string;
+  level: DiagnosticLevel;
+  state: DiagnosticState;
+  summary: string;
+  details?: Record<string, boolean | string | number | null>;
+};
+
+export type AgentDiagnostics = {
+  timestamp: string;
+  mode: 'quick' | 'full';
+  checks: DiagnosticCheck[];
+  summary: {
+    ok: number;
+    warn: number;
+    fail: number;
+  };
+  overallStatus: 'healthy' | 'degraded' | 'down';
+};
 
 export type BusinessProfile = {
   id: string;
@@ -22,13 +45,15 @@ export type BusinessProfile = {
   email?: string | null;
   phone?: string | null;
   years_experience?: number | null;
-  google_review_url?: string | null;
-  timezone: string;
-  currency: string;
-  stripe_account_id?: string | null;
-  stripe_onboarded?: boolean;
-  is_active?: boolean;
-};
+    google_review_url?: string | null;
+    timezone: string;
+    currency: string;
+    stripe_account_id?: string | null;
+    stripe_onboarded?: boolean;
+    is_active?: boolean;
+    google_cal_token?: unknown;
+    microsoft_cal_token?: unknown;
+  };
 
 export type CredentialRecord = {
   id: string;
@@ -152,10 +177,12 @@ export type BookingRecord = {
   payment_status: PaymentStatus;
   payment_intent_id?: string | null;
   amount_paid: number;
-  currency: string;
-  review_token?: string | null;
-  notes?: string | null;
-};
+    currency: string;
+    review_token?: string | null;
+    notes?: string | null;
+    confirmation_sent?: boolean | null;
+    google_event_id?: string | null;
+  };
 
 export type CustomerRecord = {
   id: string;

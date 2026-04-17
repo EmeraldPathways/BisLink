@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { CalendarDays, Clock3, DollarSign, Link2, Settings, ShoppingBag, Sparkles, Star, Users } from 'lucide-react';
 import { getDashboardShellData } from '@/lib/dashboard-data';
 
+export const dynamic = 'force-dynamic';
+
 const navItems = [
   { label: 'Today', href: '/dashboard', icon: Clock3 },
   { label: 'Calendar', href: '/calendar', icon: CalendarDays },

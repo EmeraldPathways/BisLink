@@ -6,6 +6,8 @@ import { requireAdminUser } from '@/lib/admin';
 import { getAdminBusinessDetailData } from '@/lib/admin-console-data';
 import { formatPrice } from '@/lib/utils/formatting';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminBusinessDetailPage({ params }: { params: { id: string } }) {
   await requireAdminUser();
   const data = await getAdminBusinessDetailData(params.id);

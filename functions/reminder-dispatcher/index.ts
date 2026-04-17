@@ -1,10 +1,10 @@
 import { HttpFunction } from '@google-cloud/functions-framework';
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-const resend = new Resend(process.env.RESEND_API_KEY!);
+let resendClient: Resend | null | undefined;
 
 export const reminderDispatcher: HttpFunction = async (req, res) => {
   if (!isAuthorized(req.headers.authorization)) {
@@ -160,6 +160,15 @@ async function dispatchFollowups(now: Date): Promise<number> {
 }
 
 async function sendReminderEmail(booking: any, type: '24h' | '1h') {
+  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+    throw new Error('Email configuration is missing');
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    throw new Error('Resend configuration is missing');
+  }
+
   const business = booking.business as any;
   const service = booking.service as any;
   const start = new Date(booking.start_time);
@@ -194,6 +203,15 @@ async function sendReminderEmail(booking: any, type: '24h' | '1h') {
 }
 
 async function sendFollowupEmail(booking: any, reviewToken: string) {
+  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+    throw new Error('Email configuration is missing');
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    throw new Error('Resend configuration is missing');
+  }
+
   const business = booking.business as any;
   const reviewUrl = business.google_review_url
     ? business.google_review_url
@@ -311,4 +329,15 @@ function isAuthorized(authorizationHeader?: string): boolean {
 
   const normalized = authorizationHeader.startsWith('Bearer ') ? authorizationHeader.slice(7) : authorizationHeader;
   return normalized === expectedToken;
+}
+
+function getResend() {
+  if (resendClient !== undefined) return resendClient;
+  if (!process.env.RESEND_API_KEY) {
+    resendClient = null;
+    return resendClient;
+  }
+
+  resendClient = new Resend(process.env.RESEND_API_KEY);
+  return resendClient;
 }

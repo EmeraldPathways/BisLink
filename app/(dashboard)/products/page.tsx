@@ -4,6 +4,8 @@ import { ProductCardActions } from '@/components/dashboard/ProductCardActions';
 import { getProductsData } from '@/lib/dashboard-data';
 import { formatPrice } from '@/lib/utils/formatting';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({ searchParams }: { searchParams?: { edit?: string } }) {
   const { products, activeProductCount } = await getProductsData();
   const selectedProduct = products.find((product) => product.id === searchParams?.edit) ?? undefined;

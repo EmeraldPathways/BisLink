@@ -66,7 +66,7 @@ async function handleBookingPayment(intent: Stripe.PaymentIntent, supabase: Admi
   const { customerEmail, customerName } = intent.metadata;
   const { data: existingBooking, error: existingBookingError } = await supabase
     .from('bookings')
-    .select('id, business_id, start_time, amount_paid, customer_name, customer_email, status, payment_status, confirmation_sent, google_event_id')
+    .select('id, business_id, start_time, amount_paid, customer_name, customer_email, status, payment_status, confirmation_sent, google_event_id, payment_intent_id')
     .eq('payment_intent_id', intent.id)
     .maybeSingle();
 
@@ -224,7 +224,7 @@ async function triggerBookingLifecycle(bookingId: string, paymentIntentId?: stri
       'Content-Type': 'application/json',
       Authorization: `Bearer ${process.env.GOOGLE_CLOUD_FUNCTION_TOKEN ?? ''}`
     },
-    body: JSON.stringify({ bookingId })
+    body: JSON.stringify({ bookingId, paymentIntentId })
   });
 
   if (!res.ok) {

@@ -4,6 +4,8 @@ import { requireAdminUser } from '@/lib/admin';
 import { getAdminOverviewData } from '@/lib/admin-console-data';
 import { formatPrice } from '@/lib/utils/formatting';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminOverviewPage() {
   await requireAdminUser();
   const { metrics: overview, health, diagnostics } = await getAdminOverviewData();
@@ -72,10 +74,25 @@ export default async function AdminOverviewPage() {
           {diagnostics.checks.map((check) => (
             <div key={check.name} className="rounded-[20px] border border-[var(--color-border)] p-4">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold">{check.name}</p>
-                <span className="rounded-full bg-[var(--color-surface-2)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]">{check.level}</span>
+                <p className="text-sm font-semibold">{check.label}</p>
+                <span
+                  className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${
+                    check.level === 'ok' ? 'bg-emerald-50 text-emerald-700' : check.level === 'warn' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'
+                  }`}
+                >
+                  {check.state}
+                </span>
               </div>
               <p className="mt-3 text-sm text-[var(--color-text-secondary)]">{check.summary}</p>
+              {check.details ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {Object.entries(check.details).map(([key, value]) => (
+                    <span key={key} className="rounded-full bg-[var(--color-surface-2)] px-3 py-1 text-[11px] font-semibold text-[var(--color-text-secondary)]">
+                      {key.replace(/_/g, ' ')}: {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value == null ? 'None' : String(value)}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ))}
         </div>

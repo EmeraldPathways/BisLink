@@ -1,9 +1,9 @@
 import { HttpFunction } from '@google-cloud/functions-framework';
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-const resend = new Resend(process.env.RESEND_API_KEY!);
+let resendClient: Resend | null | undefined;
 
 export const orderLifecycle: HttpFunction = async (req, res) => {
   if (!isAuthorized(req.headers.authorization)) {
@@ -65,21 +65,16 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
 
       orderId = insertedOrder.id;
       orderCreatedAt = insertedOrder.created_at ?? orderCreatedAt;
-
-      await upsertCustomerOrderStats({
-        businessId,
-        customerName,
-        customerEmail,
-        customerPhone: customerPhone ?? null,
-        total,
-        activityAt: orderCreatedAt
-      });
     }
 
     if (!existing?.confirmation_sent) {
       if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
         logOrderLifecycle('order_email_missing_config', { payment_intent_id: paymentIntentId, order_id: orderId, business_id: businessId }, 'warn');
       } else {
+        const resend = getResend();
+        if (!resend) {
+          throw new Error('Resend configuration is missing');
+        }
         await resend.emails.send({
           from: process.env.EMAIL_FROM,
           to: customerEmail,
@@ -109,59 +104,6 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
     res.status(500).send('Internal error');
   }
 };
-
-async function upsertCustomerOrderStats(input: {
-  businessId: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string | null;
-  total: number;
-  activityAt: string;
-}) {
-  const { businessId, customerName, customerEmail, customerPhone, total, activityAt } = input;
-
-  const { error: upsertError } = await supabase.from('customers').upsert(
-    {
-      business_id: businessId,
-      name: customerName,
-      email: customerEmail,
-      phone: customerPhone,
-      last_activity_at: activityAt,
-      first_activity_at: activityAt
-    },
-    { onConflict: 'business_id,email', ignoreDuplicates: false }
-  );
-
-  if (upsertError) {
-    throw upsertError;
-  }
-
-  const { data: customer, error: customerError } = await supabase
-    .from('customers')
-    .select('total_orders,total_spent,first_activity_at,last_activity_at')
-    .eq('business_id', businessId)
-    .eq('email', customerEmail)
-    .single();
-
-  if (customerError || !customer) {
-    throw customerError ?? new Error('Customer not found after upsert');
-  }
-
-  const { error: updateError } = await supabase
-    .from('customers')
-    .update({
-      total_orders: (customer.total_orders ?? 0) + 1,
-      total_spent: (customer.total_spent ?? 0) + total,
-      first_activity_at: customer.first_activity_at ?? activityAt,
-      last_activity_at: customer.last_activity_at && customer.last_activity_at > activityAt ? customer.last_activity_at : activityAt
-    })
-    .eq('business_id', businessId)
-    .eq('email', customerEmail);
-
-  if (updateError) {
-    throw updateError;
-  }
-}
 
 function buildOrderEmail(data: {
   businessName: string;
@@ -227,4 +169,15 @@ function logOrderLifecycle(event: string, payload: Record<string, unknown>, leve
 
 function toErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function getResend() {
+  if (resendClient !== undefined) return resendClient;
+  if (!process.env.RESEND_API_KEY) {
+    resendClient = null;
+    return resendClient;
+  }
+
+  resendClient = new Resend(process.env.RESEND_API_KEY);
+  return resendClient;
 }

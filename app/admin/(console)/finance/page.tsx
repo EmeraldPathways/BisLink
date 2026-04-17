@@ -4,6 +4,8 @@ import { requireAdminUser } from '@/lib/admin';
 import { getAdminFinanceData } from '@/lib/admin-console-data';
 import { formatPrice } from '@/lib/utils/formatting';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminFinancePage() {
   await requireAdminUser();
   const { totals, businessesNeedingAttention, topBusinesses } = await getAdminFinanceData();

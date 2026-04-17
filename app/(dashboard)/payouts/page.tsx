@@ -1,15 +1,26 @@
 import { getPayoutsData } from '@/lib/dashboard-data';
 import { formatDateTimeLabel, formatPrice } from '@/lib/utils/formatting';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
-  const { business, payouts, recentOrders, revenue, totals } = await getPayoutsData();
+  const { business, calendarStatus, hasContactRecipient, payouts, recentOrders, revenue, totals } = await getPayoutsData();
   const max = Math.max(...revenue.map((item) => item.amount), 1);
+  const contactStatus = hasContactRecipient ? 'Contact email configured' : 'Contact email unavailable';
+  const pendingOrders = recentOrders.filter((order) => (order.status === 'paid' || order.status === 'fulfilled') && order.confirmation_sent !== true).length;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-5xl">Payouts</h1>
         <p className="mt-2 text-sm text-[var(--color-text-secondary)]">Stripe Connect status, revenue totals, and payout history in one place.</p>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <StatusCard label="Stripe" value={business.stripe_onboarded ? 'Connected' : 'Setup needed'} tone={business.stripe_onboarded ? 'good' : 'warn'} />
+        <StatusCard label="Calendar" value={calendarStatus} tone={calendarStatus === 'Connected' ? 'good' : 'warn'} />
+        <StatusCard label="Contact" value={contactStatus} tone={hasContactRecipient ? 'good' : 'warn'} />
+        <StatusCard label="Orders" value={pendingOrders ? `${pendingOrders} pending confirmation` : 'No pending confirmations'} tone={pendingOrders ? 'warn' : 'good'} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -69,7 +80,7 @@ export default async function Page() {
               ))
             ) : (
               <div className="rounded-[18px] bg-[var(--color-surface-2)] px-4 py-4 text-sm text-[var(--color-text-secondary)]">
-                {business.stripe_onboarded ? 'No payouts found yet.' : 'Complete Stripe onboarding to start receiving payouts.'}
+          {business.stripe_onboarded ? 'No payouts found yet.' : 'Complete Stripe onboarding to start receiving payouts.'}
               </div>
             )}
           </div>
@@ -107,6 +118,23 @@ export default async function Page() {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function StatusCard({
+  label,
+  value,
+  tone
+}: {
+  label: string;
+  value: string;
+  tone: 'good' | 'warn';
+}) {
+  return (
+    <div className="rounded-[22px] border border-[var(--color-border)] bg-white p-5">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">{label}</p>
+      <p className={`mt-3 text-sm font-semibold ${tone === 'good' ? 'text-emerald-700' : 'text-amber-700'}`}>{value}</p>
     </div>
   );
 }

@@ -66,7 +66,9 @@ export function normalizeBusiness(record: Record<string, unknown>): BusinessProf
     currency: typeof record.currency === 'string' && record.currency ? record.currency : 'usd',
     stripe_account_id: asNullableString(record.stripe_account_id),
     stripe_onboarded: Boolean(record.stripe_onboarded),
-    is_active: record.is_active == null ? true : Boolean(record.is_active)
+    is_active: record.is_active == null ? true : Boolean(record.is_active),
+    google_cal_token: record.google_cal_token ?? null,
+    microsoft_cal_token: record.microsoft_cal_token ?? null
   };
 }
 

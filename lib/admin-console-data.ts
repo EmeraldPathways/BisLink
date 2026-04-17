@@ -3,6 +3,7 @@ import { ADMIN_EMAIL } from '@/lib/admin';
 import { getAgentDiagnostics } from '@/lib/agent-diagnostics';
 import { getStripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/server';
+import type { AgentDiagnostics, DiagnosticCheck, DiagnosticState } from '@/types';
 
 type RawBusiness = {
   id: string;
@@ -38,7 +39,8 @@ type ActivitySummary = {
 };
 
 export async function getAdminOverviewData() {
-  const admin = requireAdminClient();
+  const admin = createAdminClient();
+  const diagnostics = await getAgentDiagnostics('quick');
   const monthStart = startOfMonth(new Date()).toISOString();
   const recentCutoff = subDays(new Date(), 30).toISOString();
 
@@ -53,18 +55,31 @@ export async function getAdminOverviewData() {
     { data: monthBookings },
     { data: monthOrders },
     { data: businesses }
-  ] = await Promise.all([
-    admin.from('businesses').select('*', { count: 'exact', head: true }),
-    admin.from('businesses').select('*', { count: 'exact', head: true }).eq('is_active', true),
-    admin.from('businesses').select('*', { count: 'exact', head: true }).eq('stripe_onboarded', true),
-    admin.from('customers').select('*', { count: 'exact', head: true }),
-    admin.from('bookings').select('*', { count: 'exact', head: true }).gte('start_time', recentCutoff),
-    admin.from('orders').select('*', { count: 'exact', head: true }).gte('created_at', recentCutoff),
-    admin.from('reviews').select('*', { count: 'exact', head: true }).eq('is_published', false),
-    admin.from('bookings').select('amount_paid,payment_status,status').gte('start_time', monthStart),
-    admin.from('orders').select('total_amount,status').gte('created_at', monthStart),
-    admin.from('businesses').select('id,google_cal_token,microsoft_cal_token,stripe_account_id,stripe_onboarded')
-  ]);
+  ] = await (admin
+    ? Promise.all([
+        admin.from('businesses').select('*', { count: 'exact', head: true }),
+        admin.from('businesses').select('*', { count: 'exact', head: true }).eq('is_active', true),
+        admin.from('businesses').select('*', { count: 'exact', head: true }).eq('stripe_onboarded', true),
+        admin.from('customers').select('*', { count: 'exact', head: true }),
+        admin.from('bookings').select('*', { count: 'exact', head: true }).gte('start_time', recentCutoff),
+        admin.from('orders').select('*', { count: 'exact', head: true }).gte('created_at', recentCutoff),
+        admin.from('reviews').select('*', { count: 'exact', head: true }).eq('is_published', false),
+        admin.from('bookings').select('amount_paid,payment_status,status').gte('start_time', monthStart),
+        admin.from('orders').select('total_amount,status').gte('created_at', monthStart),
+        admin.from('businesses').select('id,google_cal_token,microsoft_cal_token,stripe_account_id,stripe_onboarded')
+      ])
+    : Promise.resolve([
+        { count: 0 },
+        { count: 0 },
+        { count: 0 },
+        { count: 0 },
+        { count: 0 },
+        { count: 0 },
+        { count: 0 },
+        { data: [] },
+        { data: [] },
+        { data: [] }
+      ]));
 
   const stripeBusinesses = (businesses ?? []) as Array<{
     id: string;
@@ -90,7 +105,13 @@ export async function getAdminOverviewData() {
       .map((business) => business.stripe_account_id as string)
   );
 
-  const diagnostics = await getAgentDiagnostics('quick');
+  const supabaseAdmin = getDiagnosticsCheck(diagnostics, 'supabase.admin');
+  const stripeSecret = getDiagnosticsCheck(diagnostics, 'stripe.secret_key');
+  const stripeWebhook = getDiagnosticsCheck(diagnostics, 'stripe.webhook_secret');
+  const googleOauth = getDiagnosticsCheck(diagnostics, 'google.oauth');
+  const bookingLifecycle = getDiagnosticsCheck(diagnostics, 'lifecycle.booking');
+  const orderLifecycle = getDiagnosticsCheck(diagnostics, 'lifecycle.order');
+  const lifecycleToken = getDiagnosticsCheck(diagnostics, 'lifecycle.auth_token');
 
   return {
     metrics: {
@@ -106,16 +127,16 @@ export async function getAdminOverviewData() {
       inTransitPayouts: payouts.inTransit
     },
     health: [
-      { label: 'Supabase', value: 'Connected', tone: 'success' as const },
+      { label: 'Supabase', value: supabaseAdmin?.summary ?? 'Missing', tone: toneForCheck(supabaseAdmin) },
       {
         label: 'Stripe',
-        value: process.env.STRIPE_SECRET_KEY ? `Configured • ${stripeReadyBusinesses ?? 0} onboarded` : 'Not configured',
-        tone: process.env.STRIPE_SECRET_KEY ? ('success' as const) : ('warning' as const)
+        value: summarizeChecks([stripeSecret, stripeWebhook]),
+        tone: toneForChecks([stripeSecret, stripeWebhook])
       },
       {
         label: 'Google Calendar',
-        value: `${stripeBusinesses.filter((business) => business.google_cal_token || business.microsoft_cal_token).length} connected`,
-        tone: stripeBusinesses.some((business) => business.google_cal_token || business.microsoft_cal_token) ? ('success' as const) : ('warning' as const)
+        value: googleOauth?.summary ?? 'Missing',
+        tone: toneForCheck(googleOauth)
       },
       {
         label: 'Agents',
@@ -124,8 +145,8 @@ export async function getAdminOverviewData() {
       },
       {
         label: 'Lifecycle Functions',
-        value: process.env.BOOKING_LIFECYCLE_FUNCTION_URL && process.env.ORDER_LIFECYCLE_FUNCTION_URL ? 'Configured' : 'Missing config',
-        tone: process.env.BOOKING_LIFECYCLE_FUNCTION_URL && process.env.ORDER_LIFECYCLE_FUNCTION_URL ? ('success' as const) : ('warning' as const)
+        value: summarizeChecks([bookingLifecycle, orderLifecycle, lifecycleToken]),
+        tone: toneForChecks([bookingLifecycle, orderLifecycle, lifecycleToken])
       }
     ],
     diagnostics
@@ -133,56 +154,71 @@ export async function getAdminOverviewData() {
 }
 
 export async function getAdminAgentsData() {
-  const diagnostics = await getAgentDiagnostics('quick');
+  const diagnostics = await getAgentDiagnostics('full');
 
   return {
     diagnostics,
     cards: diagnostics.checks.map((check) => ({
       id: check.name,
+      label: check.label,
       name: check.name,
-      status: check.level,
-      owner: inferAgentOwner(check.name),
+      state: check.state,
+      level: check.level,
       summary: check.summary,
+      details: formatDiagnosticDetails(check.details),
       lastRun: diagnostics.timestamp
     }))
   };
 }
 
 export async function getAdminSettingsData() {
-  const diagnostics = await getAgentDiagnostics('quick');
-  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
-  const hasStripe = Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET);
-  const hasResend = Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
-  const hasGoogleOAuth = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REDIRECT_URI);
-  const hasLifecycleAuth = Boolean(process.env.GOOGLE_CLOUD_FUNCTION_TOKEN);
+  const diagnostics = await getAgentDiagnostics('full');
+  const supabaseAdmin = getDiagnosticsCheck(diagnostics, 'supabase.admin');
+  const stripeSecret = getDiagnosticsCheck(diagnostics, 'stripe.secret_key');
+  const stripeWebhook = getDiagnosticsCheck(diagnostics, 'stripe.webhook_secret');
+  const resendApiKey = getDiagnosticsCheck(diagnostics, 'resend.api_key');
+  const emailFrom = getDiagnosticsCheck(diagnostics, 'email.from');
+  const resend = getDiagnosticsCheck(diagnostics, 'resend.email');
+  const googleOAuth = getDiagnosticsCheck(diagnostics, 'google.oauth');
+  const bookingLifecycle = getDiagnosticsCheck(diagnostics, 'lifecycle.booking');
+  const orderLifecycle = getDiagnosticsCheck(diagnostics, 'lifecycle.order');
+  const lifecycleToken = getDiagnosticsCheck(diagnostics, 'lifecycle.auth_token');
 
   return {
     groups: [
       {
         title: 'Authentication',
         items: [
-          { label: 'Admin sign-in', value: 'Email + password' },
-          { label: 'Admin access model', value: 'Single admin email' },
-          { label: 'Primary admin', value: ADMIN_EMAIL }
+          { label: 'Admin sign-in', value: 'Configured', state: 'configured' as DiagnosticState, details: [] },
+          { label: 'Admin access model', value: 'Configured', state: 'configured' as DiagnosticState, details: [] },
+          { label: 'Primary admin', value: ADMIN_EMAIL, state: 'configured' as DiagnosticState, details: [] }
         ]
       },
       {
         title: 'Integrations',
         items: [
-          { label: 'Supabase admin', value: hasSupabase ? 'Configured' : 'Missing config' },
-          { label: 'Stripe', value: hasStripe ? 'Configured' : 'Missing key or webhook secret' },
-          { label: 'Resend', value: hasResend ? 'Configured' : 'Missing API key or sender' },
-          { label: 'Google OAuth', value: hasGoogleOAuth ? 'Configured' : 'Missing client or redirect config' }
+          diagnosticSettingItem(supabaseAdmin),
+          diagnosticSettingItem(stripeSecret),
+          diagnosticSettingItem(stripeWebhook),
+          diagnosticSettingItem(resendApiKey),
+          diagnosticSettingItem(emailFrom),
+          diagnosticSettingItem(resend),
+          diagnosticSettingItem(googleOAuth)
         ]
       },
       {
         title: 'Operations',
         items: [
-          { label: 'Booking lifecycle', value: process.env.BOOKING_LIFECYCLE_FUNCTION_URL ? 'Configured' : 'Missing function URL' },
-          { label: 'Order lifecycle', value: process.env.ORDER_LIFECYCLE_FUNCTION_URL ? 'Configured' : 'Missing function URL' },
-          { label: 'Lifecycle auth token', value: hasLifecycleAuth ? 'Configured' : 'Missing shared auth token' },
-          { label: 'App URL', value: process.env.APP_URL ? process.env.APP_URL : 'Missing APP_URL' },
-          { label: 'Agent diagnostics', value: `${diagnostics.overallStatus} at ${new Date(diagnostics.timestamp).toLocaleString()}` }
+          diagnosticSettingItem(bookingLifecycle),
+          diagnosticSettingItem(orderLifecycle),
+          diagnosticSettingItem(lifecycleToken),
+          diagnosticSettingItem(getDiagnosticsCheck(diagnostics, 'app.url')),
+          {
+            label: 'Agent diagnostics',
+            value: diagnostics.overallStatus,
+            state: diagnostics.overallStatus === 'healthy' ? ('configured' as DiagnosticState) : ('partial' as DiagnosticState),
+            details: [`Last check ${new Date(diagnostics.timestamp).toLocaleString()}`]
+          }
         ]
       }
     ]
@@ -216,11 +252,12 @@ export async function getAdminBusinessesData(search?: string) {
         ...business,
         ownerEmail,
         counts,
-        latestActivityAt: activity.latestOrderAt && activity.latestBookingAt
-          ? activity.latestOrderAt > activity.latestBookingAt
-            ? activity.latestOrderAt
-            : activity.latestBookingAt
-          : activity.latestOrderAt ?? activity.latestBookingAt
+        latestActivityAt:
+          activity.latestOrderAt && activity.latestBookingAt
+            ? activity.latestOrderAt > activity.latestBookingAt
+              ? activity.latestOrderAt
+              : activity.latestBookingAt
+            : activity.latestOrderAt ?? activity.latestBookingAt
       };
     })
   );
@@ -454,10 +491,50 @@ function calculateRevenue(
   );
 }
 
-function inferAgentOwner(name: string) {
-  if (name.includes('support')) return 'Support';
-  if (name.includes('onboarding')) return 'Onboarding';
-  if (name.includes('booking')) return 'Customer journey';
-  if (name.includes('anthropic') || name.includes('resend') || name.includes('supabase')) return 'Infrastructure';
-  return 'Operations';
+function getDiagnosticsCheck(diagnostics: AgentDiagnostics, name: string) {
+  return diagnostics.checks.find((check) => check.name === name);
+}
+
+function summarizeChecks(checks: Array<DiagnosticCheck | undefined>) {
+  const present = checks.filter((check): check is DiagnosticCheck => Boolean(check));
+  if (!present.length) return 'Missing';
+  if (present.every((check) => check.state === 'configured')) return 'Configured';
+  if (present.some((check) => check.state === 'pending processing')) return 'Pending processing';
+  if (present.some((check) => check.state === 'reconnect needed')) return 'Reconnect needed';
+  if (present.some((check) => check.state === 'partial')) return 'Partially configured';
+  if (present.some((check) => check.state === 'missing')) return 'Missing';
+  return present[0].summary;
+}
+
+function toneForCheck(check?: DiagnosticCheck) {
+  return check?.level === 'ok' ? ('success' as const) : ('warning' as const);
+}
+
+function toneForChecks(checks: Array<DiagnosticCheck | undefined>) {
+  return checks.every((check) => check?.level === 'ok') ? ('success' as const) : ('warning' as const);
+}
+
+function diagnosticSettingItem(check?: DiagnosticCheck) {
+  return {
+    label: check?.label ?? 'Unknown check',
+    value: check?.summary ?? 'Missing',
+    state: check?.state ?? ('missing' as DiagnosticState),
+    details: formatDiagnosticDetails(check?.details)
+  };
+}
+
+function formatDiagnosticDetails(details?: Record<string, boolean | string | number | null>) {
+  if (!details) return [];
+
+  return Object.entries(details).map(([key, value]) => {
+    if (typeof value === 'boolean') {
+      return `${humanizeKey(key)}: ${value ? 'Yes' : 'No'}`;
+    }
+
+    return `${humanizeKey(key)}: ${value == null ? 'None' : String(value)}`;
+  });
+}
+
+function humanizeKey(value: string) {
+  return value.replace(/_/g, ' ');
 }

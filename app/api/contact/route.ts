@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
-import { resend } from '@/lib/resend/client';
+import { getResend } from '@/lib/resend/client';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 
 const schema = z.object({
@@ -55,6 +55,11 @@ export async function POST(req: NextRequest) {
 
     if (!recipientEmail) {
       return NextResponse.json({ error: 'No contact email configured' }, { status: 400 });
+    }
+
+    const resend = getResend();
+    if (!resend) {
+      return NextResponse.json({ error: 'Email is not configured' }, { status: 500 });
     }
 
     await resend.emails.send({

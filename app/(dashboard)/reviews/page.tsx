@@ -1,6 +1,8 @@
 import { ReviewsManager } from '@/components/dashboard/ReviewsManager';
 import { getReviewsData } from '@/lib/dashboard-data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const { reviews, average } = await getReviewsData();
 

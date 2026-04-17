@@ -1,10 +1,10 @@
 import { HttpFunction } from '@google-cloud/functions-framework';
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { createClient } from '@supabase/supabase-js';
 import { google } from 'googleapis';
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-const resend = new Resend(process.env.RESEND_API_KEY!);
+let resendClient: Resend | null | undefined;
 
 export const bookingLifecycle: HttpFunction = async (req, res) => {
   if (!isAuthorized(req.headers.authorization)) {
@@ -22,6 +22,7 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
     res.status(400).send('Missing bookingId');
     return;
   }
+  const paymentIntentId = req.body?.paymentIntentId ?? null;
 
   try {
     const { data: booking, error } = await supabase
@@ -56,13 +57,13 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
       .single();
 
     if (error || !booking) {
-      logLifecycle('booking_lookup_failed', { booking_id: bookingId, error: error?.message ?? 'Booking not found' }, 'error');
+      logLifecycle('booking_lookup_failed', { booking_id: bookingId, payment_intent_id: paymentIntentId, error: error?.message ?? 'Booking not found' }, 'error');
       res.status(404).send('Booking not found');
       return;
     }
 
     if (booking.confirmation_sent && booking.google_event_id) {
-      logLifecycle('booking_already_processed', { booking_id: booking.id });
+      logLifecycle('booking_already_processed', { booking_id: booking.id, payment_intent_id: paymentIntentId ?? null });
       res.status(200).send('Already processed');
       return;
     }
@@ -87,10 +88,10 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
     ]);
 
     if (emailResult.status === 'rejected') {
-      logLifecycle('booking_confirmation_email_failed', { booking_id: booking.id, business_id: business.id, error: toErrorMessage(emailResult.reason) }, 'error');
+      logLifecycle('booking_confirmation_email_failed', { booking_id: booking.id, payment_intent_id: paymentIntentId, business_id: business.id, error: toErrorMessage(emailResult.reason) }, 'error');
     }
     if (calResult.status === 'rejected') {
-      logLifecycle('booking_calendar_failed', { booking_id: booking.id, business_id: business.id, error: toErrorMessage(calResult.reason) }, 'error');
+      logLifecycle('booking_calendar_failed', { booking_id: booking.id, payment_intent_id: paymentIntentId, business_id: business.id, error: toErrorMessage(calResult.reason) }, 'error');
     }
 
     const updates: Record<string, unknown> = {
@@ -103,11 +104,12 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
 
     const { error: updateError } = await supabase.from('bookings').update(updates).eq('id', bookingId);
     if (updateError) {
-      logLifecycle('booking_update_failed', { booking_id: booking.id, business_id: business.id, error: updateError.message }, 'error');
+      logLifecycle('booking_update_failed', { booking_id: booking.id, payment_intent_id: paymentIntentId, business_id: business.id, error: updateError.message }, 'error');
     }
 
     logLifecycle('booking_processed', {
       booking_id: booking.id,
+      payment_intent_id: paymentIntentId,
       business_id: business.id,
       confirmation_sent: updates.confirmation_sent,
       google_event_id: googleEventId
@@ -115,12 +117,13 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
 
     res.status(200).json({
       bookingId,
+      paymentIntentId,
       emailSent: booking.confirmation_sent || emailResult.status === 'fulfilled',
       calendarCreated: Boolean(googleEventId),
       googleEventId
     });
   } catch (error) {
-    logLifecycle('booking_unhandled_error', { booking_id: bookingId, error: toErrorMessage(error) }, 'error');
+    logLifecycle('booking_unhandled_error', { booking_id: bookingId, payment_intent_id: paymentIntentId, error: toErrorMessage(error) }, 'error');
     res.status(500).send('Internal error');
   }
 };
@@ -137,6 +140,11 @@ async function sendConfirmationEmail(
 ) {
   if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
     throw new Error('Email configuration is missing');
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    throw new Error('Resend configuration is missing');
   }
 
   const start = new Date(booking.start_time);
@@ -321,4 +329,15 @@ function logLifecycle(event: string, payload: Record<string, unknown>, level: 'l
 
 function toErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function getResend() {
+  if (resendClient !== undefined) return resendClient;
+  if (!process.env.RESEND_API_KEY) {
+    resendClient = null;
+    return resendClient;
+  }
+
+  resendClient = new Resend(process.env.RESEND_API_KEY);
+  return resendClient;
 }
