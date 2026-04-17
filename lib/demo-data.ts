@@ -15,6 +15,7 @@ import type {
   ServiceRecord,
   SpecialismRecord
 } from '@/types';
+import { getReviewSummaryFromReviews } from '@/lib/reviews';
 
 const businessId = '11111111-1111-1111-1111-111111111111';
 const ownerId = '22222222-2222-2222-2222-222222222222';
@@ -47,7 +48,8 @@ export const demoBusiness: BusinessProfile = {
   email: 'hello@studioeleven.com',
   phone: '+1 555 300 4400',
   years_experience: 9,
-  google_review_url: 'https://google.com/maps/reviews/demo'
+  google_review_url: 'https://google.com/maps/reviews/demo',
+  google_maps_url: 'https://www.google.com/maps/search/?api=1&query=218%20Atlantic%20Avenue%2C%20Brooklyn%2C%20NY%2011201'
 };
 
 export const demoCredentials: CredentialRecord[] = [
@@ -373,7 +375,7 @@ export const demoReviews: ReviewRecord[] = [
     customer_email: 'chris@example.com',
     rating: 4,
     text: 'Really good session structure and a strong recovery focus.',
-    is_verified: false,
+    is_verified: true,
     is_published: true,
     created_at: formatISO(subDays(today, 21))
   },
@@ -390,6 +392,8 @@ export const demoReviews: ReviewRecord[] = [
     created_at: formatISO(subDays(today, 32))
   }
 ];
+
+export const demoReviewSummary = getReviewSummaryFromReviews(demoReviews);
 
 export const demoStats: DashboardStats = {
   todayBookings: 2,

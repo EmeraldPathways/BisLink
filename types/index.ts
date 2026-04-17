@@ -145,6 +145,7 @@ export type PublicContactSubmission = {
   senderName: string;
   senderEmail: string;
   message: string;
+  honeypot?: string;
 };
 
 export type AvailabilityRecord = {

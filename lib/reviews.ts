@@ -8,3 +8,16 @@ export function getReviewBreakdownFromReviews(reviews: ReviewRecord[]): ReviewBr
     return { rating, count, percent: count / total };
   });
 }
+
+export function getReviewSummaryFromReviews(reviews: ReviewRecord[]) {
+  const published = reviews.filter((review) => review.is_published);
+  const publishedCount = published.length;
+  const verifiedCount = published.filter((review) => review.is_verified).length;
+  const average = published.reduce((sum, review) => sum + review.rating, 0) / Math.max(publishedCount, 1);
+
+  return {
+    publishedCount,
+    verifiedCount,
+    average
+  };
+}

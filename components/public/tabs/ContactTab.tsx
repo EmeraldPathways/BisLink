@@ -4,11 +4,14 @@ import { useMemo, useState } from 'react';
 import { ExternalLink, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import type { BusinessProfile, PublicContactSubmission } from '@/types';
 
+type FormErrors = Partial<Record<'senderName' | 'senderEmail' | 'message', string>>;
+
 export function ContactTab({ business }: { business: BusinessProfile }) {
-  const [form, setForm] = useState({ senderName: '', senderEmail: '', message: '' });
+  const [form, setForm] = useState({ senderName: '', senderEmail: '', message: '', website: '' });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const rows = useMemo(
     () =>
@@ -35,9 +38,36 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
   );
 
   const hasLocation = Boolean(business.address || business.location || business.google_maps_url);
+  const mapHref =
+    business.google_maps_url ??
+    (business.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address)}` : null);
+
+  function validateForm() {
+    const nextErrors: FormErrors = {};
+
+    if (form.senderName.trim().length < 2) {
+      nextErrors.senderName = 'Enter your name.';
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.senderEmail.trim())) {
+      nextErrors.senderEmail = 'Enter a valid email address.';
+    }
+
+    if (form.message.trim().length < 10) {
+      nextErrors.message = 'Message must be at least 10 characters.';
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setMessage(null);
@@ -47,7 +77,8 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
         businessId: business.id,
         senderName: form.senderName.trim(),
         senderEmail: form.senderEmail.trim(),
-        message: form.message.trim()
+        message: form.message.trim(),
+        honeypot: form.website.trim()
       };
 
       const response = await fetch('/api/contact', {
@@ -61,7 +92,8 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
         throw new Error(result.error || 'Could not send your message');
       }
 
-      setForm({ senderName: '', senderEmail: '', message: '' });
+      setForm({ senderName: '', senderEmail: '', message: '', website: '' });
+      setErrors({});
       setMessage('Message sent successfully.');
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Could not send your message');
@@ -96,28 +128,71 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
       <div className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-white p-5">
         <h3 className="font-display text-[19px] text-[var(--text-1)]">Send a message</h3>
         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-          <input
-            value={form.senderName}
-            onChange={(event) => setForm((current) => ({ ...current, senderName: event.target.value }))}
-            className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3"
-            placeholder="Your Name"
-            required
-          />
-          <input
-            value={form.senderEmail}
-            onChange={(event) => setForm((current) => ({ ...current, senderEmail: event.target.value }))}
-            className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3"
-            placeholder="Email"
-            type="email"
-            required
-          />
-          <textarea
-            value={form.message}
-            onChange={(event) => setForm((current) => ({ ...current, message: event.target.value }))}
-            className="min-h-[120px] w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3"
-            placeholder="Message"
-            required
-          />
+          <div className="hidden">
+            <label htmlFor="contact-website">Website</label>
+            <input
+              id="contact-website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={form.website}
+              onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label htmlFor="contact-name" className="text-sm font-medium text-[var(--text-1)]">
+              Name
+            </label>
+            <input
+              id="contact-name"
+              value={form.senderName}
+              onChange={(event) => {
+                setForm((current) => ({ ...current, senderName: event.target.value }));
+                setErrors((current) => ({ ...current, senderName: undefined }));
+              }}
+              className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3"
+              required
+              minLength={2}
+            />
+            {errors.senderName ? <p className="text-sm text-red-600">{errors.senderName}</p> : null}
+          </div>
+
+          <div className="space-y-1">
+            <label htmlFor="contact-email" className="text-sm font-medium text-[var(--text-1)]">
+              Email
+            </label>
+            <input
+              id="contact-email"
+              value={form.senderEmail}
+              onChange={(event) => {
+                setForm((current) => ({ ...current, senderEmail: event.target.value }));
+                setErrors((current) => ({ ...current, senderEmail: undefined }));
+              }}
+              className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3"
+              type="email"
+              required
+            />
+            {errors.senderEmail ? <p className="text-sm text-red-600">{errors.senderEmail}</p> : null}
+          </div>
+
+          <div className="space-y-1">
+            <label htmlFor="contact-message" className="text-sm font-medium text-[var(--text-1)]">
+              Message
+            </label>
+            <textarea
+              id="contact-message"
+              value={form.message}
+              onChange={(event) => {
+                setForm((current) => ({ ...current, message: event.target.value }));
+                setErrors((current) => ({ ...current, message: undefined }));
+              }}
+              className="min-h-[120px] w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3"
+              required
+              minLength={10}
+            />
+            {errors.message ? <p className="text-sm text-red-600">{errors.message}</p> : null}
+          </div>
+
           {message ? <p className="text-sm text-green-700">{message}</p> : null}
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
           <button disabled={loading} className="w-full rounded-[15px] bg-[var(--void)] px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">
@@ -130,14 +205,26 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
         <h3 className="font-display text-[19px] text-[var(--text-1)]">Location</h3>
         {hasLocation ? (
           <>
-            <div className="mt-4 flex min-h-[120px] items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,#F7F4EF,#EEE9DF)] px-5 text-center text-[var(--gold-dark)]">
-              <MapPin className="mr-2 h-5 w-5" />
-              {business.address ?? business.location}
-            </div>
+            {mapHref ? (
+              <a
+                href={mapHref}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 block overflow-hidden rounded-[16px] border border-[var(--border)] bg-[linear-gradient(135deg,#F7F4EF,#EEE9DF)]"
+              >
+                <div className="relative flex min-h-[132px] items-center justify-center overflow-hidden px-5 text-center text-[var(--gold-dark)]">
+                  <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(139,107,26,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(139,107,26,0.12)_1px,transparent_1px)] [background-size:28px_28px]" />
+                  <div className="relative flex items-center gap-2 rounded-full bg-white/85 px-4 py-2 text-sm font-semibold shadow-sm">
+                    <MapPin className="h-4 w-4" />
+                    Open in Google Maps
+                  </div>
+                </div>
+              </a>
+            ) : null}
             <p className="mt-4 text-sm font-semibold text-[var(--text-1)]">{business.address ?? business.location}</p>
             {business.parking_notes ? <p className="mt-2 text-sm leading-6 text-[var(--text-3)]">{business.parking_notes}</p> : null}
-            {business.google_maps_url ? (
-              <a href={business.google_maps_url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--gold-dark)]">
+            {mapHref ? (
+              <a href={mapHref} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--gold-dark)]">
                 Open in Maps
                 <ExternalLink className="h-4 w-4" />
               </a>

@@ -6,9 +6,10 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 
 const schema = z.object({
   businessId: z.string().uuid(),
-  senderName: z.string().min(1).max(100),
+  senderName: z.string().min(2).max(100),
   senderEmail: z.string().email(),
-  message: z.string().min(1).max(2000)
+  message: z.string().min(10).max(2000),
+  honeypot: z.string().max(200).optional().default('')
 });
 
 export async function POST(req: NextRequest) {
@@ -29,7 +30,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { businessId, senderName, senderEmail, message } = parsed.data;
+    const { businessId, senderName, senderEmail, message, honeypot } = parsed.data;
+    if (honeypot.trim()) {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    }
+
     const supabase = createClient();
     const { data: business, error } = await supabase
       .from('businesses')

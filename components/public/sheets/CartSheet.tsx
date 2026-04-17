@@ -1,11 +1,13 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { type RefObject, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Elements } from '@stripe/react-stripe-js';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { Stripe, StripeElements } from '@stripe/stripe-js';
 import { EmbeddedPaymentForm } from '@/components/payments/EmbeddedPaymentForm';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 import { getStripeJs } from '@/lib/stripe/browser';
 import { formatPrice } from '@/lib/utils/formatting';
 import type { BusinessProfile } from '@/types';
@@ -17,7 +19,9 @@ export function CartSheet({
   items,
   total,
   onClose,
-  onCheckout
+  onCheckout,
+  presentation = 'default',
+  containerRef
 }: {
   open: boolean;
   business: BusinessProfile;
@@ -25,8 +29,11 @@ export function CartSheet({
   total: number;
   onClose: () => void;
   onCheckout: () => void;
+  presentation?: 'default' | 'demo';
+  containerRef?: RefObject<HTMLDivElement>;
 }) {
   const stripePromise = useMemo(() => getStripeJs(), []);
+  const isMobile = useIsMobile();
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -43,6 +50,11 @@ export function CartSheet({
   if (!open) return null;
 
   const canCreateIntent = items.length > 0 && customerName.trim() && customerEmail.trim();
+  const framed = presentation === 'demo' && !isMobile && containerRef?.current;
+  const shellClassName = framed ? 'absolute inset-0 z-50' : 'fixed inset-0 z-50';
+  const panelClassName = framed
+    ? 'hide-scrollbar absolute bottom-0 left-0 right-0 min-h-[78%] max-h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)]'
+    : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto min-h-[78dvh] max-h-[calc(100dvh-8px)] w-full max-w-[520px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)] md:max-w-[430px] md:rounded-t-[26px] md:px-4';
 
   async function handleCreateIntent() {
     setLoadingIntent(true);
@@ -98,21 +110,21 @@ export function CartSheet({
     setSuccess(true);
   }
 
-  return (
+  const sheet = (
     <AnimatePresence>
-      <motion.div className="fixed inset-0 z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <button className="absolute inset-0 bg-black/55 backdrop-blur-md" onClick={onClose} />
+      <motion.div className={shellClassName} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <button type="button" className="absolute inset-0 bg-black/55 backdrop-blur-md" onClick={onClose} />
         <motion.div
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ duration: 0.38, ease: [0.32, 0.72, 0, 1] }}
-          className="hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto min-h-[78dvh] max-h-[calc(100dvh-8px)] w-full max-w-[520px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)] md:max-w-[430px] md:rounded-t-[26px] md:px-4"
+          className={panelClassName}
         >
           <div className="mx-auto mb-4 h-1 w-[38px] rounded bg-[#e0e0e0]" />
           <div className="flex items-center justify-between">
             <p className="font-display text-[24px] text-[var(--text-1)]">Your Cart</p>
-            <button className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--surface-3)]" onClick={onClose}>
+            <button type="button" aria-label="Close cart" className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--surface-3)]" onClick={onClose}>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -196,4 +208,6 @@ export function CartSheet({
       </motion.div>
     </AnimatePresence>
   );
+
+  return framed && containerRef?.current ? createPortal(sheet, containerRef.current) : sheet;
 }
