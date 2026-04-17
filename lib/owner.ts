@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
-import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient, getUserOrNull } from '@/lib/supabase/server';
 import type { BusinessProfile } from '@/types';
 
 type OwnerContext = {
@@ -12,12 +12,8 @@ type OwnerContext = {
 async function resolveCurrentOwnerBusiness(): Promise<OwnerContext | { user: User; business: null } | null> {
   const supabase = createClient();
   const admin = createAdminClient();
-  const {
-    data: { user },
-    error: userError
-  } = await supabase.auth.getUser();
+  const user = await getUserOrNull(supabase);
 
-  if (userError) throw userError;
   if (!user) return null;
 
   const businessQuery = (admin ?? supabase).from('businesses').select('*').eq('owner_id', user.id).order('created_at', { ascending: true }).limit(2);

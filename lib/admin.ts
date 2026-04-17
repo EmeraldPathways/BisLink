@@ -1,18 +1,14 @@
 import { redirect } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getUserOrNull } from '@/lib/supabase/server';
 import { ADMIN_EMAIL, isAdminEmail } from '@/lib/admin-config';
 
 export { ADMIN_EMAIL, isAdminEmail } from '@/lib/admin-config';
 
 export async function getAdminUserForRequest(): Promise<{ user: User; isAdmin: boolean } | null> {
   const supabase = createClient();
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
+  const user = await getUserOrNull(supabase);
 
-  if (error) throw error;
   if (!user) return null;
 
   return {

@@ -29,13 +29,19 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const {
-    data: { user },
-    error: userError
-  } = await supabase.auth.getUser();
+  let user = null;
 
-  if (userError || !user) {
-    fallbackLoginUrl.searchParams.set('error', userError?.message ?? 'Authentication session could not be established.');
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (error) {
+    if (!(error instanceof Error) || (error.name !== 'AuthSessionMissingError' && !error.message.includes('Auth session missing'))) {
+      throw error;
+    }
+  }
+
+  if (!user) {
+    fallbackLoginUrl.searchParams.set('error', 'Authentication session could not be established.');
     return NextResponse.redirect(fallbackLoginUrl);
   }
 

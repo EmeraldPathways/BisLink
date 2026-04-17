@@ -34,9 +34,16 @@ export async function middleware(req: NextRequest) {
     }
   });
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  let user = null;
+
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (error) {
+    if (!(error instanceof Error) || (error.name !== 'AuthSessionMissingError' && !error.message.includes('Auth session missing'))) {
+      throw error;
+    }
+  }
 
   if (!user) {
     if (isAdminLogin || isOnboarding) {

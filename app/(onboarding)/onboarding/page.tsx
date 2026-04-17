@@ -2,13 +2,11 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { getPostAuthRedirectPath } from '@/lib/auth-redirect';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getUserOrNull } from '@/lib/supabase/server';
 
 export default async function OnboardingPage() {
   const supabase = createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const user = await getUserOrNull(supabase);
 
   if (!user) {
     return (

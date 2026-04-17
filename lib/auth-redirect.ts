@@ -1,4 +1,4 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient, getUserOrNull } from '@/lib/supabase/server';
 import { isAdminEmail } from '@/lib/admin';
 
 type RedirectContext = {
@@ -8,14 +8,7 @@ type RedirectContext = {
 
 export async function getPostAuthRedirectPath() {
   const supabase = createClient();
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
-
-  if (error) {
-    throw error;
-  }
+  const user = await getUserOrNull(supabase);
 
   if (!user) {
     return null;

@@ -36,3 +36,32 @@ export function createAdminClient() {
     auth: { persistSession: false, autoRefreshToken: false }
   });
 }
+
+export async function getUserOrNull(supabase: ReturnType<typeof createClient>) {
+  try {
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      if (isAuthSessionMissingError(error)) {
+        return null;
+      }
+
+      throw error;
+    }
+
+    return user ?? null;
+  } catch (error) {
+    if (isAuthSessionMissingError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+function isAuthSessionMissingError(error: unknown) {
+  return error instanceof Error && (error.name === 'AuthSessionMissingError' || error.message.includes('Auth session missing'));
+}

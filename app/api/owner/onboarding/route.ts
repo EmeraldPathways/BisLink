@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireOwnerBusiness } from '@/lib/owner-api';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getUserOrNull } from '@/lib/supabase/server';
 import { generateSlug } from '@/lib/utils/slugify';
 
 const serviceSchema = z.object({
@@ -41,9 +41,7 @@ const schema = z.object({
 
 export async function GET() {
   const supabase = createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const user = await getUserOrNull(supabase);
 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -60,9 +58,7 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   const supabase = createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const user = await getUserOrNull(supabase);
 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

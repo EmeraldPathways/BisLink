@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient, getUserOrNull } from '@/lib/supabase/server';
 import { decodeGoogleOAuthState, getGoogleOAuthRedirectUri } from '@/lib/google/oauth';
 
 export async function GET(req: NextRequest) {
@@ -53,9 +53,7 @@ export async function GET(req: NextRequest) {
 
 async function getBusinessIdForCurrentUser() {
   const supabase = createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const user = await getUserOrNull(supabase);
 
   if (!user) {
     return null;
