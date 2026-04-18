@@ -137,6 +137,11 @@ components/
   payments/
     EmbeddedPaymentForm.tsx     Shared Stripe Payment Element wrapper
 
+scripts/
+  run-next-build.cjs            Build wrapper for local Windows hardening
+  windows-next-trace-workaround.cjs
+                                Windows-only Next trace-file workaround for synced workspaces
+
 hooks/
   useCart.ts
   useProducts.ts
@@ -190,7 +195,9 @@ Default active tab: `bookings`.
 - Review counts are derived from one shared summary source in `lib/reviews.ts` / `lib/demo-data.ts`.
 - Product cards expose full descriptions accessibly and open a clearer detail flow.
 - Contact form fields now use visible labels, inline validation, and a honeypot-backed submission payload.
+- Contact delivery now resolves the business via the admin-capable lookup path, falls back to `business.email` when `contact_email` is blank, and surfaces explicit Resend send failures from `/api/contact`.
 - Location presentation is a linked map-style card rather than duplicated placeholder address text.
+- Booking sheet scrolling was hardened on mobile by switching the sheet panel to an explicit viewport-tied height so the date step remains scrollable inside the bottom sheet.
 
 ---
 
@@ -286,6 +293,12 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - 10-product limit is enforced by both Postgres trigger and API logic.
 - Basic rate limiting is applied to booking, order, contact, and review POST routes.
 - Public contact submissions now include stricter field validation plus a honeypot field that is rejected server-side when populated.
+- Public contact delivery now uses the same admin-capable business lookup approach as the public-page read path, falls back to `business.email`, and returns an explicit error when Resend rejects a send attempt.
+- Admin diagnostics now distinguish configured, partial, pending processing, reconnect needed, and runtime-incomplete states.
+- Owner-facing payout and booking surfaces now expose clearer runtime status for calendar sync, contact delivery, and order confirmation processing.
+- Booking lifecycle retries only persist missing side effects, and order lifecycle no longer marks `confirmation_sent` true unless the confirmation email actually succeeds.
+- Reminder/follow-up logging now includes structured identifiers to make replay/debug traces easier to follow.
+- Owner and admin surfaces now include explicit sign-out actions instead of relying on manual route switching back to login pages.
 
 ---
 
@@ -337,6 +350,7 @@ The app includes a real internal super-admin console under `/admin`.
   - reopen Stripe onboarding
   - moderate review visibility
   - inspect owner/business operational state
+- Admin sidebar now includes a real sign-out action that clears the Supabase session and redirects back to `/admin/login`.
 
 ---
 
@@ -346,6 +360,7 @@ The app includes a real internal super-admin console under `/admin`.
 |---|---|
 | `main` | Production base |
 | `demo-update-ui` | `/demo` public page remediation, accessibility, and overlay/frame fixes |
+| `release-hardening-update` | Build reproducibility, diagnostics expansion, lifecycle retry hardening, and operational cleanup |
 | `user-dashboard-fix` | Owner dashboard mobile responsiveness and accessibility fixes |
 | `tabs-update` | 5-tab public page system |
 | `ui-fixes` | Public page visual fixes and mobile polish |
@@ -380,20 +395,27 @@ The app is now mostly live across owner, public, and payment-critical flows.
   - responsive services/products layouts and empty states
   - improved payouts/stat-card/mobile filters
   - labeled My Link fields and stronger focus treatment
+- owner dashboard auth/session UX:
+  - desktop sidebar sign-out action
+  - mobile More drawer sign-out action
 - Stripe Connect onboarding for owners
-- internal admin console backed by live Supabase, Stripe, and diagnostics
-- booking/order lifecycle processing with idempotent guards and structured logs
+- internal admin console backed by live Supabase, Stripe, and expanded diagnostics
+- booking/order lifecycle processing with tighter idempotent guards, structured logs, and clearer retry semantics
 - Google Calendar token persistence and booking sync
+- local Windows build reproducibility via `scripts/run-next-build.cjs` and the synced-workspace trace workaround
+- shared public-page image warnings removed by moving the remaining hero/about avatar rendering to `next/image`
+- booking sheet mobile scroll behavior fixed so the date-selection step can scroll reliably within the bottom sheet
+- public contact form delivery fixed to work when the business row is only resolvable via the admin-capable lookup path and when only `business.email` is configured
 
 ### Still incomplete / highest remaining risk
 
-- runtime diagnostics are present but still lightweight
+- live webhook replay and reminder-dispatcher validation still need true runtime/manual verification beyond local build/test success
 - Google Calendar is productionized before Microsoft; Microsoft calendar remains deferred
-- public/operator messaging around delayed lifecycle processing can still be improved
+- public/operator messaging around delayed lifecycle processing can still be improved further in production conditions
 
 ### Implication
 
-The product is no longer mainly "demo plus dashboard". The next stage is release hardening and runtime reliability rather than another major public-data migration.
+The release-hardening implementation pass is now in place. The next stage is production validation and runtime verification rather than broad new product-surface work.
 
 ---
 
@@ -401,49 +423,36 @@ The product is no longer mainly "demo plus dashboard". The next stage is release
 
 ### Goal
 
-Turn the current live product into a reproducible, release-ready system by closing the remaining build/runtime blocker and tightening diagnostics around integrations and async side effects.
+Validate the hardening work in real runtime conditions, close any issues found from replay/manual verification, and then move into narrower release-readiness polish instead of another platform-wide refactor.
 
 ### Priority Order
 
-1. Build and runtime reproducibility
-2. Integration diagnostics and failure visibility
-3. Lifecycle observability and retry safety
-4. Final operational UX cleanup
+1. Runtime verification of lifecycle and diagnostics
+2. Production-facing status and operator polish
+3. Optional cleanup of local-only build workaround assumptions
+4. Release-readiness documentation and handoff
 
-### 1. Build and Runtime Reproducibility
+### 1. Runtime Verification of Lifecycle and Diagnostics
 
-- Root cause found: this synced Windows workspace intermittently denies Next's in-repo trace writer (`.next/trace`) during build, even when the rest of the build output is valid.
-- Mitigation implemented: `npm run build` now runs through `scripts/run-next-build.cjs`, which applies a Windows-only trace-file workaround via `scripts/windows-next-trace-workaround.cjs` while leaving standard Next build behavior unchanged on non-Windows environments.
-- Keep `.next/` ignored and disposable; do not rely on tracked tsbuildinfo or stale generated build artifacts.
-- Confirm `tsconfig.json`, `.gitignore`, and build scripts do not require prior local state.
+- Replay `payment_intent.succeeded` scenarios for booking and order flows and confirm:
+  - no duplicate confirmation emails
+  - no duplicate Google Calendar events
+  - no duplicate customer stats/order persistence
+- Run reminder dispatcher twice over the same booking window and confirm reminders/follow-ups remain one-time.
+- Verify admin diagnostics states against real env permutations and confirm owner-facing status text matches actual runtime behavior.
 
 Acceptance:
-- clean checkout
-- `npm install`
-- `npm run typecheck`
-- `npm run lint`
-- `npm run build`
-- all succeed in the intended local environment
-
-Current observed status:
-- `npm run typecheck` passes
-- `npm run lint` passes
-- `npm run build` passes locally through the Windows trace workaround
+- replayed webhook/function calls remain safe
+- diagnostics surfaces match real configuration/runtime state
+- reminder/follow-up jobs remain idempotent in practice
 
 ### 2. Integration Diagnostics and Failure Visibility
 
-- Expand owner/admin diagnostics for:
-  - Stripe keys + webhook secret
-  - Supabase admin config
-  - Resend sender + API key
-  - Google OAuth config
-  - lifecycle function URLs + shared auth token
-- Show clearer status on owner-facing surfaces for:
-  - calendar connected / reconnect needed
-  - booking confirmation still processing
-  - order confirmation pending
-  - contact email unavailable
-- Prefer deterministic status text over silent no-op behavior.
+- Review whether any remaining owner/public screens still need deterministic runtime messaging for:
+  - contact delivery unavailable
+  - confirmation processing delays
+  - reconnect-required calendar state
+  - pending order confirmations
 
 Acceptance:
 - missing config is visible without checking server logs
@@ -451,37 +460,23 @@ Acceptance:
 
 ### 3. Lifecycle Observability and Retry Safety
 
-- Audit booking and order lifecycle payload contracts end to end.
-- Ensure retries do not duplicate:
-  - confirmation emails
-  - customer order stats
-  - Google Calendar events
-  - reminder/follow-up dispatch
-- Add any missing structured log identifiers consistently:
-  - `payment_intent_id`
-  - `booking_id`
-  - `order_id`
-  - `business_id`
-- Review reminder dispatcher behavior against real booking windows and failure cases.
+- If replay/manual verification reveals gaps, patch only the specific failing lifecycle edges rather than reopening broad refactors.
+- Keep webhook/function payloads and logging fields normalized across booking, order, and reminder flows.
 
 Acceptance:
 - replayed Stripe webhook does not duplicate downstream side effects
 - replayed lifecycle function calls remain safe
 - logs make it possible to trace one booking/order across webhook and lifecycle boundaries
 
-### 4. Final Operational UX Cleanup
+### 4. Release-Readiness Documentation and Handoff
 
-- Review owner settings vs public rendering one more time:
-  - contact fields
-  - maps/location
-  - review visibility
-  - product visibility / in-stock behavior
-- Replace any remaining placeholder or dead owner/admin controls.
-- Quarantine or remove clearly non-runtime legacy/demo modules that still create maintenance noise.
+- Keep `PROJECT.md` and any release notes aligned with the real shipped state.
+- Document the Windows build workaround as a local-environment mitigation, not a platform requirement.
+- Capture any production-only follow-up items discovered during runtime verification as explicit next tasks.
 
 Acceptance:
-- no production-facing control appears interactive while still being a stub
-- public rendering matches owner toggles consistently
+- handoff docs match actual shipped behavior
+- any remaining production-only risks are explicit and actionable
 
 ### Constraints / Assumptions
 

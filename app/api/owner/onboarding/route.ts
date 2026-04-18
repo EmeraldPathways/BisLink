@@ -86,12 +86,12 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: existingBusinessError.message }, { status: 500 });
   }
 
-  const { data: slugConflict, error: slugConflictError } = await admin
-    .from('businesses')
-    .select('id')
-    .eq('slug', desiredSlug)
-    .neq('id', existingBusiness?.id ?? '')
-    .maybeSingle();
+  let slugConflictQuery = admin.from('businesses').select('id').eq('slug', desiredSlug);
+  if (existingBusiness?.id) {
+    slugConflictQuery = slugConflictQuery.neq('id', existingBusiness.id);
+  }
+
+  const { data: slugConflict, error: slugConflictError } = await slugConflictQuery.maybeSingle();
   if (slugConflictError) {
     return NextResponse.json({ error: slugConflictError.message }, { status: 500 });
   }
