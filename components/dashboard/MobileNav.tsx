@@ -16,6 +16,7 @@ import {
   Users,
   X
 } from 'lucide-react';
+import { SignOutButton } from '@/components/auth/SignOutButton';
 import type { BusinessProfile } from '@/types';
 
 const primaryItems = [
@@ -142,11 +143,12 @@ export function MobileNav({
         <div className="mx-5 mt-4 rounded-2xl bg-[var(--color-surface-2)] p-4">
           <p className="text-sm font-semibold">{business.name}</p>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{userEmail ?? business.email ?? 'Owner account'}</p>
-          <Link
-            href={`/${business.slug}`}
-            className="mt-3 block rounded-2xl bg-[var(--color-void)] px-4 py-3 text-center text-sm font-semibold text-white"
-          >
-            View My Link →
+          <SignOutButton
+            redirectTo="/login"
+            className="mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm font-semibold text-[var(--color-text-primary)] disabled:cursor-not-allowed disabled:opacity-60"
+          />
+          <Link href={`/${business.slug}`} className="mt-3 block rounded-2xl bg-[var(--color-void)] px-4 py-3 text-center text-sm font-semibold text-white">
+            View My Link -&gt;
           </Link>
         </div>
       </div>

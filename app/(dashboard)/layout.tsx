@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CalendarDays, Clock3, DollarSign, Link2, Settings, ShoppingBag, Sparkles, Star, Users } from 'lucide-react';
+import { SignOutButton } from '@/components/auth/SignOutButton';
 import { MobileNav } from '@/components/dashboard/MobileNav';
 import { getDashboardShellData } from '@/lib/dashboard-data';
 
@@ -39,8 +40,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Settings className="h-4 w-4" />
             Availability
           </Link>
+          <SignOutButton
+            redirectTo="/login"
+            className="flex w-full items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
+          />
           <Link href={`/${business.slug}`} className="block rounded-2xl bg-[var(--color-void)] px-4 py-3 text-center text-sm font-semibold text-white">
-            View My Link →
+            View My Link -&gt;
           </Link>
           <div className="rounded-2xl bg-[var(--color-surface-2)] p-4">
             <p className="text-sm font-semibold">Studio Owner</p>

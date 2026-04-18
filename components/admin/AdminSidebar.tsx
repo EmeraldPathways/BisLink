@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { Activity, Bot, Building2, CircleDollarSign, LayoutDashboard, LogOut, MessageSquareWarning, Settings2, ShieldCheck } from 'lucide-react';
+import { Activity, Bot, Building2, CircleDollarSign, LayoutDashboard, MessageSquareWarning, Settings2, ShieldCheck } from 'lucide-react';
 import { ADMIN_EMAIL } from '@/lib/admin-config';
+import { SignOutButton } from '@/components/auth/SignOutButton';
 
 const adminNav = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
@@ -43,10 +44,10 @@ export function AdminSidebar({ adminEmail = ADMIN_EMAIL }: { adminEmail?: string
           <Activity className="h-4 w-4" />
           Owner dashboard
         </Link>
-        <Link href="/login" className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-3 text-sm font-medium">
-          <LogOut className="h-4 w-4" />
-          Switch account
-        </Link>
+        <SignOutButton
+          redirectTo="/admin/login"
+          className="flex w-full items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
+        />
       </div>
     </aside>
   );
