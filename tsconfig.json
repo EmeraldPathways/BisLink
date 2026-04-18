@@ -32,7 +32,8 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "C:\\Users\\dubli\\AppData\\Local\\BisLink-next-build/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

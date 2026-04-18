@@ -5,6 +5,7 @@ type ConfigCheckInput = {
   label: string;
   present: boolean;
   partial?: boolean;
+  runtimeIncomplete?: boolean;
   reconnectNeeded?: boolean;
   pending?: boolean;
   details?: Record<string, boolean | string | number | null>;
@@ -93,23 +94,56 @@ function buildChecks(mode: 'quick' | 'full') {
       label: 'Lifecycle auth token',
       present: Boolean(process.env.GOOGLE_CLOUD_FUNCTION_TOKEN),
       details: { configured: Boolean(process.env.GOOGLE_CLOUD_FUNCTION_TOKEN) }
+    }),
+    configCheck({
+      name: 'app.url',
+      label: 'App URL',
+      present: Boolean(process.env.APP_URL),
+      details: { configured: Boolean(process.env.APP_URL) }
+    }),
+    configCheck({
+      name: 'review.token_secret',
+      label: 'Review token secret',
+      present: Boolean(process.env.REVIEW_TOKEN_SECRET),
+      details: { configured: Boolean(process.env.REVIEW_TOKEN_SECRET) }
+    }),
+    configCheck({
+      name: 'public.contact_delivery',
+      label: 'Public contact delivery',
+      present: Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM),
+      partial: Boolean(process.env.RESEND_API_KEY || process.env.EMAIL_FROM),
+      runtimeIncomplete: Boolean(
+        (process.env.RESEND_API_KEY && process.env.EMAIL_FROM) &&
+          (!process.env.APP_URL || !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY)
+      ),
+      details: {
+        has_api_key: Boolean(process.env.RESEND_API_KEY),
+        has_sender: Boolean(process.env.EMAIL_FROM),
+        has_app_url: Boolean(process.env.APP_URL),
+        has_supabase_url: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+        has_service_role: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
+      }
     })
   ];
 
   if (mode === 'full') {
     checks.push(
       configCheck({
-        name: 'app.url',
-        label: 'App URL',
-        present: Boolean(process.env.APP_URL),
-        details: { configured: Boolean(process.env.APP_URL) }
-      }),
-      configCheck({
         name: 'google.calendar.runtime',
         label: 'Google Calendar runtime',
-        present: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REDIRECT_URI),
+        present: Boolean(
+          process.env.GOOGLE_CLIENT_ID &&
+            process.env.GOOGLE_CLIENT_SECRET &&
+            process.env.GOOGLE_REDIRECT_URI &&
+            process.env.GOOGLE_CLOUD_FUNCTION_TOKEN
+        ),
         partial: Boolean(process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_REDIRECT_URI),
-        pending: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REDIRECT_URI && !process.env.GOOGLE_CLOUD_FUNCTION_TOKEN),
+        runtimeIncomplete: Boolean(
+          process.env.GOOGLE_CLIENT_ID &&
+            process.env.GOOGLE_CLIENT_SECRET &&
+            process.env.GOOGLE_REDIRECT_URI &&
+            !process.env.GOOGLE_CLOUD_FUNCTION_TOKEN
+        ),
         details: {
           calendar_configured: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REDIRECT_URI),
           lifecycle_token_configured: Boolean(process.env.GOOGLE_CLOUD_FUNCTION_TOKEN)
@@ -126,16 +160,30 @@ function lifecycleCheck(kind: 'booking' | 'order'): AgentDiagnostics['checks'][n
     kind === 'booking'
       ? process.env.BOOKING_LIFECYCLE_FUNCTION_URL
       : process.env.ORDER_LIFECYCLE_FUNCTION_URL;
+  const hasToken = Boolean(process.env.GOOGLE_CLOUD_FUNCTION_TOKEN);
+  const hasRuntimeDependencies = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.SUPABASE_SERVICE_ROLE_KEY &&
+      process.env.APP_URL &&
+      process.env.RESEND_API_KEY &&
+      process.env.EMAIL_FROM
+  );
 
   return configCheck({
     name: `lifecycle.${kind}`,
     label: `${capitalize(kind)} lifecycle`,
-    present: Boolean(url && process.env.GOOGLE_CLOUD_FUNCTION_TOKEN),
-    partial: Boolean(url || process.env.GOOGLE_CLOUD_FUNCTION_TOKEN),
-    pending: Boolean(url && !process.env.GOOGLE_CLOUD_FUNCTION_TOKEN),
+    present: Boolean(url && hasToken && hasRuntimeDependencies),
+    partial: Boolean(url || hasToken),
+    runtimeIncomplete: Boolean(url && hasToken && !hasRuntimeDependencies),
+    pending: Boolean(url && !hasToken),
     details: {
       has_url: Boolean(url),
-      has_auth_token: Boolean(process.env.GOOGLE_CLOUD_FUNCTION_TOKEN)
+      has_auth_token: hasToken,
+      has_supabase_url: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      has_service_role: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+      has_app_url: Boolean(process.env.APP_URL),
+      has_resend_api_key: Boolean(process.env.RESEND_API_KEY),
+      has_email_from: Boolean(process.env.EMAIL_FROM)
     }
   });
 }
@@ -145,13 +193,20 @@ function configCheck(input: ConfigCheckInput): DiagnosticCheck {
     ? 'pending processing'
     : input.reconnectNeeded
       ? 'reconnect needed'
+      : input.runtimeIncomplete
+        ? 'runtime incomplete'
       : input.present
         ? 'configured'
         : input.partial
           ? 'partial'
           : 'missing';
 
-  const level: DiagnosticLevel = input.present ? 'ok' : input.partial || input.reconnectNeeded || input.pending ? 'warn' : 'fail';
+  const level: DiagnosticLevel =
+    input.present
+      ? 'ok'
+      : input.partial || input.reconnectNeeded || input.pending || input.runtimeIncomplete
+        ? 'warn'
+        : 'fail';
   const summary =
     state === 'configured'
       ? 'Configured'
@@ -159,6 +214,8 @@ function configCheck(input: ConfigCheckInput): DiagnosticCheck {
         ? 'Partially configured'
         : state === 'reconnect needed'
           ? 'Reconnect needed'
+          : state === 'runtime incomplete'
+            ? 'Configured but runtime-incomplete'
           : state === 'pending processing'
             ? 'Pending processing'
             : 'Missing';

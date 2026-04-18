@@ -16,7 +16,7 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
     return;
   }
 
-  const { businessId, customerName, customerEmail, customerPhone, shippingAddress, items, total, paymentIntentId } = req.body;
+  const { orderId, businessId, customerName, customerEmail, customerPhone, shippingAddress, items, total, paymentIntentId } = req.body;
   if (!businessId || !customerEmail || !items || !paymentIntentId) {
     res.status(400).send('Missing required fields');
     return;
@@ -35,7 +35,7 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
       return;
     }
 
-    let orderId = existing?.id ?? null;
+    let persistedOrderId = existing?.id ?? orderId ?? null;
     let orderCreatedAt = existing?.created_at ?? new Date().toISOString();
 
     if (!existing) {
@@ -63,13 +63,14 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
         return;
       }
 
-      orderId = insertedOrder.id;
+      persistedOrderId = insertedOrder.id;
       orderCreatedAt = insertedOrder.created_at ?? orderCreatedAt;
     }
 
+    let emailSent = Boolean(existing?.confirmation_sent);
     if (!existing?.confirmation_sent) {
       if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
-        logOrderLifecycle('order_email_missing_config', { payment_intent_id: paymentIntentId, order_id: orderId, business_id: businessId }, 'warn');
+        logOrderLifecycle('order_email_missing_config', { payment_intent_id: paymentIntentId, order_id: persistedOrderId, business_id: businessId }, 'warn');
       } else {
         const resend = getResend();
         if (!resend) {
@@ -86,19 +87,33 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
             businessSlug: business.slug
           })
         });
+        emailSent = true;
       }
 
-      await supabase.from('orders').update({ confirmation_sent: true }).eq('payment_intent_id', paymentIntentId);
+      if (emailSent) {
+        const { error: updateError } = await supabase
+          .from('orders')
+          .update({ confirmation_sent: true })
+          .eq('payment_intent_id', paymentIntentId);
+
+        if (updateError) {
+          logOrderLifecycle(
+            'order_confirmation_flag_failed',
+            { payment_intent_id: paymentIntentId, order_id: persistedOrderId, business_id: businessId, error: updateError.message },
+            'error'
+          );
+        }
+      }
     }
 
     logOrderLifecycle('order_processed', {
       payment_intent_id: paymentIntentId,
-      order_id: orderId,
+      order_id: persistedOrderId,
       business_id: businessId,
-      confirmation_sent: true
+      confirmation_sent: emailSent
     });
 
-    res.status(200).json({ success: true, orderId, alreadyExisted: Boolean(existing) });
+    res.status(200).json({ success: true, orderId: persistedOrderId, alreadyExisted: Boolean(existing), emailSent, orderCreatedAt });
   } catch (error) {
     logOrderLifecycle('order_unhandled_error', { payment_intent_id: req.body?.paymentIntentId ?? null, business_id: req.body?.businessId ?? null, error: toErrorMessage(error) }, 'error');
     res.status(500).send('Internal error');

@@ -1,7 +1,7 @@
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
 export type PaymentStatus = 'unpaid' | 'paid' | 'refunded';
 export type DiagnosticLevel = 'ok' | 'warn' | 'fail';
-export type DiagnosticState = 'configured' | 'missing' | 'partial' | 'reconnect needed' | 'pending processing';
+export type DiagnosticState = 'configured' | 'missing' | 'partial' | 'reconnect needed' | 'pending processing' | 'runtime incomplete';
 
 export type DiagnosticCheck = {
   name: string;
@@ -45,15 +45,16 @@ export type BusinessProfile = {
   email?: string | null;
   phone?: string | null;
   years_experience?: number | null;
-    google_review_url?: string | null;
-    timezone: string;
-    currency: string;
-    stripe_account_id?: string | null;
-    stripe_onboarded?: boolean;
-    is_active?: boolean;
-    google_cal_token?: unknown;
-    microsoft_cal_token?: unknown;
-  };
+  google_review_url?: string | null;
+  contact_email?: string | null;
+  timezone: string;
+  currency: string;
+  stripe_account_id?: string | null;
+  stripe_onboarded?: boolean;
+  is_active?: boolean;
+  google_cal_token?: unknown;
+  microsoft_cal_token?: unknown;
+};
 
 export type CredentialRecord = {
   id: string;

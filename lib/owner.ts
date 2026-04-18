@@ -55,6 +55,7 @@ export function normalizeBusiness(record: Record<string, unknown>): BusinessProf
     tiktok_handle: asNullableString(record.tiktok_handle),
     whatsapp_number: asNullableString(record.whatsapp_number),
     email: asNullableString(record.email) ?? asNullableString(record.contact_email),
+    contact_email: asNullableString(record.contact_email),
     phone: asNullableString(record.phone) ?? asNullableString(record.contact_phone),
     years_experience: typeof record.years_experience === 'number' ? record.years_experience : null,
     google_review_url: asNullableString(record.google_review_url),

@@ -94,31 +94,35 @@ export const bookingLifecycle: HttpFunction = async (req, res) => {
       logLifecycle('booking_calendar_failed', { booking_id: booking.id, payment_intent_id: paymentIntentId, business_id: business.id, error: toErrorMessage(calResult.reason) }, 'error');
     }
 
-    const updates: Record<string, unknown> = {
-      confirmation_sent: booking.confirmation_sent || emailResult.status === 'fulfilled'
-    };
+    const updates: Record<string, unknown> = {};
+    const emailSent = booking.confirmation_sent || emailResult.status === 'fulfilled';
+    if (emailSent !== booking.confirmation_sent) {
+      updates.confirmation_sent = emailSent;
+    }
     const googleEventId = booking.google_event_id || (calResult.status === 'fulfilled' ? calResult.value : null);
-    if (googleEventId) {
+    if (googleEventId && googleEventId !== booking.google_event_id) {
       updates.google_event_id = googleEventId;
     }
 
-    const { error: updateError } = await supabase.from('bookings').update(updates).eq('id', bookingId);
-    if (updateError) {
-      logLifecycle('booking_update_failed', { booking_id: booking.id, payment_intent_id: paymentIntentId, business_id: business.id, error: updateError.message }, 'error');
+    if (Object.keys(updates).length) {
+      const { error: updateError } = await supabase.from('bookings').update(updates).eq('id', bookingId);
+      if (updateError) {
+        logLifecycle('booking_update_failed', { booking_id: booking.id, payment_intent_id: paymentIntentId, business_id: business.id, error: updateError.message }, 'error');
+      }
     }
 
     logLifecycle('booking_processed', {
       booking_id: booking.id,
       payment_intent_id: paymentIntentId,
       business_id: business.id,
-      confirmation_sent: updates.confirmation_sent,
+      confirmation_sent: emailSent,
       google_event_id: googleEventId
     });
 
     res.status(200).json({
       bookingId,
       paymentIntentId,
-      emailSent: booking.confirmation_sent || emailResult.status === 'fulfilled',
+      emailSent,
       calendarCreated: Boolean(googleEventId),
       googleEventId
     });

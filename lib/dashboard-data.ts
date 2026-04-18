@@ -209,11 +209,18 @@ export async function getPayoutsData() {
 
   const paidBookings = (bookings ?? []) as Array<{ amount_paid: number | null; payment_status: string; status: string; start_time: string }>;
   const paidOrders = (orders ?? []) as Array<{ total_amount: number; status: string; created_at: string | null }>;
+  const pendingOrders = ((recentOrders ?? []) as Array<{ status: string; confirmation_sent?: boolean | null }>).filter(
+    (order) => (order.status === 'paid' || order.status === 'fulfilled') && order.confirmation_sent !== true
+  ).length;
 
   return {
     business,
-    hasContactRecipient: Boolean(business.email || user.email),
+    contactStatus: getContactDeliveryStatus({
+      businessEmail: business.contact_email ?? business.email ?? null,
+      ownerEmail: user.email ?? null
+    }),
     calendarStatus: getCalendarConnectionStatus(business.google_cal_token),
+    orderConfirmationStatus: pendingOrders ? `${pendingOrders} pending confirmation` : 'No pending confirmations',
     payouts: await fetchPayouts(business),
     recentOrders:
       (recentOrders ?? []) as Array<{
@@ -237,12 +244,34 @@ export async function getPayoutsData() {
 }
 
 function getCalendarConnectionStatus(token: unknown) {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) {
+    return 'Calendar unavailable';
+  }
+
   if (!token) return 'Not connected';
   if (typeof token === 'object' && token && 'refresh_token' in token && (token as { refresh_token?: string | null }).refresh_token) {
     return 'Connected';
   }
 
   return 'Reconnect needed';
+}
+
+function getContactDeliveryStatus({
+  businessEmail,
+  ownerEmail
+}: {
+  businessEmail: string | null;
+  ownerEmail: string | null;
+}) {
+  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+    return 'Delivery unavailable';
+  }
+
+  if (businessEmail || ownerEmail) {
+    return 'Contact email configured';
+  }
+
+  return 'No recipient configured';
 }
 
 async function getServiceMap(businessId: string) {

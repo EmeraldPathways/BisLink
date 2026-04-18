@@ -56,7 +56,7 @@ function getBookingProcessingStatus(booking: BookingRecord, business: BusinessPr
   }
 
   if (booking.confirmation_sent !== true) {
-    return 'Confirmation pending';
+    return 'Confirmation processing';
   }
 
   if (hasCalendarRefreshToken(business)) {

@@ -49,7 +49,7 @@ async function dispatch24hReminders(now: Date): Promise<number> {
       start_time,
       customer_name,
       customer_email,
-      business:businesses ( name, slug, location, timezone ),
+      business:businesses ( id, name, slug, location, timezone ),
       service:services ( name, duration_minutes )
     `)
     .eq('status', 'confirmed')
@@ -71,7 +71,7 @@ async function dispatch24hReminders(now: Date): Promise<number> {
       await supabase.from('bookings').update({ reminder_24h_sent: true }).eq('id', booking.id);
       sent++;
     } catch (error) {
-      console.error('[24h reminder] Failed for booking:', booking.id, error);
+      logReminder('reminder_24h_failed', { booking_id: booking.id, business_id: (booking.business as any)?.id ?? null, error: toErrorMessage(error) }, 'error');
     }
   }
 
@@ -88,7 +88,7 @@ async function dispatch1hReminders(now: Date): Promise<number> {
       start_time,
       customer_name,
       customer_email,
-      business:businesses ( name, slug, location, timezone ),
+      business:businesses ( id, name, slug, location, timezone ),
       service:services ( name, duration_minutes )
     `)
     .eq('status', 'confirmed')
@@ -110,7 +110,7 @@ async function dispatch1hReminders(now: Date): Promise<number> {
       await supabase.from('bookings').update({ reminder_1h_sent: true }).eq('id', booking.id);
       sent++;
     } catch (error) {
-      console.error('[1h reminder] Failed for booking:', booking.id, error);
+      logReminder('reminder_1h_failed', { booking_id: booking.id, business_id: (booking.business as any)?.id ?? null, error: toErrorMessage(error) }, 'error');
     }
   }
 
@@ -152,7 +152,7 @@ async function dispatchFollowups(now: Date): Promise<number> {
       await supabase.from('bookings').update({ followup_sent: true }).eq('id', booking.id);
       sent++;
     } catch (error) {
-      console.error('[followup] Failed for booking:', booking.id, error);
+      logReminder('followup_failed', { booking_id: booking.id, business_id: (booking.business as any)?.id ?? null, error: toErrorMessage(error) }, 'error');
     }
   }
 
@@ -340,4 +340,12 @@ function getResend() {
 
   resendClient = new Resend(process.env.RESEND_API_KEY);
   return resendClient;
+}
+
+function logReminder(event: string, payload: Record<string, unknown>, level: 'log' | 'warn' | 'error' = 'log') {
+  console[level]('[reminder-dispatcher]', JSON.stringify({ event, ...payload }));
+}
+
+function toErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }

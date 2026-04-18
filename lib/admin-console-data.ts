@@ -499,6 +499,7 @@ function summarizeChecks(checks: Array<DiagnosticCheck | undefined>) {
   const present = checks.filter((check): check is DiagnosticCheck => Boolean(check));
   if (!present.length) return 'Missing';
   if (present.every((check) => check.state === 'configured')) return 'Configured';
+  if (present.some((check) => check.state === 'runtime incomplete')) return 'Configured but runtime-incomplete';
   if (present.some((check) => check.state === 'pending processing')) return 'Pending processing';
   if (present.some((check) => check.state === 'reconnect needed')) return 'Reconnect needed';
   if (present.some((check) => check.state === 'partial')) return 'Partially configured';

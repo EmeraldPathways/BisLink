@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { MapPin, Star } from 'lucide-react';
 import type { BusinessProfile } from '@/types';
 import { getInitials } from '@/lib/utils/formatting';
@@ -27,7 +28,17 @@ export function HeroSection({
       <div className="px-6">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[18px] bg-gradient-to-br from-[var(--gold)] to-[var(--gold-dark)] font-display text-xl font-semibold text-[var(--void)]">
-            {business.photo_url ? <img alt={business.name} className="h-full w-full object-cover" src={business.photo_url} /> : getInitials(business.name)}
+            {business.photo_url ? (
+              <Image
+                alt={business.name}
+                className="h-full w-full object-cover"
+                height={56}
+                src={business.photo_url}
+                width={56}
+              />
+            ) : (
+              getInitials(business.name)
+            )}
           </div>
           <div>
             <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--gold)]">

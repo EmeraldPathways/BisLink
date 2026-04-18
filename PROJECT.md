@@ -111,24 +111,29 @@ components/
     LoginForm.tsx               Client sign-in form
     SignupForm.tsx              Client sign-up form
   public/
-    PublicPage.tsx              Main wrapper
-    HeroSection.tsx             Dark hero with avatar, name, bio, rating, location
-    TabBar.tsx                  5-tab navigation bar
+    PublicPage.tsx              Shared live/demo public page shell with frame-aware overlays
+    HeroSection.tsx             Dark hero with clipped decorative glow, avatar, bio, rating, location
+    TabBar.tsx                  Semantic 5-tab navigation with sticky support and focus states
     tabs/
       BookingsTab.tsx           Service list
-      ProductsTab.tsx           Product grid + filters
-      ReviewsTab.tsx            Rating summary + review cards
+      ProductsTab.tsx           Product grid + filters + accessible product detail entry
+      ReviewsTab.tsx            Rating summary + review cards using shared review counts
       AboutTab.tsx              Bio, stats, credentials, specialisms
-      ContactTab.tsx            Contact rows, form, location card
+      ContactTab.tsx            Contact rows, validated form, linked map-style location card
     sheets/
-      CartSheet.tsx             Product cart + checkout
-      ProductSheet.tsx          Product detail sheet
+      CartSheet.tsx             Product cart + checkout, demo-frame aware
+      ProductSheet.tsx          Product detail sheet, demo-frame aware
   booking/
     BookingPage.tsx             Booking wrapper
-    BookingSheet.tsx            Multi-step booking bottom sheet
+    BookingSheet.tsx            Multi-step booking bottom sheet with labeled progress
     StepDate.tsx / StepTime.tsx / StepDetails.tsx / StepPayment.tsx / StepConfirm.tsx
   dashboard/
+    MobileNav.tsx               Mobile bottom nav with More drawer for hidden dashboard routes
+    MobileCalendar.tsx          Single-day mobile calendar
+    CalendarView.tsx            Desktop weekly grid + mobile calendar switch
     CustomersList.tsx           Search/filter/sort customer UI
+    StatsBar.tsx                Mobile 2x2 stat layout
+    LinkEditor.tsx              Labeled owner link editor form
   payments/
     EmbeddedPaymentForm.tsx     Shared Stripe Payment Element wrapper
 
@@ -138,6 +143,7 @@ hooks/
   useAvailability.ts
   useBookings.ts
   useBusiness.ts
+  useBreakpoint.ts             SSR-safe mobile breakpoint hook
 
 lib/
   demo-data.ts                  Demo dataset for explicit demo route
@@ -165,7 +171,9 @@ ybial-agents/                   AI agent layer
 
 ## Public Page - 5-Tab System
 
-Tab bar sits at the bottom of the dark hero. Default active tab: `bookings`.
+The shared public page powers both `/[slug]` and `/demo`. The tab system now uses semantic tab markup, visible keyboard focus states, and a sticky dark wrapper so navigation remains available while scrolling longer tab content. In demo mode, booking, product, and cart sheets render relative to the centered `max-w-[430px]` frame on desktop and fall back to full-viewport sheets on mobile.
+
+Default active tab: `bookings`.
 
 | Tab | Content |
 |---|---|
@@ -174,6 +182,15 @@ Tab bar sits at the bottom of the dark hero. Default active tab: `bookings`.
 | Reviews | Rating summary + review cards |
 | About | Profile card, stats, bio, credentials, specialisms |
 | Contact | Contact rows, message form, location card |
+
+### Recent public-page improvements
+
+- `/demo` now has route metadata and remains an explicit showcase route.
+- Decorative hero glows are clipped internally so tab focus no longer shifts the hero horizontally.
+- Review counts are derived from one shared summary source in `lib/reviews.ts` / `lib/demo-data.ts`.
+- Product cards expose full descriptions accessibly and open a clearer detail flow.
+- Contact form fields now use visible labels, inline validation, and a honeypot-backed submission payload.
+- Location presentation is a linked map-style card rather than duplicated placeholder address text.
 
 ---
 
@@ -265,8 +282,10 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - Order confirmation flow: `payment_intent.succeeded` -> trigger order lifecycle -> persist order exactly once from `payment_intent_id` and send one confirmation email.
 - Reminder flow: 24h and 1h reminders are tracked with `reminder_24h_sent` and `reminder_1h_sent`.
 - Review collection flow: follow-up email after the appointment includes a review token link, with one review allowed per booking.
+- Public review summaries and demo review counts are derived from the same published-review source to keep hero and reviews-tab totals consistent.
 - 10-product limit is enforced by both Postgres trigger and API logic.
 - Basic rate limiting is applied to booking, order, contact, and review POST routes.
+- Public contact submissions now include stricter field validation plus a honeypot field that is rejected server-side when populated.
 
 ---
 
@@ -326,6 +345,8 @@ The app includes a real internal super-admin console under `/admin`.
 | Branch | Purpose |
 |---|---|
 | `main` | Production base |
+| `demo-update-ui` | `/demo` public page remediation, accessibility, and overlay/frame fixes |
+| `user-dashboard-fix` | Owner dashboard mobile responsiveness and accessibility fixes |
 | `tabs-update` | 5-tab public page system |
 | `ui-fixes` | Public page visual fixes and mobile polish |
 | `backend-merged` | Backend/schema consolidation work |
@@ -350,8 +371,15 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - public product checkout using Stripe Payment Element
 - public contact form submission
 - public review submission with duplicate protection
+- shared public `/demo` and `/[slug]` experience with sticky semantic tabs, frame-aware sheets in demo mode, and consistent review totals
 - owner dashboard reads across bookings, customers, services, products, reviews, availability, link settings, and payouts
 - owner mutations for services, products, availability, blocked times, review visibility, and business profile updates
+- owner dashboard mobile remediation:
+  - bottom navigation with More drawer
+  - single-day mobile calendar
+  - responsive services/products layouts and empty states
+  - improved payouts/stat-card/mobile filters
+  - labeled My Link fields and stronger focus treatment
 - Stripe Connect onboarding for owners
 - internal admin console backed by live Supabase, Stripe, and diagnostics
 - booking/order lifecycle processing with idempotent guards and structured logs
@@ -359,7 +387,6 @@ The app is now mostly live across owner, public, and payment-critical flows.
 
 ### Still incomplete / highest remaining risk
 
-- `npm run build` is still the main unresolved delivery blocker and needs reproducible clean-checkout behavior
 - runtime diagnostics are present but still lightweight
 - Google Calendar is productionized before Microsoft; Microsoft calendar remains deferred
 - public/operator messaging around delayed lifecycle processing can still be improved
@@ -385,10 +412,10 @@ Turn the current live product into a reproducible, release-ready system by closi
 
 ### 1. Build and Runtime Reproducibility
 
-- Reproduce and fix the `npm run build` hang/failure from this synced workspace.
-- Audit `.next` / trace / generated-artifact coupling and make builds reliable from a clean checkout.
-- Keep `npm run typecheck`, `npm run lint`, and `npm run build` all green without relying on stale generated files.
-- Confirm `tsconfig.json`, `.gitignore`, and any Next output assumptions do not require prior local state.
+- Root cause found: this synced Windows workspace intermittently denies Next's in-repo trace writer (`.next/trace`) during build, even when the rest of the build output is valid.
+- Mitigation implemented: `npm run build` now runs through `scripts/run-next-build.cjs`, which applies a Windows-only trace-file workaround via `scripts/windows-next-trace-workaround.cjs` while leaving standard Next build behavior unchanged on non-Windows environments.
+- Keep `.next/` ignored and disposable; do not rely on tracked tsbuildinfo or stale generated build artifacts.
+- Confirm `tsconfig.json`, `.gitignore`, and build scripts do not require prior local state.
 
 Acceptance:
 - clean checkout
@@ -397,6 +424,11 @@ Acceptance:
 - `npm run lint`
 - `npm run build`
 - all succeed in the intended local environment
+
+Current observed status:
+- `npm run typecheck` passes
+- `npm run lint` passes
+- `npm run build` passes locally through the Windows trace workaround
 
 ### 2. Integration Diagnostics and Failure Visibility
 

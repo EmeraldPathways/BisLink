@@ -107,7 +107,7 @@ async function handleBookingPayment(intent: Stripe.PaymentIntent, supabase: Admi
     return;
   }
 
-  await supabase.from('customers').upsert(
+  const { error: customerUpsertError } = await supabase.from('customers').upsert(
     {
       business_id: booking.business_id,
       name: customerName || booking.customer_name,
@@ -117,13 +117,37 @@ async function handleBookingPayment(intent: Stripe.PaymentIntent, supabase: Admi
     },
     { onConflict: 'business_id,email', ignoreDuplicates: false }
   );
+  if (customerUpsertError) {
+    logWebhook(
+      'booking_customer_upsert_failed',
+      {
+        payment_intent_id: intent.id,
+        booking_id: booking.id,
+        business_id: booking.business_id,
+        error: customerUpsertError.message
+      },
+      'error'
+    );
+  }
 
-  await supabase.rpc('increment_customer_stats', {
+  const { error: customerStatsError } = await supabase.rpc('increment_customer_stats', {
     p_business_id: booking.business_id,
     p_email: customerEmail || booking.customer_email,
     p_amount: booking.amount_paid ?? 0,
     p_booking_at: booking.start_time
   });
+  if (customerStatsError) {
+    logWebhook(
+      'booking_customer_stats_failed',
+      {
+        payment_intent_id: intent.id,
+        booking_id: booking.id,
+        business_id: booking.business_id,
+        error: customerStatsError.message
+      },
+      'error'
+    );
+  }
 
   logWebhook('booking_confirmed', {
     payment_intent_id: intent.id,
@@ -142,8 +166,14 @@ async function handleBookingPayment(intent: Stripe.PaymentIntent, supabase: Admi
 
 async function handleProductOrder(intent: Stripe.PaymentIntent, supabase: AdminClient) {
   const { businessId, customerName, customerEmail, customerPhone, shippingAddress, lineItems } = intent.metadata;
-  const items = lineItems ? JSON.parse(lineItems) : [];
-  const parsedShippingAddress = shippingAddress ? JSON.parse(shippingAddress) : null;
+  const items = parseMetadataJson<Array<{ productId: string; name: string; emoji: string; price: number; quantity: number }>>(lineItems, []);
+  const parsedShippingAddress = parseMetadataJson<{
+    line1?: string;
+    city?: string;
+    region?: string;
+    postalCode?: string;
+    country?: string;
+  } | null>(shippingAddress, null);
   const total = Array.isArray(items) ? items.reduce((sum, item) => sum + item.price * item.quantity, 0) : 0;
   const { data: existingOrder, error: existingOrderError } = await supabase
     .from('orders')
@@ -165,7 +195,22 @@ async function handleProductOrder(intent: Stripe.PaymentIntent, supabase: AdminC
     return;
   }
 
+  if (!businessId || !customerEmail || !Array.isArray(items) || !items.length) {
+    logWebhook(
+      'order_payload_invalid',
+      {
+        payment_intent_id: intent.id,
+        business_id: businessId ?? null,
+        has_customer_email: Boolean(customerEmail),
+        has_items: Array.isArray(items) && items.length > 0
+      },
+      'error'
+    );
+    return;
+  }
+
   triggerOrderLifecycle({
+    orderId: existingOrder?.id ?? null,
     businessId,
     customerName,
     customerEmail,
@@ -233,6 +278,7 @@ async function triggerBookingLifecycle(bookingId: string, paymentIntentId?: stri
 }
 
 async function triggerOrderLifecycle(payload: {
+  orderId: string | null;
   businessId: string;
   customerName: string;
   customerEmail: string;
@@ -270,6 +316,16 @@ async function triggerOrderLifecycle(payload: {
 
 function logWebhook(event: string, payload: Record<string, unknown>, level: 'log' | 'warn' | 'error' = 'log') {
   console[level]('[webhook]', JSON.stringify({ event, ...payload }));
+}
+
+function parseMetadataJson<T>(value: string | undefined, fallback: T): T {
+  if (!value) return fallback;
+
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
 }
 
 function toErrorMessage(error: unknown) {
