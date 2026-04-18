@@ -73,8 +73,8 @@ export function BookingSheet({
   const framed = presentation === 'demo' && !isMobile && containerRef?.current;
   const shellClassName = framed ? 'absolute inset-0 z-50' : 'fixed inset-0 z-50';
   const panelClassName = framed
-    ? 'hide-scrollbar absolute bottom-0 left-0 right-0 min-h-[78%] max-h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)]'
-    : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto min-h-[82dvh] max-h-[calc(100dvh-8px)] w-full max-w-[430px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)] xl:left-[calc(50%-640px)] xl:right-auto xl:min-h-0 xl:max-h-[calc(100dvh-24px)] xl:rounded-t-[26px] xl:px-4';
+    ? 'hide-scrollbar absolute bottom-0 left-0 right-0 h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)]'
+    : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto h-[calc(100dvh-8px)] w-full max-w-[430px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)] xl:left-[calc(50%-640px)] xl:right-auto xl:h-auto xl:max-h-[calc(100dvh-24px)] xl:rounded-t-[26px] xl:px-4';
 
   const sheet = (
     <AnimatePresence>
@@ -96,6 +96,7 @@ export function BookingSheet({
           exit={{ y: '100%' }}
           transition={{ duration: 0.38, ease: [0.32, 0.72, 0, 1] }}
           className={panelClassName}
+          style={{ touchAction: 'pan-y' }}
         >
           <button
             type="button"

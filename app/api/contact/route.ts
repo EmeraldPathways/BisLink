@@ -35,19 +35,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    const supabase = createClient();
+    const supabase = createAdminClient() ?? createClient();
     const { data: business, error } = await supabase
       .from('businesses')
-      .select('name, contact_email, owner_id, slug')
+      .select('name, email, contact_email, owner_id, slug')
       .eq('id', businessId)
       .eq('is_active', true)
-      .single();
+      .maybeSingle();
 
     if (error || !business) {
       return NextResponse.json({ error: 'Business not found' }, { status: 404 });
     }
 
-    let recipientEmail = business.contact_email;
+    let recipientEmail = business.contact_email ?? business.email ?? null;
     if (!recipientEmail) {
       const admin = createAdminClient();
       if (admin) {
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email is not configured' }, { status: 500 });
     }
 
-    await resend.emails.send({
+    const emailResult = await resend.emails.send({
       from: process.env.EMAIL_FROM,
       to: recipientEmail,
       replyTo: senderEmail,
@@ -78,6 +78,11 @@ export async function POST(req: NextRequest) {
         message
       })
     });
+
+    if (emailResult.error) {
+      console.error('[POST /api/contact] resend error', emailResult.error);
+      return NextResponse.json({ error: 'Could not send email' }, { status: 502 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
