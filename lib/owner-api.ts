@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { getCurrentOwnerBusinessForRequest } from '@/lib/owner';
 
 export async function requireOwnerBusiness() {
@@ -8,7 +8,7 @@ export async function requireOwnerBusiness() {
   }
 
   return {
-    supabase: createClient(),
+    supabase: createAdminClient() ?? createClient(),
     user: context.user,
     business: context.business
   };

@@ -49,9 +49,9 @@ export function ServiceForm({ service }: { service?: ServiceRecord }) {
       body: JSON.stringify(payload)
     });
 
-    const data = (await res.json().catch(() => null)) as { error?: string; service?: { id: string } } | null;
+    const data = (await res.json().catch(() => null)) as { error?: unknown; service?: { id: string } } | null;
     if (!res.ok) {
-      setError(data?.error ?? 'Failed to save service');
+      setError(formatApiError(data?.error) ?? 'Failed to save service');
       return;
     }
 
@@ -104,4 +104,22 @@ function buildFormState(service?: ServiceRecord): ServiceFormState {
     price: service ? String(service.price / 100) : '',
     tag: service?.tag ?? ''
   };
+}
+
+function formatApiError(error: unknown) {
+  if (typeof error === 'string') return error;
+  if (!error || typeof error !== 'object') return null;
+
+  const candidate = error as {
+    formErrors?: string[];
+    fieldErrors?: Record<string, string[] | undefined>;
+  };
+
+  const formMessage = candidate.formErrors?.find(Boolean);
+  if (formMessage) return formMessage;
+
+  const fieldMessage = Object.values(candidate.fieldErrors ?? {})
+    .flat()
+    .find(Boolean);
+  return fieldMessage ?? null;
 }

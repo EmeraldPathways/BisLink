@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { PublicPage } from '@/components/public/PublicPage';
 import { getPublicBusinessPageBySlug } from '@/lib/public-page-data';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function SlugPage({ params }: { params: { slug: string } }) {
   const publicPage = await getPublicBusinessPageBySlug(params.slug);
