@@ -14,3 +14,8 @@ ybial-agents/coverage/
 ybial-agents/dist/
 ybial-agents/.env
 *.log
+
+# Environment files — never commit real credentials
+.env.local
+.env*.local
+ybial-agents/.env
