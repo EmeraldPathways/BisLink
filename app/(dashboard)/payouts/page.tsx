@@ -1,5 +1,6 @@
 import { getPayoutsData } from '@/lib/dashboard-data';
 import { formatDateTimeLabel, formatPrice } from '@/lib/utils/formatting';
+import { StripeConnectButton } from '@/components/dashboard/StripeConnectButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,6 +52,22 @@ export default async function Page() {
           tone={hasPendingOrders ? 'warn' : 'good'}
         />
       </div>
+
+      {!business.stripe_onboarded ? (
+        <div className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-5">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-gold-dark)]">
+                Stripe setup needed
+              </p>
+              <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+                Finish Stripe Connect onboarding to accept bookings and receive payouts.
+              </p>
+            </div>
+            <StripeConnectButton />
+          </div>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[

@@ -45,5 +45,31 @@ export async function resolvePostAuthRedirectPathForUser({
     throw error;
   }
 
-  return business ? '/dashboard' : '/onboarding';
+  if (!business) {
+    return '/onboarding';
+  }
+
+  const [servicesResult, availabilityResult] = await Promise.all([
+    businessLookupClient
+      .from('services')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', business.id),
+    businessLookupClient
+      .from('availability')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', business.id)
+  ]);
+
+  if (servicesResult.error) {
+    throw servicesResult.error;
+  }
+
+  if (availabilityResult.error) {
+    throw availabilityResult.error;
+  }
+
+  const hasOnboardingSetup =
+    (servicesResult.count ?? 0) > 0 && (availabilityResult.count ?? 0) > 0;
+
+  return hasOnboardingSetup ? '/dashboard' : '/onboarding';
 }
