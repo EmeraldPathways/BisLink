@@ -28,7 +28,7 @@ export async function getDashboardShellData() {
 
 export async function getTodayViewData() {
   const { business } = await getCurrentOwnerBusiness();
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const startDate = subDays(new Date(), 31).toISOString();
 
   const [{ data: bookings }, { data: orders }, { count: customerCount }, { count: productCount }, { count: reviewCount }] = await Promise.all([
@@ -62,7 +62,7 @@ export async function getTodayViewData() {
 
 export async function getCalendarData() {
   const { business } = await getCurrentOwnerBusiness();
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 7);
   const { data: bookings } = await supabase
@@ -79,7 +79,7 @@ export async function getCalendarData() {
 
 export async function getCustomersData() {
   const { business } = await getCurrentOwnerBusiness();
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const { data } = await supabase
     .from('customers')
     .select('id,business_id,name,email,phone,total_bookings,total_orders,total_spent,last_booking_at,first_booking_at,last_activity_at,first_activity_at,notes')
@@ -91,7 +91,7 @@ export async function getCustomersData() {
 
 export async function getServicesData() {
   const { business } = await getCurrentOwnerBusiness();
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const { data } = await supabase
     .from('services')
     .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji')
@@ -103,7 +103,7 @@ export async function getServicesData() {
 
 export async function getProductsData() {
   const { business } = await getCurrentOwnerBusiness();
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const { data } = await supabase
     .from('products')
     .select('id,business_id,name,description,price,original_price,category,badge,emoji,image_url,is_active,in_stock,is_digital,digital_url,sort_order,rating,review_count')
@@ -116,7 +116,7 @@ export async function getProductsData() {
 
 export async function getReviewsData() {
   const { business } = await getCurrentOwnerBusiness();
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const { data } = await supabase
     .from('reviews')
     .select('id,business_id,booking_id,customer_name,customer_email,rating,text,is_verified,is_published,created_at')
@@ -134,7 +134,7 @@ export async function getReviewsData() {
 
 export async function getAvailabilityData() {
   const { business } = await getCurrentOwnerBusiness();
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const [{ data: availability }, { data: blockedTimes }] = await Promise.all([
     supabase
       .from('availability')
@@ -157,7 +157,7 @@ export async function getAvailabilityData() {
 
 export async function getLinkData() {
   const { business } = await getCurrentOwnerBusiness();
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }] = await Promise.all([
     supabase
       .from('services')
@@ -193,7 +193,7 @@ export async function getLinkData() {
 
 export async function getPayoutsData() {
   const { business, user } = await getCurrentOwnerBusiness();
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const since = subDays(new Date(), 31).toISOString();
   const stripeStatus = await getStripeConnectionStatus(business);
   const effectiveBusiness = {
@@ -334,7 +334,7 @@ function getContactDeliveryStatus({
 }
 
 async function getServiceMap(businessId: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const { data } = await supabase
     .from('services')
     .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji')
