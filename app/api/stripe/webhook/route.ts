@@ -277,7 +277,7 @@ async function handleProductOrder(
       { payment_intent_id: intent.id, error: existingOrderError.message },
       'error',
     );
-    return;
+    throw new Error(`Order lookup failed: ${existingOrderError.message}`);
   }
 
   if (existingOrder?.confirmation_sent) {
@@ -327,10 +327,70 @@ async function handleProductOrder(
       },
       'error',
     );
-    return;
+    throw new Error('Order payload is invalid');
   }
 
-  if (existingOrder && existingOrder.status !== 'paid') {
+  let persistedOrderId = existingOrder?.id ?? null;
+
+  if (!existingOrder) {
+    let insertResult = await supabase
+      .from('orders')
+      .insert({
+        business_id: effectiveBusinessId,
+        customer_name: effectiveCustomerName,
+        customer_email: effectiveCustomerEmail,
+        customer_phone: effectiveCustomerPhone,
+        items: effectiveItems,
+        total_amount: total,
+        currency: intent.currency ?? 'usd',
+        payment_intent_id: intent.id,
+        shipping_address: effectiveShippingAddress,
+        status: 'paid',
+        confirmation_sent: false,
+      })
+      .select('id')
+      .single();
+
+    if (
+      insertResult.error?.message
+        ?.toLowerCase()
+        .includes('confirmation_sent')
+    ) {
+      insertResult = await supabase
+        .from('orders')
+        .insert({
+          business_id: effectiveBusinessId,
+          customer_name: effectiveCustomerName,
+          customer_email: effectiveCustomerEmail,
+          customer_phone: effectiveCustomerPhone,
+          items: effectiveItems,
+          total_amount: total,
+          currency: intent.currency ?? 'usd',
+          payment_intent_id: intent.id,
+          shipping_address: effectiveShippingAddress,
+          status: 'paid',
+        })
+        .select('id')
+        .single();
+    }
+
+    if (insertResult.error || !insertResult.data) {
+      logWebhook(
+        'order_insert_failed',
+        {
+          payment_intent_id: intent.id,
+          business_id: effectiveBusinessId,
+          error: insertResult.error?.message ?? 'Insert failed',
+        },
+        'error',
+      );
+      throw new Error(
+        `Order insert failed: ${insertResult.error?.message ?? 'Insert failed'}`,
+      );
+    }
+
+    persistedOrderId = insertResult.data.id;
+  } else if (existingOrder.status !== 'paid') {
     const { error: updateError } = await supabase
       .from('orders')
       .update({ status: 'paid' })
@@ -346,31 +406,35 @@ async function handleProductOrder(
         },
         'error',
       );
+      throw new Error(`Order status update failed: ${updateError.message}`);
     }
   }
 
-  triggerOrderLifecycle({
-    orderId: existingOrder?.id ?? null,
-    businessId: effectiveBusinessId,
-    customerName: effectiveCustomerName,
-    customerEmail: effectiveCustomerEmail,
-    customerPhone: effectiveCustomerPhone,
-    shippingAddress: effectiveShippingAddress,
-    items: effectiveItems,
-    total,
-    paymentIntentId: intent.id,
-  }).catch((error) =>
+  try {
+    await triggerOrderLifecycle({
+      orderId: persistedOrderId,
+      businessId: effectiveBusinessId,
+      customerName: effectiveCustomerName,
+      customerEmail: effectiveCustomerEmail,
+      customerPhone: effectiveCustomerPhone,
+      shippingAddress: effectiveShippingAddress,
+      items: effectiveItems,
+      total,
+      paymentIntentId: intent.id,
+    });
+  } catch (error) {
     logWebhook(
       'order_lifecycle_trigger_failed',
       {
         payment_intent_id: intent.id,
-        order_id: existingOrder?.id ?? null,
+        order_id: persistedOrderId,
         business_id: effectiveBusinessId,
         error: toErrorMessage(error),
       },
       'error',
-    ),
-  );
+    );
+    throw error;
+  }
 }
 
 async function handlePaymentFailed(
@@ -489,7 +553,7 @@ async function triggerOrderLifecycle(payload: {
       },
       'warn',
     );
-    return;
+    throw new Error('ORDER_LIFECYCLE_FUNCTION_URL is not configured');
   }
 
   const res = await fetch(url, {
@@ -502,7 +566,10 @@ async function triggerOrderLifecycle(payload: {
   });
 
   if (!res.ok) {
-    throw new Error(`Order lifecycle returned ${res.status}`);
+    const responseText = await res.text().catch(() => '');
+    throw new Error(
+      `Order lifecycle returned ${res.status}${responseText ? `: ${responseText}` : ''}`,
+    );
   }
 }
 

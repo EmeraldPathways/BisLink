@@ -25,11 +25,15 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
   try {
     const { data: existing } = await supabase
       .from('orders')
-      .select('id, business_id, customer_email, total_amount, created_at, confirmation_sent')
+      .select('id, business_id, customer_email, total_amount, created_at, confirmation_sent, status')
       .eq('payment_intent_id', paymentIntentId)
       .maybeSingle();
 
-    const { data: business } = await supabase.from('businesses').select('name, slug, currency').eq('id', businessId).single();
+    const { data: business } = await supabase
+      .from('businesses')
+      .select('name, slug, currency, owner_id, email, contact_email')
+      .eq('id', businessId)
+      .single();
     if (!business) {
       res.status(404).send('Business not found');
       return;
@@ -65,7 +69,26 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
 
       persistedOrderId = insertedOrder.id;
       orderCreatedAt = insertedOrder.created_at ?? orderCreatedAt;
+    } else if (existing.status !== 'paid') {
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({ status: 'paid' })
+        .eq('id', existing.id);
+
+      if (updateError) {
+        logOrderLifecycle(
+          'order_status_update_failed',
+          { payment_intent_id: paymentIntentId, order_id: existing.id, business_id: businessId, error: updateError.message },
+          'error'
+        );
+      }
     }
+
+    const recipientEmail = await resolveRecipientEmail({
+      ownerId: business.owner_id,
+      businessEmail: business.email,
+      contactEmail: business.contact_email
+    });
 
     let emailSent = Boolean(existing?.confirmation_sent);
     if (!existing?.confirmation_sent) {
@@ -76,18 +99,54 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
         if (!resend) {
           throw new Error('Resend configuration is missing');
         }
-        await resend.emails.send({
+
+        const customerEmailResult = await resend.emails.send({
           from: process.env.EMAIL_FROM,
           to: customerEmail,
           subject: `Order confirmed - ${business.name}`,
           html: buildOrderEmail({
             businessName: business.name,
+            customerName: customerName ?? null,
             items,
             total,
             businessSlug: business.slug
           })
         });
+
+        if (customerEmailResult.error) {
+          throw new Error(customerEmailResult.error.message);
+        }
+
         emailSent = true;
+
+        if (recipientEmail) {
+          const ownerEmailResult = await resend.emails.send({
+            from: process.env.EMAIL_FROM,
+            to: recipientEmail,
+            replyTo: customerEmail,
+            subject: `New paid order - ${business.name}`,
+            html: buildOwnerOrderEmail({
+              businessName: business.name,
+              customerName: customerName ?? 'Customer',
+              customerEmail,
+              customerPhone: customerPhone ?? null,
+              shippingAddress: shippingAddress ?? null,
+              items,
+              total,
+              businessSlug: business.slug
+            })
+          });
+
+          if (ownerEmailResult.error) {
+            throw new Error(ownerEmailResult.error.message);
+          }
+        } else {
+          logOrderLifecycle(
+            'order_owner_email_missing',
+            { payment_intent_id: paymentIntentId, order_id: persistedOrderId, business_id: businessId, owner_id: business.owner_id ?? null },
+            'warn'
+          );
+        }
       }
 
       if (emailSent) {
@@ -122,6 +181,7 @@ export const orderLifecycle: HttpFunction = async (req, res) => {
 
 function buildOrderEmail(data: {
   businessName: string;
+  customerName: string | null;
   items: { name: string; emoji: string; price: number; quantity: number }[];
   total: number;
   businessSlug: string;
@@ -143,7 +203,7 @@ function buildOrderEmail(data: {
   <div style="max-width:520px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #EBEBEB;">
     <div style="background:linear-gradient(165deg,#0C0B09 0%,#1C1610 55%,#0F0D0B 100%);padding:32px;">
       <h1 style="margin:0;color:#F7F3ED;font-size:24px;font-weight:600;">Order confirmed!</h1>
-      <p style="margin:6px 0 0;color:#9E9890;font-size:14px;">${data.businessName}</p>
+      <p style="margin:6px 0 0;color:#9E9890;font-size:14px;">${data.customerName ? `Receipt for ${data.customerName}` : data.businessName}</p>
     </div>
     <div style="padding:28px 32px;">
       <div style="background:#F7F4EF;border-radius:12px;padding:20px;margin-bottom:24px;">
@@ -160,6 +220,80 @@ function buildOrderEmail(data: {
     </div>
   </div>
   </body>
+</html>`.trim();
+}
+
+function buildOwnerOrderEmail(data: {
+  businessName: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string | null;
+  shippingAddress: {
+    line1?: string;
+    city?: string;
+    region?: string;
+    postalCode?: string;
+    country?: string;
+  } | null;
+  items: { name: string; emoji: string; price: number; quantity: number }[];
+  total: number;
+  businessSlug: string;
+}) {
+  const lineItemsHtml = data.items
+    .map(
+      (item) => `
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #EAE5DC;">
+        <span style="color:#111;font-size:13px;">${item.emoji} ${item.name} x ${item.quantity}</span>
+        <span style="color:#111;font-size:13px;font-weight:500;">$${Math.floor((item.price * item.quantity) / 100)}</span>
+      </div>`
+    )
+    .join('');
+  const shippingSummary = formatShippingAddress(data.shippingAddress);
+
+  return `
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#FAFAF8;font-family:Arial,sans-serif;">
+  <div style="max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #EBEBEB;">
+    <div style="background:linear-gradient(165deg,#0C0B09 0%,#1C1610 55%,#0F0D0B 100%);padding:32px;">
+      <h1 style="margin:0;color:#F7F3ED;font-size:24px;font-weight:600;">New paid order</h1>
+      <p style="margin:6px 0 0;color:#9E9890;font-size:14px;">${data.businessName}</p>
+    </div>
+    <div style="padding:28px 32px;">
+      <div style="background:#F7F4EF;border-radius:12px;padding:20px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #EAE5DC;">
+          <span style="color:#888;font-size:13px;">Customer</span>
+          <span style="color:#111;font-size:13px;font-weight:500;">${data.customerName}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:${data.customerPhone || shippingSummary ? '12px' : '0'};padding-bottom:${data.customerPhone || shippingSummary ? '12px' : '0'};border-bottom:${data.customerPhone || shippingSummary ? '1px solid #EAE5DC' : '0'};">
+          <span style="color:#888;font-size:13px;">Email</span>
+          <span style="color:#111;font-size:13px;font-weight:500;">${data.customerEmail}</span>
+        </div>
+        ${data.customerPhone ? `
+        <div style="display:flex;justify-content:space-between;margin-bottom:${shippingSummary ? '12px' : '0'};padding-bottom:${shippingSummary ? '12px' : '0'};border-bottom:${shippingSummary ? '1px solid #EAE5DC' : '0'};">
+          <span style="color:#888;font-size:13px;">Phone</span>
+          <span style="color:#111;font-size:13px;font-weight:500;">${data.customerPhone}</span>
+        </div>` : ''}
+        ${shippingSummary ? `
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:#888;font-size:13px;">Shipping</span>
+          <span style="color:#111;font-size:13px;font-weight:500;text-align:right;max-width:280px;">${shippingSummary}</span>
+        </div>` : ''}
+      </div>
+      <div style="background:#F7F4EF;border-radius:12px;padding:20px;margin-bottom:24px;">
+        ${lineItemsHtml}
+        <div style="display:flex;justify-content:space-between;padding-top:4px;">
+          <span style="color:#111;font-size:14px;font-weight:700;">Total</span>
+          <span style="color:#111;font-size:14px;font-weight:700;">$${Math.floor(data.total / 100)}</span>
+        </div>
+      </div>
+      <a href="${process.env.APP_URL}/payouts"
+         style="display:block;text-align:center;background:#0C0B09;color:#ffffff;text-decoration:none;padding:14px;border-radius:12px;font-size:14px;font-weight:500;">
+        Open dashboard
+      </a>
+    </div>
+  </div>
+</body>
 </html>`.trim();
 }
 
@@ -195,4 +329,52 @@ function getResend() {
 
   resendClient = new Resend(process.env.RESEND_API_KEY);
   return resendClient;
+}
+
+async function resolveRecipientEmail(data: {
+  ownerId?: string | null;
+  businessEmail?: string | null;
+  contactEmail?: string | null;
+}) {
+  let recipientEmail = data.contactEmail ?? data.businessEmail ?? null;
+  if (recipientEmail || !data.ownerId) {
+    return recipientEmail;
+  }
+
+  try {
+    const { data: ownerData, error } = await supabase.auth.admin.getUserById(data.ownerId);
+    if (error) {
+      logOrderLifecycle('order_owner_lookup_failed', { owner_id: data.ownerId, error: error.message }, 'warn');
+      return recipientEmail;
+    }
+
+    return ownerData.user?.email ?? recipientEmail;
+  } catch (error) {
+    logOrderLifecycle('order_owner_lookup_failed', { owner_id: data.ownerId, error: toErrorMessage(error) }, 'warn');
+    return recipientEmail;
+  }
+}
+
+function formatShippingAddress(
+  shippingAddress: {
+    line1?: string;
+    city?: string;
+    region?: string;
+    postalCode?: string;
+    country?: string;
+  } | null
+) {
+  if (!shippingAddress) {
+    return null;
+  }
+
+  const parts = [
+    shippingAddress.line1,
+    shippingAddress.city,
+    shippingAddress.region,
+    shippingAddress.postalCode,
+    shippingAddress.country
+  ].filter(Boolean);
+
+  return parts.length ? parts.join(', ') : null;
 }
