@@ -32,6 +32,7 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
       .select('id,business_id,name,description,price,original_price,category,badge,emoji,image_url,is_active,in_stock,is_digital,digital_url,sort_order,rating,review_count')
       .eq('business_id', business.id)
       .eq('is_active', true)
+      .eq('in_stock', true)
       .order('sort_order', { ascending: true }),
     supabase
       .from('reviews')

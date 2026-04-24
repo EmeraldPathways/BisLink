@@ -41,7 +41,7 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
 
   const { data: business, error: bizError } = await supabase
     .from('businesses')
-    .select('id, stripe_account_id, stripe_onboarded')
+    .select('id, stripe_account_id, stripe_onboarded, currency')
     .eq('id', businessId)
     .eq('is_active', true)
     .maybeSingle();
@@ -77,7 +77,7 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
   const productIds = items.map((item) => item.productId);
   const { data: products, error: prodError } = await supabase
     .from('products')
-    .select('id, name, price, currency, in_stock, is_active, emoji')
+    .select('id, name, price, in_stock, is_active, emoji')
     .eq('business_id', businessId)
     .eq('is_active', true)
     .in('id', productIds);
@@ -111,7 +111,7 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
   const total = lineItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const paymentIntent = await stripe.paymentIntents.create({
     amount: total,
-    currency: products[0]?.currency ?? 'usd',
+    currency: business.currency ?? 'usd',
     automatic_payment_methods: { enabled: true },
     application_fee_amount: 0,
     transfer_data: {
@@ -119,12 +119,37 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
     },
     metadata: {
       type: 'product_order',
+      businessId
+    }
+  });
+
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .insert({
+      business_id: businessId,
+      customer_name: customerName,
+      customer_email: customerEmail,
+      customer_phone: customerPhone ?? null,
+      items: lineItems,
+      total_amount: total,
+      currency: business.currency ?? 'usd',
+      payment_intent_id: paymentIntent.id,
+      shipping_address: shippingAddress ?? null,
+      status: 'pending',
+      confirmation_sent: false
+    })
+    .select('id')
+    .single();
+
+  if (orderError || !order) {
+    return { ok: false, status: 500, error: 'Failed to persist order' };
+  }
+
+  await stripe.paymentIntents.update(paymentIntent.id, {
+    metadata: {
+      type: 'product_order',
       businessId,
-      customerName,
-      customerEmail,
-      customerPhone: customerPhone ?? '',
-      shippingAddress: shippingAddress ? JSON.stringify(shippingAddress) : '',
-      lineItems: JSON.stringify(lineItems)
+      orderId: order.id
     }
   });
 

@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import type { ProductRecord } from '@/types';
 
+const MAX_CART_QTY_PER_ITEM = 10;
+
 export type CartLine = {
   product: ProductRecord;
   qty: number;
@@ -18,7 +20,11 @@ export function useCart() {
     setItems((current) => {
       const existing = current.find((item) => item.product.id === product.id);
       if (existing) {
-        return current.map((item) => (item.product.id === product.id ? { ...item, qty: item.qty + 1 } : item));
+        return current.map((item) =>
+          item.product.id === product.id
+            ? { ...item, qty: Math.min(item.qty + 1, MAX_CART_QTY_PER_ITEM) }
+            : item
+        );
       }
       return [...current, { product, qty: 1 }];
     });
@@ -34,6 +40,7 @@ export function useCart() {
 
   const clear = () => setItems([]);
   const hasItem = (productId: string) => items.some((item) => item.product.id === productId);
+  const getQuantity = (productId: string) => items.find((item) => item.product.id === productId)?.qty ?? 0;
 
-  return { items, total, count, addItem, removeItem, clear, hasItem };
+  return { items, total, count, addItem, removeItem, clear, hasItem, getQuantity };
 }

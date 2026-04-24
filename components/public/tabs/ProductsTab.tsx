@@ -12,7 +12,8 @@ export function ProductsTab({
   onCategoryChange,
   onOpen,
   onAdd,
-  inCart
+  inCart,
+  getQuantity
 }: {
   products: ProductRecord[];
   categories: string[];
@@ -21,6 +22,7 @@ export function ProductsTab({
   onOpen: (product: ProductRecord) => void;
   onAdd: (product: ProductRecord) => void;
   inCart: (productId: string) => boolean;
+  getQuantity: (productId: string) => number;
 }) {
   return (
     <section className="space-y-4 px-2 pb-24 pt-6">
@@ -41,6 +43,10 @@ export function ProductsTab({
       <div className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-white p-3">
       <div className="grid grid-cols-2 gap-3">
         {products.map((product, index) => (
+          (() => {
+            const quantity = getQuantity(product.id);
+            const reachedCartLimit = quantity >= 10;
+            return (
           <motion.div
             key={product.id}
             initial={{ opacity: 0, y: 14 }}
@@ -103,8 +109,8 @@ export function ProductsTab({
                     event.stopPropagation();
                     onAdd(product);
                   }}
-                  disabled={!product.in_stock}
-                  className={`flex h-7 w-7 items-center justify-center rounded-[9px] text-sm ${inCart(product.id) ? 'bg-[var(--gold)] text-[var(--void)]' : 'bg-[var(--surface-3)] text-[var(--text-2)]'}`}
+                  disabled={!product.in_stock || reachedCartLimit}
+                  className={`flex h-7 w-7 items-center justify-center rounded-[9px] text-sm ${inCart(product.id) ? 'bg-[var(--gold)] text-[var(--void)]' : 'bg-[var(--surface-3)] text-[var(--text-2)]'} disabled:cursor-not-allowed disabled:opacity-50`}
                 >
                   {inCart(product.id) ? (
                     <Check className="h-3.5 w-3.5" aria-hidden="true" />
@@ -116,6 +122,8 @@ export function ProductsTab({
             </div>
             </div>
           </motion.div>
+            );
+          })()
         ))}
       </div>
       </div>

@@ -247,15 +247,9 @@ async function handleProductOrder(
   intent: Stripe.PaymentIntent,
   supabase: AdminClient,
 ) {
-  const {
-    businessId,
-    customerName,
-    customerEmail,
-    customerPhone,
-    shippingAddress,
-    lineItems,
-  } = intent.metadata;
-  const items = parseMetadataJson<
+  const { businessId, customerName, customerEmail, customerPhone, shippingAddress, lineItems } =
+    intent.metadata;
+  const metadataItems = parseMetadataJson<
     Array<{
       productId: string;
       name: string;
@@ -264,19 +258,16 @@ async function handleProductOrder(
       quantity: number;
     }>
   >(lineItems, []);
-  const parsedShippingAddress = parseMetadataJson<{
+  const metadataShippingAddress = parseMetadataJson<{
     line1?: string;
     city?: string;
     region?: string;
     postalCode?: string;
     country?: string;
   } | null>(shippingAddress, null);
-  const total = Array.isArray(items)
-    ? items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    : 0;
   const { data: existingOrder, error: existingOrderError } = await supabase
     .from('orders')
-    .select('id, business_id, confirmation_sent')
+    .select('id, business_id, customer_name, customer_email, customer_phone, items, total_amount, shipping_address, confirmation_sent, status')
     .eq('payment_intent_id', intent.id)
     .maybeSingle();
 
@@ -298,28 +289,74 @@ async function handleProductOrder(
     return;
   }
 
-  if (!businessId || !customerEmail || !Array.isArray(items) || !items.length) {
+  const effectiveBusinessId = existingOrder?.business_id ?? businessId ?? null;
+  const effectiveCustomerName = existingOrder?.customer_name ?? customerName ?? '';
+  const effectiveCustomerEmail = existingOrder?.customer_email ?? customerEmail ?? null;
+  const effectiveCustomerPhone = existingOrder?.customer_phone ?? (customerPhone || null);
+  const effectiveItems = Array.isArray(existingOrder?.items)
+    ? (existingOrder.items as Array<{
+        productId: string;
+        name: string;
+        emoji: string;
+        price: number;
+        quantity: number;
+      }>)
+    : metadataItems;
+  const effectiveShippingAddress =
+    (existingOrder?.shipping_address as {
+      line1?: string;
+      city?: string;
+      region?: string;
+      postalCode?: string;
+      country?: string;
+    } | null | undefined) ?? metadataShippingAddress;
+  const total =
+    existingOrder?.total_amount ??
+    (Array.isArray(effectiveItems)
+      ? effectiveItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      : 0);
+
+  if (!effectiveBusinessId || !effectiveCustomerEmail || !Array.isArray(effectiveItems) || !effectiveItems.length) {
     logWebhook(
       'order_payload_invalid',
       {
         payment_intent_id: intent.id,
-        business_id: businessId ?? null,
-        has_customer_email: Boolean(customerEmail),
-        has_items: Array.isArray(items) && items.length > 0,
+        business_id: effectiveBusinessId,
+        has_customer_email: Boolean(effectiveCustomerEmail),
+        has_items: Array.isArray(effectiveItems) && effectiveItems.length > 0,
       },
       'error',
     );
     return;
   }
 
+  if (existingOrder && existingOrder.status !== 'paid') {
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ status: 'paid' })
+      .eq('id', existingOrder.id);
+    if (updateError) {
+      logWebhook(
+        'order_status_update_failed',
+        {
+          payment_intent_id: intent.id,
+          order_id: existingOrder.id,
+          business_id: existingOrder.business_id,
+          error: updateError.message,
+        },
+        'error',
+      );
+    }
+  }
+
   triggerOrderLifecycle({
     orderId: existingOrder?.id ?? null,
-    businessId,
-    customerName: customerName ?? '',
-    customerEmail,
-    customerPhone: customerPhone || null,
-    shippingAddress: parsedShippingAddress,
-    items,
+    businessId: effectiveBusinessId,
+    customerName: effectiveCustomerName,
+    customerEmail: effectiveCustomerEmail,
+    customerPhone: effectiveCustomerPhone,
+    shippingAddress: effectiveShippingAddress,
+    items: effectiveItems,
     total,
     paymentIntentId: intent.id,
   }).catch((error) =>
@@ -328,7 +365,7 @@ async function handleProductOrder(
       {
         payment_intent_id: intent.id,
         order_id: existingOrder?.id ?? null,
-        business_id: businessId,
+        business_id: effectiveBusinessId,
         error: toErrorMessage(error),
       },
       'error',

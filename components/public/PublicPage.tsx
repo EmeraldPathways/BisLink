@@ -49,7 +49,7 @@ export function PublicPage({
   const [cartOpen, setCartOpen] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const { items, total, count, addItem, clear, hasItem } = useCart();
+  const { items, total, count, addItem, clear, hasItem, getQuantity } = useCart();
   const { activeCategory, setActiveCategory, categories, filtered } = useProducts(products.filter((product) => product.is_active));
   const reviewSummary = useMemo(() => getReviewSummaryFromReviews(reviews), [reviews]);
   const presentation = mode === 'demo' && !isMobile ? 'demo' : 'default';
@@ -81,6 +81,7 @@ export function PublicPage({
               onOpen={setSelectedProduct}
               onAdd={addItem}
               inCart={hasItem}
+              getQuantity={getQuantity}
             />
           ) : null}
           {activeTab === 'reviews' ? (
