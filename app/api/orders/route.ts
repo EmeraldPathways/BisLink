@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
+import { writeAppLog } from '@/lib/app-logs';
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { checkoutSchema, createCheckoutSession } from '@/lib/payments/checkout';
 
@@ -46,6 +47,20 @@ export async function POST(req: NextRequest) {
     });
 
     if (!result.ok) {
+      if (result.status >= 500) {
+        await writeAppLog({
+          level: 'error',
+          source: 'api.orders',
+          event: 'checkout_failed',
+          message: 'Checkout session creation failed',
+          context: {
+            business_id: parsed.data.businessId,
+            status_code: result.status,
+            error: result.error
+          }
+        });
+      }
+
       return NextResponse.json({ error: result.error, details: result.details }, { status: result.status });
     }
 
@@ -57,6 +72,13 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('[POST /api/orders]', error);
+    await writeAppLog({
+      level: 'error',
+      source: 'api.orders',
+      event: 'unexpected_error',
+      message: 'Unhandled error in POST /api/orders',
+      context: { error: error instanceof Error ? error.message : String(error) }
+    });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

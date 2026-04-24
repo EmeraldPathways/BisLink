@@ -3,6 +3,28 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      app_logs: {
+        Row: {
+          context: Json;
+          created_at: string;
+          event: string;
+          id: string;
+          level: 'log' | 'warn' | 'error';
+          message: string | null;
+          source: string;
+        };
+        Insert: {
+          context?: Json;
+          created_at?: string;
+          event: string;
+          id?: string;
+          level: 'log' | 'warn' | 'error';
+          message?: string | null;
+          source: string;
+        };
+        Update: Partial<Database['public']['Tables']['app_logs']['Insert']>;
+        Relationships: [];
+      };
       availability: {
         Row: {
           business_id: string;

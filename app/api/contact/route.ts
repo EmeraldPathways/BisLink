@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { writeAppLog } from '@/lib/app-logs';
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { getResend } from '@/lib/resend/client';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
@@ -20,6 +21,16 @@ export async function POST(req: NextRequest) {
     }
 
     if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+      await writeAppLog({
+        level: 'warn',
+        source: 'api.contact',
+        event: 'email_not_configured',
+        message: 'Contact delivery is not configured',
+        context: {
+          has_resend_api_key: Boolean(process.env.RESEND_API_KEY),
+          has_email_from: Boolean(process.env.EMAIL_FROM)
+        }
+      });
       return NextResponse.json({ error: 'Email is not configured' }, { status: 500 });
     }
 
@@ -59,11 +70,25 @@ export async function POST(req: NextRequest) {
     }
 
     if (!recipientEmail) {
+      await writeAppLog({
+        level: 'warn',
+        source: 'api.contact',
+        event: 'recipient_email_missing',
+        message: 'No recipient email is configured for contact delivery',
+        context: { business_id: businessId, owner_id: business.owner_id }
+      });
       return NextResponse.json({ error: 'No contact email configured' }, { status: 400 });
     }
 
     const resend = getResend();
     if (!resend) {
+      await writeAppLog({
+        level: 'warn',
+        source: 'api.contact',
+        event: 'resend_not_configured',
+        message: 'Resend client is not configured for contact delivery',
+        context: { business_id: businessId }
+      });
       return NextResponse.json({ error: 'Email is not configured' }, { status: 500 });
     }
 
@@ -81,12 +106,30 @@ export async function POST(req: NextRequest) {
 
     if (emailResult.error) {
       console.error('[POST /api/contact] resend error', emailResult.error);
+      await writeAppLog({
+        level: 'error',
+        source: 'api.contact',
+        event: 'resend_error',
+        message: 'Resend rejected contact email delivery',
+        context: {
+          business_id: businessId,
+          owner_id: business.owner_id,
+          error: emailResult.error.message
+        }
+      });
       return NextResponse.json({ error: 'Could not send email' }, { status: 502 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[POST /api/contact]', error);
+    await writeAppLog({
+      level: 'error',
+      source: 'api.contact',
+      event: 'unexpected_error',
+      message: 'Unhandled error in POST /api/contact',
+      context: { error: error instanceof Error ? error.message : String(error) }
+    });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

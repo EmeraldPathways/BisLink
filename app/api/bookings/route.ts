@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { writeAppLog } from '@/lib/app-logs';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
 import { getStripe } from '@/lib/stripe/client';
 
@@ -29,11 +30,18 @@ export async function POST(req: NextRequest) {
 
     const stripe = getStripe();
     if (!stripe) {
+      await writeAppLog({
+        level: 'warn',
+        source: 'api.bookings',
+        event: 'stripe_not_configured',
+        message: 'Stripe is not configured for booking creation',
+        context: { business_id: parsed.data.businessId }
+      });
       return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 });
     }
 
     const { businessId, serviceId, startTime, customerName, customerEmail, customerPhone } = parsed.data;
-    const supabase = createClient();
+    const supabase = createAdminClient() ?? createClient();
 
     const [{ data: business, error: bizError }, { data: service, error: svcError }] = await Promise.all([
       supabase
@@ -128,6 +136,18 @@ export async function POST(req: NextRequest) {
 
     if (bookingError || !booking) {
       await stripe.paymentIntents.cancel(paymentIntent.id);
+      await writeAppLog({
+        level: 'error',
+        source: 'api.bookings',
+        event: 'booking_create_failed',
+        message: 'Failed to persist booking after creating payment intent',
+        context: {
+          business_id: businessId,
+          service_id: serviceId,
+          payment_intent_id: paymentIntent.id,
+          error: bookingError?.message ?? 'Booking insert returned no row'
+        }
+      });
       return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 });
     }
 
@@ -137,6 +157,13 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('[POST /api/bookings]', error);
+    await writeAppLog({
+      level: 'error',
+      source: 'api.bookings',
+      event: 'unexpected_error',
+      message: 'Unhandled error in POST /api/bookings',
+      context: { error: error instanceof Error ? error.message : String(error) }
+    });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

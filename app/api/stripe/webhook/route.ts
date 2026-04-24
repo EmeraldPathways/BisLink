@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { writeAppLog } from '@/lib/app-logs';
 import { getStripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/server';
 
@@ -10,6 +11,17 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get('stripe-signature');
 
   if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET || !signature) {
+    await writeAppLog({
+      level: 'warn',
+      source: 'api.stripe_webhook',
+      event: 'webhook_not_configured',
+      message: 'Stripe webhook endpoint is missing required configuration',
+      context: {
+        has_stripe: Boolean(stripe),
+        has_webhook_secret: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+        has_signature: Boolean(signature)
+      }
+    });
     return NextResponse.json({ error: 'Webhook is not configured' }, { status: 500 });
   }
 
@@ -20,11 +32,24 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (error) {
     console.error('[Stripe webhook] Signature verification failed:', error);
+    await writeAppLog({
+      level: 'warn',
+      source: 'api.stripe_webhook',
+      event: 'invalid_signature',
+      message: 'Stripe webhook signature verification failed',
+      context: { error: toErrorMessage(error) }
+    });
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
   const supabase = createAdminClient();
   if (!supabase) {
+    await writeAppLog({
+      level: 'warn',
+      source: 'api.stripe_webhook',
+      event: 'supabase_admin_missing',
+      message: 'Supabase admin client is not configured for webhook processing'
+    });
     return NextResponse.json({ error: 'Supabase admin is not configured' }, { status: 500 });
   }
 
@@ -316,6 +341,15 @@ async function triggerOrderLifecycle(payload: {
 
 function logWebhook(event: string, payload: Record<string, unknown>, level: 'log' | 'warn' | 'error' = 'log') {
   console[level]('[webhook]', JSON.stringify({ event, ...payload }));
+  if (level !== 'log') {
+    void writeAppLog({
+      level,
+      source: 'api.stripe_webhook',
+      event,
+      message: `[webhook] ${event}`,
+      context: toLogContext(payload)
+    });
+  }
 }
 
 function parseMetadataJson<T>(value: string | undefined, fallback: T): T {
@@ -330,4 +364,18 @@ function parseMetadataJson<T>(value: string | undefined, fallback: T): T {
 
 function toErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function toLogContext(payload: Record<string, unknown>) {
+  return Object.fromEntries(
+    Object.entries(payload).map(([key, value]) => [key, normalizeLogValue(value)])
+  );
+}
+
+function normalizeLogValue(value: unknown): string | number | boolean | null | Record<string, never> {
+  if (value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value;
+  }
+
+  return {};
 }
