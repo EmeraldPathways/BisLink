@@ -18,16 +18,22 @@ export function EmbeddedPaymentForm({
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
+  const [paymentElementReady, setPaymentElementReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!stripe || !elements) return;
+    if (!stripe || !elements || !paymentElementReady) return;
 
     setSubmitting(true);
     setError(null);
 
     try {
+      const submitResult = await elements.submit();
+      if (submitResult.error) {
+        throw new Error(submitResult.error.message || 'Payment details are incomplete');
+      }
+
       await onConfirm({ stripe, elements });
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Payment failed');
@@ -39,12 +45,20 @@ export function EmbeddedPaymentForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="rounded-[15px] border border-[var(--color-border)] bg-white p-4">
-        <PaymentElement />
+        <PaymentElement
+          onReady={() => setPaymentElementReady(true)}
+          onLoaderStart={() => setPaymentElementReady(false)}
+          onChange={(event) => {
+            if (error && event.complete) {
+              setError(null);
+            }
+          }}
+        />
       </div>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <button
         type="submit"
-        disabled={!stripe || !elements || submitting}
+        disabled={!stripe || !elements || !paymentElementReady || submitting}
         className="w-full rounded-2xl bg-[var(--color-void)] px-4 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-[var(--color-border)] disabled:text-[var(--color-text-tertiary)]"
       >
         {submitting ? processingLabel : submitLabel}
