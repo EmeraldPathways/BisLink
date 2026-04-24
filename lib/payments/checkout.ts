@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { writeAppLog } from '@/lib/app-logs';
 import { getStripe } from '@/lib/stripe/client';
 
 const itemSchema = z.object({
@@ -123,25 +124,53 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
     }
   });
 
-  const { data: order, error: orderError } = await supabase
+  const baseOrderPayload = {
+    business_id: businessId,
+    customer_name: customerName,
+    customer_email: customerEmail,
+    customer_phone: customerPhone ?? null,
+    items: lineItems,
+    total_amount: total,
+    currency: business.currency ?? 'usd',
+    payment_intent_id: paymentIntent.id,
+    shipping_address: shippingAddress ?? null,
+    status: 'pending'
+  };
+
+  let orderInsert = await supabase
     .from('orders')
     .insert({
-      business_id: businessId,
-      customer_name: customerName,
-      customer_email: customerEmail,
-      customer_phone: customerPhone ?? null,
-      items: lineItems,
-      total_amount: total,
-      currency: business.currency ?? 'usd',
-      payment_intent_id: paymentIntent.id,
-      shipping_address: shippingAddress ?? null,
-      status: 'pending',
+      ...baseOrderPayload,
       confirmation_sent: false
     })
     .select('id')
     .single();
 
+  if (
+    orderInsert.error?.message?.toLowerCase().includes('confirmation_sent')
+  ) {
+    orderInsert = await supabase
+      .from('orders')
+      .insert(baseOrderPayload)
+      .select('id')
+      .single();
+  }
+
+  const { data: order, error: orderError } = orderInsert;
+
   if (orderError || !order) {
+    await stripe.paymentIntents.cancel(paymentIntent.id).catch(() => undefined);
+    await writeAppLog({
+      level: 'error',
+      source: 'lib.payments.checkout',
+      event: 'order_insert_failed',
+      message: 'Failed to persist order after creating payment intent',
+      context: {
+        business_id: businessId,
+        payment_intent_id: paymentIntent.id,
+        error: orderError?.message ?? 'Order insert returned no row'
+      }
+    });
     return { ok: false, status: 500, error: 'Failed to persist order' };
   }
 
