@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { getStripe } from '@/lib/stripe/client';
 
 const itemSchema = z.object({
@@ -37,20 +37,40 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
   }
 
   const { businessId, items, customerName, customerEmail, customerPhone, shippingAddress } = input;
-  const supabase = createClient();
+  const supabase = createAdminClient() ?? createClient();
 
   const { data: business, error: bizError } = await supabase
     .from('businesses')
     .select('id, stripe_account_id, stripe_onboarded')
     .eq('id', businessId)
     .eq('is_active', true)
-    .single();
+    .maybeSingle();
 
   if (bizError || !business) {
     return { ok: false, status: 404, error: 'Business not found' };
   }
 
-  if (!business.stripe_onboarded || !business.stripe_account_id) {
+  let stripeReady = Boolean(business.stripe_onboarded && business.stripe_account_id);
+  if (!stripeReady && business.stripe_account_id) {
+    try {
+      const account = await stripe.accounts.retrieve(business.stripe_account_id);
+      stripeReady = Boolean(account.charges_enabled && account.details_submitted);
+
+      if (stripeReady && !business.stripe_onboarded) {
+        const admin = createAdminClient();
+        if (admin) {
+          await admin
+            .from('businesses')
+            .update({ stripe_onboarded: true })
+            .eq('id', business.id);
+        }
+      }
+    } catch {
+      stripeReady = false;
+    }
+  }
+
+  if (!stripeReady || !business.stripe_account_id) {
     return { ok: false, status: 400, error: 'Business payments not configured' };
   }
 
