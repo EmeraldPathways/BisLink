@@ -86,6 +86,7 @@ export type Database = {
           reminder_1h_sent: boolean | null;
           reminder_24h_sent: boolean | null;
           review_requested_at: string | null;
+          review_token_expires_at: string | null;
           review_token: string | null;
           service_id: string;
           start_time: string;
@@ -113,6 +114,7 @@ export type Database = {
           reminder_24h_sent?: boolean | null;
           review_requested_at?: string | null;
           review_token?: string | null;
+          review_token_expires_at?: never;
           service_id: string;
           start_time: string;
           status?: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';

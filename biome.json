@@ -1,0 +1,50 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.13/schema.json",
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "app/**/*.ts",
+      "app/**/*.tsx",
+      "components/**/*.ts",
+      "components/**/*.tsx",
+      "hooks/**/*.ts",
+      "hooks/**/*.tsx",
+      "lib/**/*.ts",
+      "lib/**/*.tsx",
+      "types/**/*.ts",
+      "middleware.ts",
+      "instrumentation.ts",
+      "instrumentation-client.ts",
+      "!**/.next/**",
+      "!**/.next-build/**",
+      "!**/node_modules/**",
+      "!**/.ai-codex/**",
+      "!**/.codex/**",
+      "!**/.claude/**",
+      "!**/.token-savior-cache.json",
+      "!**/coverage/**",
+      "!**/dist/**",
+      "!**/*.tsbuildinfo",
+      "!**/*.log",
+      "!docs/**",
+      "!emails/**",
+      "!functions/**",
+      "!scripts/**",
+      "!supabase/**",
+      "!ybial/**",
+      "!ybial-agents/**"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  }
+}

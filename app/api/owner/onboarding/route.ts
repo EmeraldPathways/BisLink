@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createAdminClient } from '@/lib/supabase/server';
-import { requireOwnerBusiness } from '@/lib/owner-api';
-import { createClient, getUserOrNull } from '@/lib/supabase/server';
+import {
+  createAdminClient,
+  createClient,
+  getUserOrNull,
+} from '@/lib/supabase/server';
 import { generateSlug } from '@/lib/utils/slugify';
 
 const serviceSchema = z.object({
@@ -11,14 +13,14 @@ const serviceSchema = z.object({
   description: z.string().trim().max(1000).default(''),
   duration_minutes: z.number().int().min(5).max(480),
   price: z.number().int().min(0).max(10000000),
-  tag: z.string().trim().max(40).optional().nullable()
+  tag: z.string().trim().max(40).optional().nullable(),
 });
 
 const availabilitySchema = z.object({
   day_of_week: z.number().int().min(0).max(6),
   is_active: z.boolean(),
   start_time: z.string().regex(/^\d{2}:\d{2}$/),
-  end_time: z.string().regex(/^\d{2}:\d{2}$/)
+  end_time: z.string().regex(/^\d{2}:\d{2}$/),
 });
 
 const schema = z.object({
@@ -33,21 +35,24 @@ const schema = z.object({
       .min(3)
       .max(64)
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-      .optional()
+      .optional(),
   }),
   services: z.array(serviceSchema).min(1).max(10),
-  availability: z.array(availabilitySchema).length(7)
+  availability: z.array(availabilitySchema).length(7),
 });
 
 export async function GET() {
   const supabase = createClient();
   const user = await getUserOrNull(supabase);
 
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { data: existing } = await supabase
     .from('businesses')
-    .select('id,name,category,bio,location,slug,currency,services(*),availability(*)')
+    .select(
+      'id,name,category,bio,location,slug,currency,services(*),availability(*)',
+    )
     .eq('owner_id', user.id)
     .order('created_at', { ascending: true })
     .limit(1)
@@ -60,16 +65,23 @@ export async function PUT(req: NextRequest) {
   const supabase = createClient();
   const user = await getUserOrNull(supabase);
 
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      { status: 400 },
+    );
   }
 
   const admin = createAdminClient();
   if (!admin) {
-    return NextResponse.json({ error: 'Supabase admin client is not configured' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Supabase admin client is not configured' },
+      { status: 500 },
+    );
   }
 
   const input = parsed.data;
@@ -83,21 +95,34 @@ export async function PUT(req: NextRequest) {
     .limit(1)
     .maybeSingle();
   if (existingBusinessError) {
-    return NextResponse.json({ error: existingBusinessError.message }, { status: 500 });
+    return NextResponse.json(
+      { error: existingBusinessError.message },
+      { status: 500 },
+    );
   }
 
-  let slugConflictQuery = admin.from('businesses').select('id').eq('slug', desiredSlug);
+  let slugConflictQuery = admin
+    .from('businesses')
+    .select('id')
+    .eq('slug', desiredSlug);
   if (existingBusiness?.id) {
     slugConflictQuery = slugConflictQuery.neq('id', existingBusiness.id);
   }
 
-  const { data: slugConflict, error: slugConflictError } = await slugConflictQuery.maybeSingle();
+  const { data: slugConflict, error: slugConflictError } =
+    await slugConflictQuery.maybeSingle();
   if (slugConflictError) {
-    return NextResponse.json({ error: slugConflictError.message }, { status: 500 });
+    return NextResponse.json(
+      { error: slugConflictError.message },
+      { status: 500 },
+    );
   }
 
   if (slugConflict) {
-    return NextResponse.json({ error: 'Slug is already taken' }, { status: 409 });
+    return NextResponse.json(
+      { error: 'Slug is already taken' },
+      { status: 409 },
+    );
   }
 
   const businessPayload = {
@@ -108,16 +133,28 @@ export async function PUT(req: NextRequest) {
     location: input.business.location || null,
     slug: desiredSlug,
     currency: 'usd',
-    is_active: true
+    is_active: true,
   };
 
   let businessId = existingBusiness?.id;
   if (businessId) {
-    const { error } = await admin.from('businesses').update(businessPayload).eq('id', businessId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    const { error } = await admin
+      .from('businesses')
+      .update(businessPayload)
+      .eq('id', businessId);
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
   } else {
-    const { data, error } = await admin.from('businesses').insert(businessPayload).select('id').single();
-    if (error || !data) return NextResponse.json({ error: error?.message ?? 'Failed to create business' }, { status: 500 });
+    const { data, error } = await admin
+      .from('businesses')
+      .insert(businessPayload)
+      .select('id')
+      .single();
+    if (error || !data)
+      return NextResponse.json(
+        { error: error?.message ?? 'Failed to create business' },
+        { status: 500 },
+      );
     businessId = data.id;
   }
 
@@ -133,10 +170,11 @@ export async function PUT(req: NextRequest) {
       currency: 'usd',
       is_active: true,
       sort_order: index,
-      tag: service.tag || null
-    }))
+      tag: service.tag || null,
+    })),
   );
-  if (servicesError) return NextResponse.json({ error: servicesError.message }, { status: 500 });
+  if (servicesError)
+    return NextResponse.json({ error: servicesError.message }, { status: 500 });
 
   await admin.from('availability').delete().eq('business_id', businessId);
   const { error: availabilityError } = await admin.from('availability').insert(
@@ -145,11 +183,19 @@ export async function PUT(req: NextRequest) {
       day_of_week: item.day_of_week,
       is_active: item.is_active,
       start_time: `${item.start_time}:00`,
-      end_time: `${item.end_time}:00`
-    }))
+      end_time: `${item.end_time}:00`,
+    })),
   );
-  if (availabilityError) return NextResponse.json({ error: availabilityError.message }, { status: 500 });
+  if (availabilityError)
+    return NextResponse.json(
+      { error: availabilityError.message },
+      { status: 500 },
+    );
 
-  const { data: business } = await admin.from('businesses').select('id,slug').eq('id', businessId).single();
+  const { data: business } = await admin
+    .from('businesses')
+    .select('id,slug')
+    .eq('id', businessId)
+    .single();
   return NextResponse.json({ business });
 }

@@ -1,9 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { encodeGoogleOAuthState, getGoogleOAuthRedirectUri } from '@/lib/google/oauth';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import {
+  encodeGoogleOAuthState,
+  getGoogleOAuthRedirectUri,
+} from '@/lib/google/oauth';
 
 export async function GET(req: NextRequest) {
   if (!process.env.GOOGLE_CLIENT_ID) {
-    return NextResponse.json({ error: 'Google Calendar is not configured' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Google Calendar is not configured' },
+      { status: 500 },
+    );
   }
 
   const businessId = req.nextUrl.searchParams.get('businessId') ?? undefined;
@@ -15,8 +22,10 @@ export async function GET(req: NextRequest) {
     access_type: 'offline',
     prompt: 'consent',
     scope: 'https://www.googleapis.com/auth/calendar.events',
-    state: encodeGoogleOAuthState({ businessId, next })
+    state: encodeGoogleOAuthState({ businessId, next }),
   });
 
-  return NextResponse.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+  return NextResponse.redirect(
+    `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`,
+  );
 }

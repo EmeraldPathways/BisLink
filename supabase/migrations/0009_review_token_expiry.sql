@@ -1,0 +1,3 @@
+ALTER TABLE bookings
+  ADD COLUMN IF NOT EXISTS review_token_expires_at TIMESTAMPTZ
+  GENERATED ALWAYS AS (end_time + INTERVAL '30 days') STORED;

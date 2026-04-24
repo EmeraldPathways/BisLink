@@ -28,6 +28,7 @@ Pricing model: flat subscription, no per-booking fees.
 | Calendar Sync | Google Calendar API (Microsoft parity deferred) |
 | Payments | Stripe + Stripe Connect Express |
 | Email | Resend |
+| Error Monitoring | Sentry |
 | Hosting | Vercel |
 | DNS/CDN | Cloudflare |
 | Animations | Framer Motion |
@@ -198,6 +199,7 @@ Default active tab: `bookings`.
 - Contact delivery now resolves the business via the admin-capable lookup path, falls back to `business.email` when `contact_email` is blank, and surfaces explicit Resend send failures from `/api/contact`.
 - Location presentation is a linked map-style card rather than duplicated placeholder address text.
 - Booking sheet scrolling was hardened on mobile by switching the sheet panel to an explicit viewport-tied height so the date step remains scrollable inside the bottom sheet.
+- Public slug pages now render dynamically rather than serving a short-lived cached not-found state, so newly created businesses appear immediately after setup.
 
 ---
 
@@ -216,6 +218,7 @@ All monetary values are stored in cents. Row Level Security is enabled.
 | `products` | Up to 10 products per business |
 | `orders` | Product purchases persisted from Stripe payment intents |
 | `reviews` | Customer reviews linked to bookings |
+| `app_logs` | Server-side operational warnings/errors written via Supabase admin client |
 | `credentials` | Public credentials list |
 | `specialisms` | Public specialisms list |
 
@@ -229,6 +232,7 @@ bookings.followup_sent BOOLEAN
 bookings.google_event_id TEXT
 orders.confirmation_sent BOOLEAN
 reviews.booking_id UNIQUE WHERE booking_id IS NOT NULL
+bookings.review_token_expires_at TIMESTAMPTZ GENERATED FROM end_time + 30 days
 ```
 
 ---
@@ -289,16 +293,24 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - Order confirmation flow: `payment_intent.succeeded` -> trigger order lifecycle -> persist order exactly once from `payment_intent_id` and send one confirmation email.
 - Reminder flow: 24h and 1h reminders are tracked with `reminder_24h_sent` and `reminder_1h_sent`.
 - Review collection flow: follow-up email after the appointment includes a review token link, with one review allowed per booking.
+- Review submission links now expire 30 days after the booking end time via `bookings.review_token_expires_at`.
 - Public review summaries and demo review counts are derived from the same published-review source to keep hero and reviews-tab totals consistent.
 - 10-product limit is enforced by both Postgres trigger and API logic.
 - Basic rate limiting is applied to booking, order, contact, and review POST routes.
+- Important API warnings/errors are now persisted to Supabase `app_logs` through a minimal server helper that no-ops safely when admin env is unavailable.
+- Stripe webhooks verify the `stripe-signature` header against the raw request body before any lifecycle processing runs.
 - Public contact submissions now include stricter field validation plus a honeypot field that is rejected server-side when populated.
 - Public contact delivery now uses the same admin-capable business lookup approach as the public-page read path, falls back to `business.email`, and returns an explicit error when Resend rejects a send attempt.
+- Public booking intent creation now uses the same admin-capable business lookup approach as availability and public-page reads, preventing false `Business not found` failures at the payment step.
 - Admin diagnostics now distinguish configured, partial, pending processing, reconnect needed, and runtime-incomplete states.
 - Owner-facing payout and booking surfaces now expose clearer runtime status for calendar sync, contact delivery, and order confirmation processing.
 - Booking lifecycle retries only persist missing side effects, and order lifecycle no longer marks `confirmation_sent` true unless the confirmation email actually succeeds.
 - Reminder/follow-up logging now includes structured identifiers to make replay/debug traces easier to follow.
+- Sentry is wired for runtime error capture via `instrumentation.ts`, `instrumentation-client.ts`, and the global error boundary.
 - Owner and admin surfaces now include explicit sign-out actions instead of relying on manual route switching back to login pages.
+- Owner mutation routes now use the admin-capable Supabase path after server-side ownership has already been verified, avoiding RLS-related write failures on products and similar owner writes.
+- Owner service form error handling now converts structured validation payloads into readable text instead of crashing the dashboard when a Zod error object is returned.
+- Middleware now explicitly protects all owner dashboard route-group pages (`/calendar`, `/services`, `/products`, `/customers`, `/reviews`, `/link`, `/payouts`, `/availability`) instead of relying only on layout-level redirects.
 
 ---
 
@@ -338,6 +350,7 @@ Products and most About-page enrichment are completed later from the owner dashb
 The app includes a real internal super-admin console under `/admin`.
 
 - `/admin/login` is protected separately from owner auth.
+- Owner dashboard route-group pages are now also explicitly covered by middleware matcher protection.
 - `/admin/(console)` exposes:
   - overview
   - businesses list + business detail
@@ -387,8 +400,12 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - public contact form submission
 - public review submission with duplicate protection
 - shared public `/demo` and `/[slug]` experience with sticky semantic tabs, frame-aware sheets in demo mode, and consistent review totals
+- dynamic public slug rendering so new business links are available immediately after setup
 - owner dashboard reads across bookings, customers, services, products, reviews, availability, link settings, and payouts
 - owner mutations for services, products, availability, blocked times, review visibility, and business profile updates
+- owner mutation reliability improvements:
+  - admin-capable Supabase write path after ownership verification
+  - readable service-form validation errors instead of React render crashes
 - owner dashboard mobile remediation:
   - bottom navigation with More drawer
   - single-day mobile calendar
@@ -402,16 +419,23 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - internal admin console backed by live Supabase, Stripe, and expanded diagnostics
 - booking/order lifecycle processing with tighter idempotent guards, structured logs, and clearer retry semantics
 - Google Calendar token persistence and booking sync
+- Supabase-backed operational logging for key API failures and selected warnings
+- Sentry runtime instrumentation for server/client/global-error capture
+- stricter TypeScript settings with `noUncheckedIndexedAccess` and `noImplicitAny`
+- repo-scoped Biome setup for source linting/formatting, with generated/build output excluded
 - local Windows build reproducibility via `scripts/run-next-build.cjs` and the synced-workspace trace workaround
-- shared public-page image warnings removed by moving the remaining hero/about avatar rendering to `next/image`
 - booking sheet mobile scroll behavior fixed so the date-selection step can scroll reliably within the bottom sheet
 - public contact form delivery fixed to work when the business row is only resolvable via the admin-capable lookup path and when only `business.email` is configured
+- booking payment-intent creation fixed to resolve live businesses through the admin-capable lookup path instead of failing at the payment step with a false `Business not found`
+- public review links now expire after 30 days instead of remaining valid indefinitely
+- middleware protection now covers the full owner route-group surface, closing the previous defense-in-depth gap outside `/dashboard`
 
 ### Still incomplete / highest remaining risk
 
 - live webhook replay and reminder-dispatcher validation still need true runtime/manual verification beyond local build/test success
 - Google Calendar is productionized before Microsoft; Microsoft calendar remains deferred
 - public/operator messaging around delayed lifecycle processing can still be improved further in production conditions
+- Biome backlog reduction is in progress; the repo now has scoped config, but not all source files are clean yet
 
 ### Implication
 

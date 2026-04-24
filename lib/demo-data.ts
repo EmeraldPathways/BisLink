@@ -221,7 +221,7 @@ export const demoBookings: BookingRecord[] = [
   {
     id: '66666666-6666-6666-6666-666666666661',
     business_id: businessId,
-    service_id: demoServices[0].id,
+    service_id: demoServices[0]!.id,
     customer_name: 'Avery Stone',
     customer_email: 'avery@example.com',
     customer_phone: '+1 555 120 4401',
@@ -236,7 +236,7 @@ export const demoBookings: BookingRecord[] = [
   {
     id: '66666666-6666-6666-6666-666666666662',
     business_id: businessId,
-    service_id: demoServices[2].id,
+    service_id: demoServices[2]!.id,
     customer_name: 'Maya Lewis',
     customer_email: 'maya@example.com',
     customer_phone: '+1 555 302 9987',
@@ -251,7 +251,7 @@ export const demoBookings: BookingRecord[] = [
   {
     id: '66666666-6666-6666-6666-666666666663',
     business_id: businessId,
-    service_id: demoServices[1].id,
+    service_id: demoServices[1]!.id,
     customer_name: 'Jordan Kim',
     customer_email: 'jordan@example.com',
     start_time: formatISO(atTime(addDays(today, 1), 8)),
@@ -265,7 +265,7 @@ export const demoBookings: BookingRecord[] = [
   {
     id: '66666666-6666-6666-6666-666666666664',
     business_id: businessId,
-    service_id: demoServices[3].id,
+    service_id: demoServices[3]!.id,
     customer_name: 'Noah Patel',
     customer_email: 'noah@example.com',
     start_time: formatISO(atTime(addDays(today, 3), 15)),
@@ -306,9 +306,9 @@ export const demoCustomers: CustomerRecord[] = [
     total_bookings: 6,
     total_orders: 1,
     total_spent: 72000,
-    last_booking_at: demoBookings[0].start_time,
+    last_booking_at: demoBookings[0]!.start_time,
     first_booking_at: formatISO(addDays(today, -60)),
-    last_activity_at: demoBookings[0].start_time,
+    last_activity_at: demoBookings[0]!.start_time,
     first_activity_at: formatISO(addDays(today, -60)),
     notes: 'Prefers morning sessions.'
   },
@@ -321,9 +321,9 @@ export const demoCustomers: CustomerRecord[] = [
     total_bookings: 2,
     total_orders: 0,
     total_spent: 16000,
-    last_booking_at: demoBookings[1].start_time,
+    last_booking_at: demoBookings[1]!.start_time,
     first_booking_at: formatISO(addDays(today, -12)),
-    last_activity_at: demoBookings[1].start_time,
+    last_activity_at: demoBookings[1]!.start_time,
     first_activity_at: formatISO(addDays(today, -12)),
     notes: 'Recovering from ankle strain.'
   },
@@ -335,9 +335,9 @@ export const demoCustomers: CustomerRecord[] = [
     total_bookings: 4,
     total_orders: 2,
     total_spent: 32300,
-    last_booking_at: demoBookings[2].start_time,
+    last_booking_at: demoBookings[2]!.start_time,
     first_booking_at: formatISO(addDays(today, -45)),
-    last_activity_at: demoOrders[0].created_at,
+    last_activity_at: demoOrders[0]!.created_at,
     first_activity_at: formatISO(addDays(today, -45))
   }
 ];
@@ -346,7 +346,7 @@ export const demoReviews: ReviewRecord[] = [
   {
     id: 'review_1',
     business_id: businessId,
-    booking_id: demoBookings[0].id,
+    booking_id: demoBookings[0]!.id,
     customer_name: 'Avery S.',
     customer_email: 'avery@example.com',
     rating: 5,
@@ -358,7 +358,7 @@ export const demoReviews: ReviewRecord[] = [
   {
     id: 'review_2',
     business_id: businessId,
-    booking_id: demoBookings[1].id,
+    booking_id: demoBookings[1]!.id,
     customer_name: 'Maya L.',
     customer_email: 'maya@example.com',
     rating: 5,

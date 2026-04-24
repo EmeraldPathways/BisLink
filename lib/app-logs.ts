@@ -13,7 +13,13 @@ type AppLogInput = {
   context?: AppLogContext;
 };
 
-export async function writeAppLog({ level, source, event, message, context }: AppLogInput) {
+export async function writeAppLog({
+  level,
+  source,
+  event,
+  message,
+  context,
+}: AppLogInput) {
   try {
     const supabase = createAdminClient();
     if (!supabase) {
@@ -25,7 +31,7 @@ export async function writeAppLog({ level, source, event, message, context }: Ap
       source,
       event,
       message: message ?? null,
-      context: sanitizeContext(context)
+      context: sanitizeContext(context),
     };
 
     const { error } = await supabase.from('app_logs').insert(payload);
@@ -36,13 +42,13 @@ export async function writeAppLog({ level, source, event, message, context }: Ap
     console.error('[app-logs] Failed to persist app log', {
       source,
       event,
-      error: error.message
+      error: error.message,
     });
   } catch (error) {
     console.error('[app-logs] Failed to persist app log', {
       source,
       event,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }
@@ -52,5 +58,7 @@ function sanitizeContext(context: AppLogContext | undefined) {
     return {};
   }
 
-  return Object.fromEntries(Object.entries(context).filter(([, value]) => value !== undefined));
+  return Object.fromEntries(
+    Object.entries(context).filter(([, value]) => value !== undefined),
+  );
 }

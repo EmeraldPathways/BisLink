@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireOwnerBusiness } from '@/lib/owner-api';
 
@@ -16,21 +16,34 @@ const schema = z.object({
     .trim()
     .min(3)
     .max(64)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
 });
 
 export async function PATCH(req: NextRequest) {
   const owner = await requireOwnerBusiness();
-  if (!owner) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!owner)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const parsed = schema.safeParse(await req.json());
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  if (!parsed.success)
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      { status: 400 },
+    );
 
   const { supabase, business } = owner;
   if (parsed.data.slug !== business.slug) {
-    const { data: existing } = await supabase.from('businesses').select('id').eq('slug', parsed.data.slug).neq('id', business.id).maybeSingle();
+    const { data: existing } = await supabase
+      .from('businesses')
+      .select('id')
+      .eq('slug', parsed.data.slug)
+      .neq('id', business.id)
+      .maybeSingle();
     if (existing) {
-      return NextResponse.json({ error: 'Slug is already taken' }, { status: 409 });
+      return NextResponse.json(
+        { error: 'Slug is already taken' },
+        { status: 409 },
+      );
     }
   }
 
@@ -40,10 +53,16 @@ export async function PATCH(req: NextRequest) {
     full_bio: parsed.data.full_bio || null,
     location: parsed.data.location || null,
     address: parsed.data.address || null,
-    instagram_handle: parsed.data.instagram_handle || null
+    instagram_handle: parsed.data.instagram_handle || null,
   };
 
-  const { data, error } = await supabase.from('businesses').update(payload).eq('id', business.id).select('*').single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const { data, error } = await supabase
+    .from('businesses')
+    .update(payload)
+    .eq('id', business.id)
+    .select('*')
+    .single();
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ business: data });
 }

@@ -118,7 +118,7 @@ export function ProductForm({ product }: { product?: ProductRecord }) {
 
 function buildFormState(product?: ProductRecord): ProductFormState {
   return {
-    emoji: product?.emoji ?? productEmojiChoices[0],
+    emoji: product?.emoji ?? productEmojiChoices[0] ?? '',
     name: product?.name ?? '',
     description: product?.description ?? '',
     category: product?.category ?? '',

@@ -4,16 +4,20 @@ export function formatPrice(cents: number, currency = 'USD') {
     style: 'currency',
     currency: currency.toUpperCase(),
     minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 
-export function formatDateLabel(date: Date, timezone: string, options?: Intl.DateTimeFormatOptions) {
+export function formatDateLabel(
+  date: Date,
+  timezone: string,
+  options?: Intl.DateTimeFormatOptions,
+) {
   return new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
     month: 'short',
     day: 'numeric',
-    ...options
+    ...options,
   }).format(date);
 }
 
@@ -22,7 +26,7 @@ export function formatLongDate(date: Date, timezone: string) {
     timeZone: timezone,
     weekday: 'short',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   }).format(date);
 }
 
@@ -31,7 +35,7 @@ export function formatTimeLabel(value: string | Date, timezone: string) {
   return new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
     hour: 'numeric',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(date);
 }
 
@@ -41,7 +45,7 @@ export function formatDateTimeLabel(value: string, timezone: string) {
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(new Date(value));
 }
 

@@ -5,7 +5,7 @@ export function calculateAvailableSlots(
   existingBookings: { start_time: Date; end_time: Date }[],
   blockedTimes: { start_time: Date; end_time: Date }[],
   date: Date,
-  timezone: string
+  timezone: string,
 ): string[] {
   void timezone;
   if (!availabilityRecord) return [];
@@ -15,12 +15,22 @@ export function calculateAvailableSlots(
   const dayEnd = mergeDateAndTime(base, availabilityRecord.end_time);
   const slots: string[] = [];
 
-  for (let curr = new Date(dayStart); curr < dayEnd; curr = new Date(curr.getTime() + 60 * 60000)) {
-    const end = new Date(curr.getTime() + (serviceDuration + bufferAfter) * 60000);
+  for (
+    let curr = new Date(dayStart);
+    curr < dayEnd;
+    curr = new Date(curr.getTime() + 60 * 60000)
+  ) {
+    const end = new Date(
+      curr.getTime() + (serviceDuration + bufferAfter) * 60000,
+    );
     if (end > dayEnd) continue;
 
-    const overlapsBooking = existingBookings.some((booking) => curr < booking.end_time && end > booking.start_time);
-    const overlapsBlocked = blockedTimes.some((blocked) => curr < blocked.end_time && end > blocked.start_time);
+    const overlapsBooking = existingBookings.some(
+      (booking) => curr < booking.end_time && end > booking.start_time,
+    );
+    const overlapsBlocked = blockedTimes.some(
+      (blocked) => curr < blocked.end_time && end > blocked.start_time,
+    );
 
     if (!overlapsBooking && !overlapsBlocked) {
       slots.push(curr.toISOString().slice(11, 16));
@@ -33,6 +43,6 @@ export function calculateAvailableSlots(
 export function mergeDateAndTime(date: string, time: string) {
   const [hours, minutes] = time.slice(0, 5).split(':').map(Number);
   const merged = new Date(`${date}T00:00:00`);
-  merged.setHours(hours, minutes, 0, 0);
+  merged.setHours(hours ?? 0, minutes ?? 0, 0, 0);
   return merged;
 }

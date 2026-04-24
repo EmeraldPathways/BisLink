@@ -504,7 +504,7 @@ function summarizeChecks(checks: Array<DiagnosticCheck | undefined>) {
   if (present.some((check) => check.state === 'reconnect needed')) return 'Reconnect needed';
   if (present.some((check) => check.state === 'partial')) return 'Partially configured';
   if (present.some((check) => check.state === 'missing')) return 'Missing';
-  return present[0].summary;
+  return present[0]?.summary ?? 'Missing';
 }
 
 function toneForCheck(check?: DiagnosticCheck) {

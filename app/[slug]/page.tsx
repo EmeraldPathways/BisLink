@@ -4,7 +4,11 @@ import { getPublicBusinessPageBySlug } from '@/lib/public-page-data';
 
 export const dynamic = 'force-dynamic';
 
-export default async function SlugPage({ params }: { params: { slug: string } }) {
+export default async function SlugPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const publicPage = await getPublicBusinessPageBySlug(params.slug);
   if (!publicPage) return notFound();
 

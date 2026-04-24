@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireOwnerBusiness } from '@/lib/owner-api';
 
@@ -8,29 +8,54 @@ const schema = z.object({
   description: z.string().trim().max(1000).optional(),
   category: z.string().trim().max(80).optional().or(z.literal('')),
   price: z.coerce.number().int().min(0).max(10000000).optional(),
-  original_price: z.coerce.number().int().min(0).max(10000000).optional().nullable(),
+  original_price: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .max(10000000)
+    .optional()
+    .nullable(),
   badge: z.string().trim().max(40).optional().or(z.literal('')),
   is_active: z.boolean().optional(),
-  in_stock: z.boolean().optional()
+  in_stock: z.boolean().optional(),
 });
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const owner = await requireOwnerBusiness();
-  if (!owner) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!owner)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      { status: 400 },
+    );
   }
 
   const { supabase, business } = owner;
 
   if (parsed.data.is_active === true) {
-    const { count } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('business_id', business.id).eq('is_active', true);
+    const { count } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+      .eq('business_id', business.id)
+      .eq('is_active', true);
     if ((count ?? 0) >= 10) {
-      const { data: existing } = await supabase.from('products').select('is_active').eq('id', params.id).eq('business_id', business.id).single();
+      const { data: existing } = await supabase
+        .from('products')
+        .select('is_active')
+        .eq('id', params.id)
+        .eq('business_id', business.id)
+        .single();
       if (!existing?.is_active) {
-        return NextResponse.json({ error: 'Maximum of 10 active products per business' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'Maximum of 10 active products per business' },
+          { status: 400 },
+        );
       }
     }
   }

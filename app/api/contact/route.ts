@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { writeAppLog } from '@/lib/app-logs';
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
@@ -10,14 +10,21 @@ const schema = z.object({
   senderName: z.string().min(2).max(100),
   senderEmail: z.string().email(),
   message: z.string().min(10).max(2000),
-  honeypot: z.string().max(200).optional().default('')
+  honeypot: z.string().max(200).optional().default(''),
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const rateLimit = checkRateLimit(getRateLimitKey(req, 'contact'), 5, 60_000);
+    const rateLimit = checkRateLimit(
+      getRateLimitKey(req, 'contact'),
+      5,
+      60_000,
+    );
     if (!rateLimit.ok) {
-      return NextResponse.json({ error: 'Too many messages sent. Please try again shortly.' }, { status: 429 });
+      return NextResponse.json(
+        { error: 'Too many messages sent. Please try again shortly.' },
+        { status: 429 },
+      );
     }
 
     if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
@@ -28,20 +35,27 @@ export async function POST(req: NextRequest) {
         message: 'Contact delivery is not configured',
         context: {
           has_resend_api_key: Boolean(process.env.RESEND_API_KEY),
-          has_email_from: Boolean(process.env.EMAIL_FROM)
-        }
+          has_email_from: Boolean(process.env.EMAIL_FROM),
+        },
       });
-      return NextResponse.json({ error: 'Email is not configured' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Email is not configured' },
+        { status: 500 },
+      );
     }
 
     const body = await req.json();
     const parsed = schema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid request', details: parsed.error.flatten() },
+        { status: 400 },
+      );
     }
 
-    const { businessId, senderName, senderEmail, message, honeypot } = parsed.data;
+    const { businessId, senderName, senderEmail, message, honeypot } =
+      parsed.data;
     if (honeypot.trim()) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
@@ -55,14 +69,18 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (error || !business) {
-      return NextResponse.json({ error: 'Business not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Business not found' },
+        { status: 404 },
+      );
     }
 
     let recipientEmail = business.contact_email ?? business.email ?? null;
     if (!recipientEmail) {
       const admin = createAdminClient();
       if (admin) {
-        const { data: userData, error: userError } = await admin.auth.admin.getUserById(business.owner_id);
+        const { data: userData, error: userError } =
+          await admin.auth.admin.getUserById(business.owner_id);
         if (!userError) {
           recipientEmail = userData.user?.email ?? null;
         }
@@ -75,9 +93,12 @@ export async function POST(req: NextRequest) {
         source: 'api.contact',
         event: 'recipient_email_missing',
         message: 'No recipient email is configured for contact delivery',
-        context: { business_id: businessId, owner_id: business.owner_id }
+        context: { business_id: businessId, owner_id: business.owner_id },
       });
-      return NextResponse.json({ error: 'No contact email configured' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'No contact email configured' },
+        { status: 400 },
+      );
     }
 
     const resend = getResend();
@@ -87,9 +108,12 @@ export async function POST(req: NextRequest) {
         source: 'api.contact',
         event: 'resend_not_configured',
         message: 'Resend client is not configured for contact delivery',
-        context: { business_id: businessId }
+        context: { business_id: businessId },
       });
-      return NextResponse.json({ error: 'Email is not configured' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Email is not configured' },
+        { status: 500 },
+      );
     }
 
     const emailResult = await resend.emails.send({
@@ -100,8 +124,8 @@ export async function POST(req: NextRequest) {
       html: buildContactEmail({
         senderName,
         senderEmail,
-        message
-      })
+        message,
+      }),
     });
 
     if (emailResult.error) {
@@ -114,10 +138,13 @@ export async function POST(req: NextRequest) {
         context: {
           business_id: businessId,
           owner_id: business.owner_id,
-          error: emailResult.error.message
-        }
+          error: emailResult.error.message,
+        },
       });
-      return NextResponse.json({ error: 'Could not send email' }, { status: 502 });
+      return NextResponse.json(
+        { error: 'Could not send email' },
+        { status: 502 },
+      );
     }
 
     return NextResponse.json({ success: true });
@@ -128,9 +155,14 @@ export async function POST(req: NextRequest) {
       source: 'api.contact',
       event: 'unexpected_error',
       message: 'Unhandled error in POST /api/contact',
-      context: { error: error instanceof Error ? error.message : String(error) }
+      context: {
+        error: error instanceof Error ? error.message : String(error),
+      },
     });
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 },
+    );
   }
 }
 

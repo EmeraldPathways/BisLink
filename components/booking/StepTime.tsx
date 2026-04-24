@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
 import { formatTimeLabel } from '@/lib/utils/formatting';
 import type { BusinessProfile } from '@/types';
 import type { Service } from './BookingPage';
@@ -10,7 +10,7 @@ export function StepTime({
   business,
   service,
   date,
-  onNext
+  onNext,
 }: {
   business: BusinessProfile;
   service: Service;
@@ -36,10 +36,16 @@ export function StepTime({
         const params = new URLSearchParams({
           businessId: business.id,
           serviceId: service.id,
-          date
+          date,
         });
-        const response = await fetch(`/api/availability?${params.toString()}`, { signal: controller.signal });
-        const payload = (await response.json()) as { available?: string[]; timezone?: string; error?: string };
+        const response = await fetch(`/api/availability?${params.toString()}`, {
+          signal: controller.signal,
+        });
+        const payload = (await response.json()) as {
+          available?: string[];
+          timezone?: string;
+          error?: string;
+        };
 
         if (!response.ok) {
           throw new Error(payload.error || 'Could not load availability');
@@ -52,7 +58,11 @@ export function StepTime({
 
         setSlots([]);
         setTimezone(business.timezone);
-        setError(fetchError instanceof Error ? fetchError.message : 'Could not load availability');
+        setError(
+          fetchError instanceof Error
+            ? fetchError.message
+            : 'Could not load availability',
+        );
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -75,13 +85,16 @@ export function StepTime({
   return (
     <div>
       <h3 className="font-display text-[26px] font-semibold">Choose a time</h3>
-      <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{helperText}</p>
+      <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+        {helperText}
+      </p>
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {slots.map((slot) => {
           const active = selected === slot;
           return (
             <button
               key={slot}
+              type="button"
               disabled={loading}
               onClick={() => setSelected(slot)}
               className={`rounded-xl border px-3 py-3 text-sm font-medium ${
@@ -96,6 +109,7 @@ export function StepTime({
         })}
       </div>
       <button
+        type="button"
         disabled={!selected || loading || Boolean(error)}
         onClick={() => selected && onNext(selected)}
         className="mt-6 w-full rounded-2xl bg-[var(--color-void)] px-4 py-4 text-sm font-semibold text-white disabled:bg-[var(--color-border)] disabled:text-[var(--color-text-tertiary)]"

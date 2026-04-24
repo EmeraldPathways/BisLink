@@ -12,7 +12,10 @@ export default async function Page() {
       <div className="space-y-4">
         <div>
           <h1 className="font-display text-5xl">My Link</h1>
-          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">Customize the public page, contact details, story, and trust sections.</p>
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+            Customize the public page, contact details, story, and trust
+            sections.
+          </p>
         </div>
         <LinkEditor business={business} />
       </div>

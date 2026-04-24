@@ -33,12 +33,12 @@ export function AvailabilityGrid({
   }, [availability]);
 
   function updateDay(day: number, patch: Partial<DayState>) {
-    setDays((current) => ({ ...current, [day]: { ...current[day], ...patch } }));
+    setDays((current) => ({ ...current, [day]: { ...getDayState(current, day), ...patch } }));
   }
 
   async function saveDay(day: number) {
     setError(null);
-    const state = days[day];
+    const state = getDayState(days, day);
     const res = await fetch('/api/owner/availability', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -102,7 +102,7 @@ export function AvailabilityGrid({
         <h2 className="font-display text-4xl">Working hours</h2>
         <div className="mt-5 space-y-3">
           {labels.map((label, index) => {
-            const record = days[index];
+            const record = getDayState(days, index);
             return (
               <div key={label} className="grid grid-cols-[70px_72px_1fr_1fr_72px] items-center gap-3 rounded-[18px] bg-[var(--color-surface-2)] px-4 py-4">
                 <span className="text-sm font-semibold">{label}</span>
@@ -177,4 +177,8 @@ function buildDayState(availability: AvailabilityRecord[]) {
       ];
     })
   ) as Record<number, DayState>;
+}
+
+function getDayState(days: Record<number, DayState>, day: number): DayState {
+  return days[day] ?? { is_active: false, start_time: '09:00', end_time: '17:00' };
 }

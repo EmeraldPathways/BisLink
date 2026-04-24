@@ -1,12 +1,19 @@
 import { ArrowUpRight, Clock } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
-import { Service } from './BookingPage';
+import type { Service } from './BookingPage';
 
-export function ServiceCard({ service, onClick }: { service: Service; onClick: () => void }) {
+export function ServiceCard({
+  service,
+  onClick,
+}: {
+  service: Service;
+  onClick: () => void;
+}) {
   const isLightTag = service.tag === 'Start Here';
 
   return (
     <button
+      type="button"
       onClick={onClick}
       className="group relative w-full rounded-[18px] border-[1.5px] border-[var(--color-border)] bg-white p-[18px] pb-[52px] text-left transition duration-150 hover:-translate-y-0.5 hover:border-[#d4d4d0] hover:shadow-[0_8px_28px_rgba(0,0,0,0.08)] active:scale-[0.98]"
     >
@@ -24,8 +31,12 @@ export function ServiceCard({ service, onClick }: { service: Service; onClick: (
 
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[15px] font-semibold text-[var(--color-text-primary)]">{service.name}</p>
-          <p className="mt-1 max-w-[24rem] text-[13px] leading-5 text-[var(--color-text-secondary)]">{service.description}</p>
+          <p className="text-[15px] font-semibold text-[var(--color-text-primary)]">
+            {service.name}
+          </p>
+          <p className="mt-1 max-w-[24rem] text-[13px] leading-5 text-[var(--color-text-secondary)]">
+            {service.description}
+          </p>
           <p className="mt-3 flex items-center gap-1 text-[13px] text-[var(--color-text-tertiary)]">
             <Clock className="h-3 w-3" /> {service.duration_minutes} min
             <span className="ml-2 text-[16px] font-bold text-[var(--color-text-primary)]">

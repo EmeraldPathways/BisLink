@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireOwnerBusiness } from '@/lib/owner-api';
 
@@ -9,26 +9,40 @@ const schema = z.object({
   category: z.string().trim().max(80).optional().or(z.literal('')),
   price: z.coerce.number().int().min(0).max(10000000),
   original_price: z.coerce.number().int().min(0).max(10000000).optional(),
-  badge: z.string().trim().max(40).optional().or(z.literal(''))
+  badge: z.string().trim().max(40).optional().or(z.literal('')),
 });
 
 export async function POST(req: NextRequest) {
   const owner = await requireOwnerBusiness();
-  if (!owner) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!owner)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      { status: 400 },
+    );
   }
 
   const { supabase, business } = owner;
   const [{ count: totalCount }, { count: activeCount }] = await Promise.all([
-    supabase.from('products').select('*', { count: 'exact', head: true }).eq('business_id', business.id),
-    supabase.from('products').select('*', { count: 'exact', head: true }).eq('business_id', business.id).eq('is_active', true)
+    supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+      .eq('business_id', business.id),
+    supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+      .eq('business_id', business.id)
+      .eq('is_active', true),
   ]);
 
   if ((activeCount ?? 0) >= 10) {
-    return NextResponse.json({ error: 'Maximum of 10 active products per business' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Maximum of 10 active products per business' },
+      { status: 400 },
+    );
   }
 
   const { data, error } = await supabase
@@ -47,7 +61,7 @@ export async function POST(req: NextRequest) {
       is_digital: false,
       sort_order: totalCount ?? 0,
       rating: 0,
-      review_count: 0
+      review_count: 0,
     })
     .select('*')
     .single();

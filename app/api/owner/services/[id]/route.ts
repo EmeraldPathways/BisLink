@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireOwnerBusiness } from '@/lib/owner-api';
 
@@ -9,16 +9,23 @@ const schema = z.object({
   duration_minutes: z.coerce.number().int().min(5).max(480).optional(),
   price: z.coerce.number().int().min(0).max(10000000).optional(),
   tag: z.string().trim().max(40).optional().or(z.literal('')),
-  is_active: z.boolean().optional()
+  is_active: z.boolean().optional(),
 });
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const owner = await requireOwnerBusiness();
-  if (!owner) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!owner)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      { status: 400 },
+    );
   }
 
   const updates: Record<string, unknown> = {};

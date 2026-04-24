@@ -1,17 +1,17 @@
 'use client';
 
-import { type RefObject, useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { X } from 'lucide-react';
+import { type RefObject, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import type { BusinessProfile } from '@/types';
+import type { Service } from './BookingPage';
+import { StepConfirm } from './StepConfirm';
 import { StepDate } from './StepDate';
-import { StepTime } from './StepTime';
 import { StepDetails } from './StepDetails';
 import { StepPayment } from './StepPayment';
-import { StepConfirm } from './StepConfirm';
-import type { Service } from './BookingPage';
+import { StepTime } from './StepTime';
 
 type Details = { name: string; email: string; phone?: string };
 
@@ -20,7 +20,7 @@ export function BookingSheet({
   service,
   onClose,
   presentation = 'default',
-  containerRef
+  containerRef,
 }: {
   business: BusinessProfile;
   service: Service | null;
@@ -62,32 +62,43 @@ export function BookingSheet({
       { label: 'Date', complete: step >= 1, current: step === 1 },
       { label: 'Time', complete: step >= 2, current: step === 2 },
       { label: 'Details', complete: step >= 3, current: step === 3 },
-      { label: 'Confirm', complete: step >= 4, current: step >= 4 }
+      { label: 'Confirm', complete: step >= 4, current: step >= 4 },
     ],
-    [step]
+    [step],
   );
 
   if (!service) return null;
 
   const title = step === 1 ? service.name : 'Booking';
   const framed = presentation === 'demo' && !isMobile && containerRef?.current;
-  const shellClassName = framed ? 'absolute inset-0 z-50' : 'fixed inset-0 z-50';
+  const shellClassName = framed
+    ? 'absolute inset-0 z-50'
+    : 'fixed inset-0 z-50';
   const panelClassName = framed
     ? 'hide-scrollbar absolute bottom-0 left-0 right-0 h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)]'
     : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto h-[calc(100dvh-8px)] w-full max-w-[430px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)] xl:left-[calc(50%-640px)] xl:right-auto xl:h-auto xl:max-h-[calc(100dvh-24px)] xl:rounded-t-[26px] xl:px-4';
 
   const sheet = (
     <AnimatePresence>
-      <motion.div className={shellClassName} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <button type="button" className="absolute inset-0 bg-black/55 backdrop-blur-md" onClick={onClose} />
+      <motion.div
+        className={shellClassName}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <button
+          type="button"
+          className="absolute inset-0 bg-black/55 backdrop-blur-md"
+          onClick={onClose}
+        />
         <motion.div
           drag="y"
           dragListener={false}
           dragControls={dragControls}
           dragConstraints={{ top: 0, bottom: 180 }}
           dragElastic={0.1}
-          onDrag={(event, info) => setDragOffset(info.offset.y)}
-          onDragEnd={(event, info) => {
+          onDrag={(_event, info) => setDragOffset(info.offset.y)}
+          onDragEnd={(_event, info) => {
             if (info.offset.y > 100) onClose();
             setDragOffset(0);
           }}
@@ -108,16 +119,25 @@ export function BookingSheet({
           </button>
           <div className="mb-4 flex items-center justify-between">
             {step > 1 ? (
-              <button className="text-sm font-medium text-[var(--color-text-primary)]" onClick={() => setStep((current) => current - 1)}>
+              <button
+                type="button"
+                className="text-sm font-medium text-[var(--color-text-primary)]"
+                onClick={() => setStep((current) => current - 1)}
+              >
                 Back
               </button>
             ) : (
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">Booking</p>
-                <p className="font-display text-[24px] text-[var(--color-text-primary)]">{title}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+                  Booking
+                </p>
+                <p className="font-display text-[24px] text-[var(--color-text-primary)]">
+                  {title}
+                </p>
               </div>
             )}
             <button
+              type="button"
               aria-label="Close booking"
               className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--color-surface-3)] text-[var(--color-text-primary)]"
               onClick={onClose}
@@ -126,25 +146,35 @@ export function BookingSheet({
             </button>
           </div>
 
-          <div className="mb-6 grid grid-cols-4 gap-2" aria-label="Booking progress">
+          <fieldset className="mb-6 grid grid-cols-4 gap-2">
+            <legend className="sr-only">Booking progress</legend>
             {progress.map((item) => (
               <div key={item.label} className="space-y-2">
                 <p
                   className={`text-center text-[11px] font-medium ${
-                    item.current ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)]'
+                    item.current
+                      ? 'text-[var(--color-text-primary)]'
+                      : 'text-[var(--color-text-secondary)]'
                   }`}
                   aria-current={item.current ? 'step' : undefined}
                 >
                   {item.label}
                 </p>
-                <div className={`h-[3px] rounded ${item.complete ? 'bg-[var(--color-void)]' : 'bg-[var(--color-border)]'}`} />
+                <div
+                  className={`h-[3px] rounded ${item.complete ? 'bg-[var(--color-void)]' : 'bg-[var(--color-border)]'}`}
+                />
               </div>
             ))}
-          </div>
+          </fieldset>
 
           <AnimatePresence mode="wait">
             {step === 1 ? (
-              <motion.div key="date" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}>
+              <motion.div
+                key="date"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+              >
                 <StepDate
                   business={business}
                   service={service}
@@ -157,7 +187,12 @@ export function BookingSheet({
             ) : null}
 
             {step === 2 && date ? (
-              <motion.div key="time" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}>
+              <motion.div
+                key="time"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+              >
                 <StepTime
                   business={business}
                   service={service}
@@ -172,7 +207,12 @@ export function BookingSheet({
             ) : null}
 
             {step === 3 && date && time ? (
-              <motion.div key="details" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}>
+              <motion.div
+                key="details"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+              >
                 <StepDetails
                   business={business}
                   service={service}
@@ -188,7 +228,12 @@ export function BookingSheet({
             ) : null}
 
             {step === 4 && date && time && details ? (
-              <motion.div key="payment" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}>
+              <motion.div
+                key="payment"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+              >
                 <StepPayment
                   business={business}
                   service={service}
@@ -205,8 +250,21 @@ export function BookingSheet({
             ) : null}
 
             {step === 5 && date && time && details && bookingId ? (
-              <motion.div key="confirm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}>
-                <StepConfirm business={business} service={service} date={date} time={time} details={details} bookingId={bookingId} onReset={onClose} />
+              <motion.div
+                key="confirm"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+              >
+                <StepConfirm
+                  business={business}
+                  service={service}
+                  date={date}
+                  time={time}
+                  details={details}
+                  bookingId={bookingId}
+                  onReset={onClose}
+                />
               </motion.div>
             ) : null}
           </AnimatePresence>
@@ -215,5 +273,7 @@ export function BookingSheet({
     </AnimatePresence>
   );
 
-  return framed && containerRef?.current ? createPortal(sheet, containerRef.current) : sheet;
+  return framed && containerRef?.current
+    ? createPortal(sheet, containerRef.current)
+    : sheet;
 }

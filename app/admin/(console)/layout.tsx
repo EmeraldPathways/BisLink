@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 
-export default function AdminConsoleLayout({ children }: { children: ReactNode }) {
+export default function AdminConsoleLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <div className="min-h-screen bg-[var(--color-bg)] md:flex">
       <AdminSidebar />

@@ -1,7 +1,18 @@
-export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+export type BookingStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'cancelled'
+  | 'completed'
+  | 'no_show';
 export type PaymentStatus = 'unpaid' | 'paid' | 'refunded';
 export type DiagnosticLevel = 'ok' | 'warn' | 'fail';
-export type DiagnosticState = 'configured' | 'missing' | 'partial' | 'reconnect needed' | 'pending processing' | 'runtime incomplete';
+export type DiagnosticState =
+  | 'configured'
+  | 'missing'
+  | 'partial'
+  | 'reconnect needed'
+  | 'pending processing'
+  | 'runtime incomplete';
 
 export type DiagnosticCheck = {
   name: string;
@@ -179,12 +190,13 @@ export type BookingRecord = {
   payment_status: PaymentStatus;
   payment_intent_id?: string | null;
   amount_paid: number;
-    currency: string;
-    review_token?: string | null;
-    notes?: string | null;
-    confirmation_sent?: boolean | null;
-    google_event_id?: string | null;
-  };
+  currency: string;
+  review_token?: string | null;
+  review_token_expires_at?: string | null;
+  notes?: string | null;
+  confirmation_sent?: boolean | null;
+  google_event_id?: string | null;
+};
 
 export type CustomerRecord = {
   id: string;
