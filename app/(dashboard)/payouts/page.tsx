@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export default async function Page() {
   const {
     business,
+    stripeStatus,
     calendarStatus,
     contactStatus,
     orderConfirmationStatus,
@@ -33,8 +34,8 @@ export default async function Page() {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatusCard
           label="Stripe"
-          value={business.stripe_onboarded ? 'Connected' : 'Setup needed'}
-          tone={business.stripe_onboarded ? 'good' : 'warn'}
+          value={stripeStatus.label}
+          tone={stripeStatus.connected ? 'good' : 'warn'}
         />
         <StatusCard
           label="Calendar"
@@ -53,7 +54,7 @@ export default async function Page() {
         />
       </div>
 
-      {!business.stripe_onboarded ? (
+      {!stripeStatus.connected ? (
         <div className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -66,6 +67,17 @@ export default async function Page() {
             </div>
             <StripeConnectButton />
           </div>
+        </div>
+      ) : null}
+
+      {stripeStatus.connected && stripeStatus.detail ? (
+        <div className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-gold-dark)]">
+            Stripe connected
+          </p>
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+            {stripeStatus.detail}
+          </p>
         </div>
       ) : null}
 

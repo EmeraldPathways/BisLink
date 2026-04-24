@@ -1,5 +1,5 @@
 import { addDays, format, startOfWeek, subDays } from 'date-fns';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { getStripe } from '@/lib/stripe/client';
 import { getCurrentOwnerBusiness } from '@/lib/owner';
 import type {
@@ -195,6 +195,11 @@ export async function getPayoutsData() {
   const { business, user } = await getCurrentOwnerBusiness();
   const supabase = createClient();
   const since = subDays(new Date(), 31).toISOString();
+  const stripeStatus = await getStripeConnectionStatus(business);
+  const effectiveBusiness = {
+    ...business,
+    stripe_onboarded: stripeStatus.connected
+  };
 
   const [{ data: bookings }, { data: orders }, { data: recentOrders }] = await Promise.all([
     supabase.from('bookings').select('amount_paid,payment_status,status,start_time').eq('business_id', business.id).gte('start_time', since),
@@ -214,14 +219,15 @@ export async function getPayoutsData() {
   ).length;
 
   return {
-    business,
+    business: effectiveBusiness,
+    stripeStatus,
     contactStatus: getContactDeliveryStatus({
       businessEmail: business.contact_email ?? business.email ?? null,
       ownerEmail: user.email ?? null
     }),
     calendarStatus: getCalendarConnectionStatus(business.google_cal_token),
     orderConfirmationStatus: pendingOrders ? `${pendingOrders} pending confirmation` : 'No pending confirmations',
-    payouts: await fetchPayouts(business),
+    payouts: await fetchPayouts(effectiveBusiness),
     recentOrders:
       (recentOrders ?? []) as Array<{
         id: string;
@@ -232,15 +238,68 @@ export async function getPayoutsData() {
         created_at: string | null;
         confirmation_sent?: boolean | null;
       }>,
-    revenue: buildRevenueSeries(business, paidBookings, paidOrders),
+    revenue: buildRevenueSeries(effectiveBusiness, paidBookings, paidOrders),
     totals: {
-      week: revenueWithinWindow(business, paidBookings, paidOrders, 7),
-      month: revenueWithinWindow(business, paidBookings, paidOrders, 31),
+      week: revenueWithinWindow(effectiveBusiness, paidBookings, paidOrders, 7),
+      month: revenueWithinWindow(effectiveBusiness, paidBookings, paidOrders, 31),
       allTime:
         paidBookings.filter((item) => item.payment_status === 'paid' && item.status !== 'cancelled').reduce((sum, item) => sum + (item.amount_paid ?? 0), 0) +
         paidOrders.filter((item) => item.status === 'paid' || item.status === 'fulfilled').reduce((sum, item) => sum + item.total_amount, 0)
     }
   };
+}
+
+async function getStripeConnectionStatus(business: BusinessProfile) {
+  const stripe = getStripe();
+  if (!stripe || !business.stripe_account_id) {
+    return {
+      connected: Boolean(business.stripe_onboarded),
+      label: business.stripe_onboarded ? 'Connected' : 'Setup needed',
+      detail: null as string | null
+    };
+  }
+
+  try {
+    const account = await stripe.accounts.retrieve(business.stripe_account_id);
+    const connected = Boolean(account.charges_enabled && account.details_submitted);
+    const dueItems =
+      account.future_requirements?.currently_due?.length
+        ? account.future_requirements.currently_due
+        : account.future_requirements?.eventually_due ?? [];
+    const firstDueItem = dueItems[0];
+    const detail = firstDueItem ? `Due later: ${formatStripeRequirement(firstDueItem)}` : null;
+
+    if (connected !== Boolean(business.stripe_onboarded)) {
+      const admin = createAdminClient();
+      if (admin) {
+        await admin
+          .from('businesses')
+          .update({ stripe_onboarded: connected })
+          .eq('id', business.id);
+      }
+    }
+
+    return {
+      connected,
+      label: connected ? 'Connected' : 'Setup needed',
+      detail
+    };
+  } catch {
+    return {
+      connected: Boolean(business.stripe_onboarded),
+      label: business.stripe_onboarded ? 'Connected' : 'Setup needed',
+      detail: null as string | null
+    };
+  }
+}
+
+function formatStripeRequirement(value: string) {
+  return value
+    .replace(/\.\w+$/g, '')
+    .split(/[._]/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
 function getCalendarConnectionStatus(token: unknown) {
