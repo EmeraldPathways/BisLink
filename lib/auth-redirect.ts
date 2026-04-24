@@ -7,7 +7,7 @@ type RedirectContext = {
 };
 
 export async function getPostAuthRedirectPath() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = await getUserOrNull(supabase);
 
   if (!user) {
@@ -31,7 +31,7 @@ export async function resolvePostAuthRedirectPathForUser({
   }
 
   const admin = createAdminClient();
-  const businessLookupClient = admin ?? lookupClient ?? createClient();
+  const businessLookupClient = admin ?? lookupClient ?? (await createClient());
   const businessLookup = businessLookupClient
     .from('businesses')
     .select('id')

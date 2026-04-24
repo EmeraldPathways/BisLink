@@ -42,7 +42,7 @@ const schema = z.object({
 });
 
 export async function GET() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = await getUserOrNull(supabase);
 
   if (!user)
@@ -62,7 +62,7 @@ export async function GET() {
 }
 
 export async function PUT(req: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = await getUserOrNull(supabase);
 
   if (!user)

@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       customerEmail,
       customerPhone,
     } = parsed.data;
-    const supabase = createAdminClient() ?? createClient();
+    const supabase = createAdminClient() ?? (await createClient());
 
     const [
       { data: business, error: bizError },

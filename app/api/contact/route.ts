@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    const supabase = createAdminClient() ?? createClient();
+    const supabase = createAdminClient() ?? (await createClient());
     const { data: business, error } = await supabase
       .from('businesses')
       .select('name, email, contact_email, owner_id, slug')

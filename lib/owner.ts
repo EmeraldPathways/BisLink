@@ -10,7 +10,7 @@ type OwnerContext = {
 };
 
 async function resolveCurrentOwnerBusiness(): Promise<OwnerContext | { user: User; business: null } | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const admin = createAdminClient();
   const user = await getUserOrNull(supabase);
 

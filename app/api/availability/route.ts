@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const { businessId, serviceId, date } = parsed.data;
-  const supabase = createAdminClient() ?? createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const [{ data: service }, { data: business }] = await Promise.all([
     supabase
       .from('services')

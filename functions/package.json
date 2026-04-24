@@ -12,9 +12,9 @@
     "deploy:all": "npm run deploy:booking-lifecycle && npm run deploy:reminder-dispatcher && npm run deploy:order-lifecycle"
   },
   "dependencies": {
-    "@google-cloud/functions-framework": "^3.0.0",
+    "@google-cloud/functions-framework": "^5.0.2",
     "@supabase/supabase-js": "^2.0.0",
-    "googleapis": "^140.0.0",
+    "googleapis": "^152.0.0",
     "resend": "^4.1.2"
   },
   "devDependencies": {

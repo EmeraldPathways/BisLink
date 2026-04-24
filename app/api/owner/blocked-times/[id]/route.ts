@@ -3,8 +3,9 @@ import { requireOwnerBusiness } from '@/lib/owner-api';
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params;
   const owner = await requireOwnerBusiness();
   if (!owner)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -13,7 +14,7 @@ export async function DELETE(
   const { error } = await supabase
     .from('blocked_times')
     .delete()
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('business_id', business.id);
 
   if (error)

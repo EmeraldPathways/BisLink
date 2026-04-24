@@ -5,7 +5,7 @@ import { getPostAuthRedirectPath } from '@/lib/auth-redirect';
 import { createClient, getUserOrNull } from '@/lib/supabase/server';
 
 export default async function OnboardingPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = await getUserOrNull(supabase);
 
   if (!user) {

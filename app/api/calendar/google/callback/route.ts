@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
 }
 
 async function getBusinessIdForCurrentUser() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = await getUserOrNull(supabase);
 
   if (!user) {

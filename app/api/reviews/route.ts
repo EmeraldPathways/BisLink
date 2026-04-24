@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     );
 
   const { bookingId, token, rating, text } = parsed.data;
-  const supabase = createAdminClient() ?? createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const { data: booking } = await supabase
     .from('bookings')
     .select(

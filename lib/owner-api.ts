@@ -8,7 +8,7 @@ export async function requireOwnerBusiness() {
   }
 
   return {
-    supabase: createAdminClient() ?? createClient(),
+    supabase: createAdminClient() ?? (await createClient()),
     user: context.user,
     business: context.business
   };

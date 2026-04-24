@@ -290,7 +290,7 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - Slot availability is generated from `availability`, minus overlapping `bookings` and `blocked_times`, accounting for service duration + buffer time.
 - Stripe Payment Element is used for bookings and product checkout. Stripe webhooks remain the source of truth for completion.
 - Booking confirmation flow: `payment_intent.succeeded` -> confirm booking -> trigger booking lifecycle -> send confirmation email and create Google Calendar event idempotently.
-- Order confirmation flow: `payment_intent.succeeded` -> trigger order lifecycle -> persist order exactly once from `payment_intent_id` and send one confirmation email.
+- Order confirmation flow: `payment_intent.succeeded` -> persist or mark the order `paid` from `payment_intent_id` inside the webhook -> await order lifecycle -> send buyer confirmation email and seller order notification email.
 - Reminder flow: 24h and 1h reminders are tracked with `reminder_24h_sent` and `reminder_1h_sent`.
 - Review collection flow: follow-up email after the appointment includes a review token link, with one review allowed per booking.
 - Review submission links now expire 30 days after the booking end time via `bookings.review_token_expires_at`.
@@ -305,6 +305,8 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - Admin diagnostics now distinguish configured, partial, pending processing, reconnect needed, and runtime-incomplete states.
 - Owner-facing payout and booking surfaces now expose clearer runtime status for calendar sync, contact delivery, and order confirmation processing.
 - Booking lifecycle retries only persist missing side effects, and order lifecycle no longer marks `confirmation_sent` true unless the confirmation email actually succeeds.
+- Product-order completion now keeps order persistence on the webhook critical path instead of a detached background fetch, so Stripe retries the flow when lifecycle delivery fails.
+- Product-order seller notifications resolve recipient email from `contact_email`, then `business.email`, then the auth owner email.
 - Reminder/follow-up logging now includes structured identifiers to make replay/debug traces easier to follow.
 - Sentry is wired for runtime error capture via `instrumentation.ts`, `instrumentation-client.ts`, and the global error boundary.
 - Owner and admin surfaces now include explicit sign-out actions instead of relying on manual route switching back to login pages.
@@ -330,7 +332,8 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - Auth callback exchanges the Supabase code and resolves the destination server-side.
 - Admin users are redirected to `/admin`.
 - Authenticated owners with no business row are redirected to `/onboarding`.
-- Authenticated owners with a business row are redirected to `/dashboard`.
+- Authenticated owners with an incomplete business setup are redirected back to `/onboarding`.
+- Authenticated owners with a complete business setup are redirected to `/dashboard`.
 - Authenticated users are redirected away from `/login` and `/signup`.
 
 ### Onboarding wizard
@@ -416,8 +419,27 @@ The app is now mostly live across owner, public, and payment-critical flows.
   - desktop sidebar sign-out action
   - mobile More drawer sign-out action
 - Stripe Connect onboarding for owners
+- post-signup Stripe recovery from `/payouts`, including a visible Stripe onboarding CTA when onboarding was skipped or left incomplete
+- live payout status derived from the connected Stripe account rather than trusting only the cached `stripe_onboarded` flag
 - internal admin console backed by live Supabase, Stripe, and expanded diagnostics
 - booking/order lifecycle processing with tighter idempotent guards, structured logs, and clearer retry semantics
+- product checkout hardening:
+  - admin-capable business lookup instead of false `Business not found`
+  - business currency source fixed
+  - cart quantity cap aligned with server validation
+  - leaner PaymentIntent metadata with persisted pending orders
+  - paid-order persistence kept on the webhook path
+  - buyer and seller product-order emails via `order-lifecycle`
+- security remediation pass:
+  - root app upgraded to `next@16.2.3`
+  - root lint stack upgraded to `eslint@9.27.0` and `eslint-config-next@16.2.3`
+  - `postcss` pinned/overridden to `8.5.10`
+  - `functions` upgraded to `@google-cloud/functions-framework@5.0.2` and `googleapis@152.0.0`
+  - `ybial-agents` upgraded to `@google-cloud/functions-framework@5.0.2`
+  - server-side Supabase helpers and typed route handlers were updated for Next 16 compatibility
+- public product/service freshness improvements:
+  - owner product and service edits revalidate the live public slug page
+  - public products now exclude out-of-stock items to match policy
 - Google Calendar token persistence and booking sync
 - Supabase-backed operational logging for key API failures and selected warnings
 - Sentry runtime instrumentation for server/client/global-error capture
@@ -433,8 +455,11 @@ The app is now mostly live across owner, public, and payment-critical flows.
 ### Still incomplete / highest remaining risk
 
 - live webhook replay and reminder-dispatcher validation still need true runtime/manual verification beyond local build/test success
+- production verification is still needed on the newly hardened product-order path after the latest `order-lifecycle` redeploy
 - Google Calendar is productionized before Microsoft; Microsoft calendar remains deferred
 - public/operator messaging around delayed lifecycle processing can still be improved further in production conditions
+- buyer/seller email delivery still depends on correct Resend and Cloud Function env/config in production
+- the remaining Snyk findings are transitive `uuid@8.3.2` paths inside `cloudevents` from `@google-cloud/functions-framework`; there is no safe upstream-supported fix yet
 - Biome backlog reduction is in progress; the repo now has scoped config, but not all source files are clean yet
 
 ### Implication

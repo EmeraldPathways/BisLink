@@ -14,7 +14,7 @@ export async function requireAdminApiUser() {
 
   return {
     user: context.user,
-    supabase: createClient(),
+    supabase: await createClient(),
     admin
   };
 }

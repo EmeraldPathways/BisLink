@@ -15,8 +15,9 @@ const schema = z.object({
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params;
   const owner = await requireOwnerBusiness();
   if (!owner)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -38,7 +39,7 @@ export async function PATCH(
   const { data, error } = await supabase
     .from('services')
     .update(updates)
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('business_id', business.id)
     .select('*')
     .single();

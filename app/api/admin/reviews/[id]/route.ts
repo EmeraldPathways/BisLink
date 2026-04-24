@@ -9,8 +9,9 @@ const schema = z.object({
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params;
   const adminUser = await requireAdminApiUser();
   if (!adminUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -27,7 +28,7 @@ export async function PATCH(
   const { data, error } = await adminUser.admin
     .from('reviews')
     .update({ is_published: parsed.data.is_published })
-    .eq('id', params.id)
+    .eq('id', id)
     .select('id,is_published')
     .single();
 

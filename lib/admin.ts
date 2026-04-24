@@ -6,7 +6,7 @@ import { ADMIN_EMAIL, isAdminEmail } from '@/lib/admin-config';
 export { ADMIN_EMAIL, isAdminEmail } from '@/lib/admin-config';
 
 export async function getAdminUserForRequest(): Promise<{ user: User; isAdmin: boolean } | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = await getUserOrNull(supabase);
 
   if (!user) return null;

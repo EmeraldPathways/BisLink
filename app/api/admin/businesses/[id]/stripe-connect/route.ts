@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe/client';
 import { requireAdminApiUser } from '@/lib/admin-api';
 
-export async function POST(_: Request, { params }: { params: { id: string } }) {
+export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const adminUser = await requireAdminApiUser();
   if (!adminUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -16,7 +17,7 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
   const { data: business, error } = await adminUser.admin
     .from('businesses')
     .select('id,owner_id,name,category,email,contact_email,stripe_account_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (error || !business) {

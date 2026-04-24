@@ -10,7 +10,7 @@ import {
 import type { PublicPageData } from '@/types';
 
 export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicPageData | null> {
-  const supabase = createAdminClient() ?? createClient();
+  const supabase = createAdminClient() ?? (await createClient());
   const { data: business } = await supabase
     .from('businesses')
     .select('*')

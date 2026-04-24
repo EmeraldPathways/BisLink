@@ -38,7 +38,7 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
   }
 
   const { businessId, items, customerName, customerEmail, customerPhone, shippingAddress } = input;
-  const supabase = createAdminClient() ?? createClient();
+  const supabase = createAdminClient() ?? (await createClient());
 
   const { data: business, error: bizError } = await supabase
     .from('businesses')
