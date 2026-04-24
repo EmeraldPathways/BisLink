@@ -11,10 +11,11 @@ export const dynamic = 'force-dynamic';
 export default async function AdminBusinessDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   await requireAdminUser();
-  const data = await getAdminBusinessDetailData(params.id);
+  const data = await getAdminBusinessDetailData(id);
   if (!data) notFound();
 
   const { business, counts, onboarding, bookings, orders, reviews, customers } =

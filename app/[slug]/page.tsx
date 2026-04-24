@@ -7,9 +7,10 @@ export const dynamic = 'force-dynamic';
 export default async function SlugPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const publicPage = await getPublicBusinessPageBySlug(params.slug);
+  const { slug } = await params;
+  const publicPage = await getPublicBusinessPageBySlug(slug);
   if (!publicPage) return notFound();
 
   return (
