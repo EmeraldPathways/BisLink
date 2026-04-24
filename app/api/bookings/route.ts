@@ -72,14 +72,14 @@ export async function POST(req: NextRequest) {
         .select('id, stripe_account_id, stripe_onboarded, timezone')
         .eq('id', businessId)
         .eq('is_active', true)
-        .single(),
+        .maybeSingle(),
       supabase
         .from('services')
         .select('id, name, duration_minutes, buffer_after, price, currency')
         .eq('id', serviceId)
         .eq('business_id', businessId)
         .eq('is_active', true)
-        .single(),
+        .maybeSingle(),
     ]);
 
     if (bizError || !business) {
@@ -91,7 +91,29 @@ export async function POST(req: NextRequest) {
     if (svcError || !service) {
       return NextResponse.json({ error: 'Service not found' }, { status: 404 });
     }
-    if (!business.stripe_onboarded || !business.stripe_account_id) {
+    let stripeReady = Boolean(
+      business.stripe_onboarded && business.stripe_account_id,
+    );
+    if (!stripeReady && business.stripe_account_id) {
+      try {
+        const account = await stripe.accounts.retrieve(business.stripe_account_id);
+        stripeReady = Boolean(account.charges_enabled && account.details_submitted);
+
+        if (stripeReady && !business.stripe_onboarded) {
+          const admin = createAdminClient();
+          if (admin) {
+            await admin
+              .from('businesses')
+              .update({ stripe_onboarded: true })
+              .eq('id', business.id);
+          }
+        }
+      } catch {
+        stripeReady = false;
+      }
+    }
+
+    if (!stripeReady || !business.stripe_account_id) {
       return NextResponse.json(
         { error: 'Business payments not configured' },
         { status: 400 },
