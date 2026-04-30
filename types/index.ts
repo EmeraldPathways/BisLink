@@ -14,6 +14,11 @@ export type DiagnosticState =
   | 'pending processing'
   | 'runtime incomplete';
 
+export type BusinessThemeKey =
+  | 'classic-luxe'
+  | 'wellness-studio'
+  | 'bright-performance';
+
 export type DiagnosticCheck = {
   name: string;
   label: string;
@@ -41,6 +46,7 @@ export type BusinessProfile = {
   slug: string;
   name: string;
   category: string;
+  theme_key: BusinessThemeKey;
   bio: string;
   tagline?: string | null;
   full_bio?: string | null;

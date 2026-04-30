@@ -156,6 +156,7 @@ export type Database = {
           stripe_account_id: string | null;
           stripe_onboarded: boolean | null;
           tagline: string | null;
+          theme_key: string;
           tiktok_handle: string | null;
           timezone: string | null;
           updated_at: string | null;
@@ -195,6 +196,7 @@ export type Database = {
           stripe_account_id?: string | null;
           stripe_onboarded?: boolean | null;
           tagline?: string | null;
+          theme_key?: string;
           tiktok_handle?: string | null;
           timezone?: string | null;
           updated_at?: string | null;

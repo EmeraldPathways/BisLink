@@ -210,10 +210,10 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
                 href={mapHref}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-4 block overflow-hidden rounded-[16px] border border-[var(--border)] bg-[linear-gradient(135deg,#F7F4EF,#EEE9DF)]"
+                className="mt-4 block overflow-hidden rounded-[16px] border border-[var(--border)] bg-[image:var(--media-gradient)]"
               >
                 <div className="relative flex min-h-[132px] items-center justify-center overflow-hidden px-5 text-center text-[var(--gold-dark)]">
-                  <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(139,107,26,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(139,107,26,0.12)_1px,transparent_1px)] [background-size:28px_28px]" />
+                  <div className="absolute inset-0 bg-[image:var(--grid-pattern)] opacity-40 [background-size:28px_28px]" />
                   <div className="relative flex items-center gap-2 rounded-full bg-white/85 px-4 py-2 text-sm font-semibold shadow-sm">
                     <MapPin className="h-4 w-4" />
                     Open in Google Maps

@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
+import { isBusinessThemeKey, resolveBusinessTheme } from '@/lib/business-themes';
 import { createAdminClient, createClient, getUserOrNull } from '@/lib/supabase/server';
 import type { BusinessProfile } from '@/types';
 
@@ -36,12 +37,17 @@ async function resolveCurrentOwnerBusiness(): Promise<OwnerContext | { user: Use
 }
 
 export function normalizeBusiness(record: Record<string, unknown>): BusinessProfile {
+  const theme = resolveBusinessTheme(
+    isBusinessThemeKey(record.theme_key) ? record.theme_key : null
+  );
+
   return {
     id: String(record.id),
     owner_id: String(record.owner_id),
     slug: String(record.slug),
     name: String(record.name),
     category: String(record.category),
+    theme_key: theme.key,
     bio: typeof record.bio === 'string' ? record.bio : '',
     tagline: asNullableString(record.tagline),
     full_bio: asNullableString(record.full_bio),

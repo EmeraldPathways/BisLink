@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -28,6 +28,14 @@
   --color-warning: #f59e0b;
   --font-display: 'Cormorant Garamond', serif;
   --font-ui: 'DM Sans', sans-serif;
+  --hero-gradient: linear-gradient(165deg, #0c0b09 0%, #1c1610 55%, #0f0d0b 100%);
+  --tab-gradient: linear-gradient(165deg, #0c0b09 0%, #1c1610 55%, #0f0d0b 100%);
+  --hero-glow: #c9a45c;
+  --hero-glow-soft: rgba(201, 164, 92, 0.14);
+  --media-gradient: linear-gradient(135deg, #f7f4ef, #eee9df);
+  --grid-pattern:
+    linear-gradient(rgba(139, 107, 26, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 107, 26, 0.12) 1px, transparent 1px);
 
   /* Shorthand aliases used by public page components */
   --void: var(--color-void);

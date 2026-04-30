@@ -30,6 +30,7 @@ export const demoBusiness: BusinessProfile = {
   slug: 'studio-eleven',
   name: 'Studio Eleven',
   category: 'Personal Training',
+  theme_key: 'bright-performance',
   bio: 'Movement coaching for real people. No fluff, no fads, just honest training that gets results.',
   tagline: 'Strong bodies. Clear heads. Honest coaching.',
   full_bio:

@@ -20,10 +20,10 @@ export function HeroSection({
   const hasLocation = Boolean(business.location);
 
   return (
-    <header className="relative isolate overflow-hidden rounded-t-[28px] bg-[linear-gradient(165deg,#0C0B09_0%,#1C1610_55%,#0F0D0B_100%)] pt-10 text-[var(--hero-text-1)]">
+    <header className="relative isolate overflow-hidden rounded-t-[28px] bg-[image:var(--hero-gradient)] pt-10 text-[var(--hero-text-1)]">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[var(--gold)]/10 blur-3xl" />
-        <div className="absolute -right-10 top-8 h-40 w-40 rounded-full bg-[var(--gold)]/10 blur-3xl" />
+        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[var(--hero-glow-soft)] blur-3xl" />
+        <div className="absolute -right-10 top-8 h-40 w-40 rounded-full bg-[var(--hero-glow-soft)] blur-3xl" />
       </div>
       <div className="px-6">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-center gap-4">

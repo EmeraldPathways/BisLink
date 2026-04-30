@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BookingSheet } from '@/components/booking/BookingSheet';
 import { useIsMobile } from '@/hooks/useBreakpoint';
@@ -14,6 +15,7 @@ import type {
 } from '@/types';
 import { useCart } from '@/hooks/useCart';
 import { useProducts } from '@/hooks/useProducts';
+import { resolveBusinessTheme } from '@/lib/business-themes';
 import { getReviewBreakdownFromReviews, getReviewSummaryFromReviews } from '@/lib/reviews';
 import { formatPrice } from '@/lib/utils/formatting';
 import { HeroSection } from './HeroSection';
@@ -53,20 +55,26 @@ export function PublicPage({
   const { activeCategory, setActiveCategory, categories, filtered } = useProducts(products.filter((product) => product.is_active));
   const reviewSummary = useMemo(() => getReviewSummaryFromReviews(reviews), [reviews]);
   const presentation = mode === 'demo' && !isMobile ? 'demo' : 'default';
+  const theme = useMemo(() => resolveBusinessTheme(business.theme_key), [business.theme_key]);
+  const themeStyle = theme.style as CSSProperties;
 
   useEffect(() => {
     if (activeTab !== 'products') setCartOpen(false);
   }, [activeTab]);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[var(--bg)]">
+    <main
+      className="min-h-screen overflow-x-hidden bg-[var(--bg)]"
+      data-theme={theme.key}
+      style={themeStyle}
+    >
       <div
         ref={frameRef}
         className="relative mx-auto max-w-[430px] bg-[var(--bg)] pt-[max(env(safe-area-inset-top),1.5rem)]"
       >
         <HeroSection business={business} rating={reviewSummary.average} reviewCount={reviewSummary.publishedCount} />
 
-        <div className="sticky top-0 z-30 bg-[linear-gradient(165deg,#0C0B09_0%,#1C1610_55%,#0F0D0B_100%)] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
+        <div className="sticky top-0 z-30 bg-[image:var(--tab-gradient)] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
           <TabBar activeTab={activeTab} onChange={setActiveTab} />
         </div>
 

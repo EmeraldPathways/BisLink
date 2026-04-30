@@ -1,10 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { BUSINESS_THEME_KEYS } from '@/lib/business-themes';
 import { requireOwnerBusiness } from '@/lib/owner-api';
 
 const schema = z.object({
   name: z.string().trim().min(1).max(120),
   category: z.string().trim().min(1).max(120),
+  theme_key: z.enum(BUSINESS_THEME_KEYS),
   bio: z.string().trim().max(1000).default(''),
   tagline: z.string().trim().max(140).optional().or(z.literal('')),
   full_bio: z.string().trim().max(4000).optional().or(z.literal('')),

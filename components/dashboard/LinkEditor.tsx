@@ -2,11 +2,14 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
-import type { BusinessProfile } from '@/types';
+import { Check, Dumbbell, Flower2, Sparkles } from 'lucide-react';
+import { BUSINESS_THEMES, type BusinessThemeDefinition } from '@/lib/business-themes';
+import type { BusinessProfile, BusinessThemeKey } from '@/types';
 
 type FormState = {
   name: string;
   category: string;
+  theme_key: BusinessThemeKey;
   bio: string;
   tagline: string;
   full_bio: string;
@@ -16,7 +19,19 @@ type FormState = {
   slug: string;
 };
 
-export function LinkEditor({ business }: { business: BusinessProfile }) {
+const themeIcons: Record<BusinessThemeKey, typeof Sparkles> = {
+  'classic-luxe': Sparkles,
+  'wellness-studio': Flower2,
+  'bright-performance': Dumbbell
+};
+
+export function LinkEditor({
+  business,
+  onThemePreviewChange
+}: {
+  business: BusinessProfile;
+  onThemePreviewChange?: (themeKey: BusinessThemeKey) => void;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
@@ -25,10 +40,14 @@ export function LinkEditor({ business }: { business: BusinessProfile }) {
 
   useEffect(() => {
     setForm(buildFormState(business));
-  }, [business]);
+    onThemePreviewChange?.(business.theme_key);
+  }, [business, onThemePreviewChange]);
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
+    if (key === 'theme_key') {
+      onThemePreviewChange?.(value as BusinessThemeKey);
+    }
   }
 
   async function save() {
@@ -58,6 +77,22 @@ export function LinkEditor({ business }: { business: BusinessProfile }) {
   return (
     <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
       <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+            Theme
+          </label>
+          <div className="grid gap-3">
+            {BUSINESS_THEMES.map((theme) => (
+              <ThemeOptionCard
+                key={theme.key}
+                theme={theme}
+                selected={form.theme_key === theme.key}
+                onSelect={() => updateField('theme_key', theme.key)}
+              />
+            ))}
+          </div>
+        </div>
+
         <div className="space-y-1">
           <label htmlFor="link-name" className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
             Business name
@@ -192,6 +227,7 @@ function buildFormState(business: BusinessProfile): FormState {
   return {
     name: business.name,
     category: business.category,
+    theme_key: business.theme_key,
     bio: business.bio,
     tagline: business.tagline ?? '',
     full_bio: business.full_bio ?? '',
@@ -200,4 +236,76 @@ function buildFormState(business: BusinessProfile): FormState {
     instagram_handle: business.instagram_handle ?? '',
     slug: business.slug
   };
+}
+
+function ThemeOptionCard({
+  theme,
+  selected,
+  onSelect
+}: {
+  theme: BusinessThemeDefinition;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const Icon = themeIcons[theme.key];
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={`rounded-[22px] border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] ${
+        selected
+          ? 'border-[var(--color-void)] shadow-[0_12px_30px_rgba(12,11,9,0.08)]'
+          : 'border-[var(--color-border)] hover:border-[var(--color-border-dark)]/30 hover:shadow-[0_8px_24px_rgba(12,11,9,0.05)]'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/30 bg-[image:var(--hero-gradient)] text-[var(--hero-text-1)] shadow-sm"
+            style={theme.style}
+          >
+            <Icon className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[var(--color-text-primary)]">{theme.label}</p>
+            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{theme.description}</p>
+          </div>
+        </div>
+        <span
+          className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border ${
+            selected
+              ? 'border-[var(--color-void)] bg-[var(--color-void)] text-white'
+              : 'border-[var(--color-border)] text-transparent'
+          }`}
+        >
+          <Check className="h-3.5 w-3.5" />
+        </span>
+      </div>
+
+      <div className="mt-4 rounded-[18px] border border-[var(--color-border)] p-3" style={theme.style}>
+        <div className="rounded-[16px] bg-[image:var(--hero-gradient)] px-3 py-3 text-[var(--hero-text-1)]">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-[12px] bg-[linear-gradient(135deg,var(--gold),var(--gold-dark))]" />
+            <div className="space-y-1">
+              <div className="h-2 w-16 rounded-full bg-white/80" />
+              <div className="h-2 w-10 rounded-full bg-white/35" />
+            </div>
+          </div>
+        </div>
+        <div className="mt-3 grid grid-cols-[1fr_auto] gap-3">
+          <div className="space-y-2">
+            <div className="h-3 w-20 rounded-full bg-[var(--surface-3)]" />
+            <div className="h-3 w-28 rounded-full bg-[var(--surface-2)]" />
+          </div>
+          <div className="rounded-full bg-[var(--void)] px-3 py-1 text-[10px] font-semibold text-white">
+            Book
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-3 text-xs leading-5 text-[var(--color-text-secondary)]">{theme.audience}</p>
+    </button>
+  );
 }

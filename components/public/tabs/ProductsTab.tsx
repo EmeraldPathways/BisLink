@@ -66,7 +66,7 @@ export function ProductsTab({
               }}
               className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-inset"
             >
-            <div className="relative flex h-24 items-center justify-center bg-[linear-gradient(135deg,#F7F4EF,#EEE9DF)]">
+            <div className="relative flex h-24 items-center justify-center bg-[image:var(--media-gradient)]">
               <Package className="h-10 w-10 text-[var(--gold-dark)]/45" strokeWidth={1.25} />
               {product.badge ? (
                 <span className="absolute left-2 top-2 rounded-full bg-[var(--void)] px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--gold)]">
