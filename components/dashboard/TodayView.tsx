@@ -1,3 +1,4 @@
+import { CalendarDays, Share2 } from 'lucide-react';
 import { formatDateLabel, formatPrice } from '@/lib/utils/formatting';
 import { BookingCard } from './BookingCard';
 import { StatsBar } from './StatsBar';
@@ -13,34 +14,64 @@ export function TodayView({
   stats: DashboardStats;
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 md:space-y-6">
+      {/* Header */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="font-display text-5xl tracking-[-0.6px]">Good morning, Studio</h1>
-          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+          <h1 className="font-display text-3xl tracking-[-0.4px] md:text-5xl md:tracking-[-0.6px]">
+            Good morning, Studio
+          </h1>
+          <p className="mt-2 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+            <CalendarDays className="h-4 w-4 opacity-60" />
             {formatDateLabel(new Date(), business.timezone, { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        <div className="shrink-0 rounded-[22px] bg-[var(--color-void)] px-6 py-5 text-white">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-gold)]">Revenue today</p>
-          <p className="mt-2 text-3xl font-semibold text-[var(--color-gold)]">{formatPrice(stats.todayRevenue)}</p>
+
+        {/* Revenue Card */}
+        <div className="shrink-0 rounded-[22px] px-5 py-4 text-white md:px-6 md:py-5" style={{ background: 'var(--revenue-gradient)' }}>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-gold)] md:text-[11px]">
+            Revenue today
+          </p>
+          <p className="mt-2 text-2xl font-semibold text-[var(--color-gold)] md:text-3xl">
+            {formatPrice(stats.todayRevenue)}
+          </p>
         </div>
       </div>
 
       <StatsBar stats={stats} />
 
+      {/* Upcoming Bookings */}
       <section className="space-y-4">
         <div>
-          <h2 className="font-display text-4xl">Upcoming bookings</h2>
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">Real-time updates appear here when new bookings land.</p>
+          <h2 className="font-display text-3xl md:text-4xl">Upcoming bookings</h2>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            Real-time updates appear here when new bookings land.
+          </p>
         </div>
         {bookings.length ? (
-          bookings.map((booking) => <BookingCard key={booking.id} booking={booking} business={business} service={booking.service} />)
+          <div className="space-y-3">
+            {bookings.map((booking) => (
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                business={business}
+                service={booking.service}
+              />
+            ))}
+          </div>
         ) : (
-          <div className="rounded-[28px] border border-dashed border-[var(--color-border)] bg-white p-12 text-center">
-            <h3 className="font-display text-4xl">No bookings today</h3>
-            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">Share your link to start filling the calendar.</p>
-            <button className="mt-5 rounded-2xl bg-[var(--color-void)] px-5 py-3 text-sm font-semibold text-white">Share your link</button>
+          <div className="flex flex-col items-center rounded-[28px] bg-[var(--color-surface-2)] p-8 text-center md:p-12">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-surface-3)] md:h-16 md:w-16">
+              <CalendarDays className="h-6 w-6 text-[var(--empty-state-icon)] md:h-8 md:w-8" />
+            </div>
+            <h3 className="mt-4 font-display text-2xl md:text-4xl">No bookings today</h3>
+            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+              Share your link to start filling the calendar.
+            </p>
+            <button className="btn-primary mt-5 w-full md:w-auto">
+              <Share2 className="h-4 w-4" />
+              Share your link
+            </button>
           </div>
         )}
       </section>

@@ -1,13 +1,26 @@
 'use client';
 
-import { addDays, startOfWeek } from 'date-fns';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { formatTimeLabel } from '@/lib/utils/formatting';
 import type { BusinessProfile, DashboardBookingRecord } from '@/types';
+import {
+  formatDayKey,
+  getBusinessTodayKey,
+  getHourInTimezone,
+  getStartOfWeekKey,
+  isSameBusinessDay,
+  shiftDayKey,
+} from './calendar-date';
 import { MobileCalendar } from './MobileCalendar';
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const hours = Array.from({ length: 14 }, (_, index) => 7 + index);
+
+function colorForStatus(status: DashboardBookingRecord['status']) {
+  if (status === 'completed') return 'border-l-green-500 bg-green-50/50';
+  if (status === 'cancelled') return 'border-l-[var(--color-text-tertiary)] bg-[var(--color-surface-3)]';
+  return 'border-l-[var(--color-gold)] bg-[var(--calendar-booking-bg)]';
+}
 
 export function CalendarView({
   business,
@@ -17,10 +30,11 @@ export function CalendarView({
   bookings: DashboardBookingRecord[];
 }) {
   const isMobile = useIsMobile();
-  const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
-  const weekDays = Array.from({ length: 7 }, (_, index) =>
-    addDays(weekStart, index),
-  );
+  const todayKey = getBusinessTodayKey(business.timezone);
+  const weekStartKey = getStartOfWeekKey(todayKey);
+  const weekDays = Array.from({ length: 7 }, (_, index) => shiftDayKey(weekStartKey, index));
+  const weekEndKey = weekDays[6]!;
+  const weekRange = `${formatDayKey(weekStartKey, { month: 'short', day: 'numeric' })} — ${formatDayKey(weekEndKey, { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
   if (isMobile) {
     return <MobileCalendar business={business} bookings={bookings} />;
@@ -28,48 +42,57 @@ export function CalendarView({
 
   return (
     <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
-      <div className="mb-5 flex items-center justify-between">
+      {/* Header */}
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-4xl">Weekly calendar</h2>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Mon-Sun with hourly booking blocks.
+            {weekRange}
           </p>
         </div>
         <div className="flex gap-2">
           <button
             type="button"
             disabled
-            className="rounded-xl border border-[var(--color-border)] px-3 py-2 text-sm opacity-60"
+            className="btn-secondary text-sm opacity-60"
           >
             Previous
           </button>
           <button
             type="button"
             disabled
-            className="rounded-xl bg-[var(--color-surface-3)] px-3 py-2 text-sm opacity-60"
+            className="btn-primary text-sm opacity-60"
           >
             Today
           </button>
           <button
             type="button"
             disabled
-            className="rounded-xl border border-[var(--color-border)] px-3 py-2 text-sm opacity-60"
+            className="btn-secondary text-sm opacity-60"
           >
             Next
           </button>
         </div>
       </div>
 
+      {/* Grid */}
       <div className="grid grid-cols-[80px_repeat(7,minmax(0,1fr))] gap-2">
         <div />
-        {days.map((day) => (
-          <div
-            key={day}
-            className="pb-2 text-center text-sm font-semibold text-[var(--color-text-secondary)]"
-          >
-            {day}
-          </div>
-        ))}
+        {days.map((day, index) => {
+          const dayKey = weekDays[index]!;
+          const isToday = dayKey === todayKey;
+          return (
+            <div
+              key={day}
+              className={`pb-2 text-center ${isToday ? 'rounded-t-lg bg-[var(--calendar-today-column)] pt-2' : ''}`}
+            >
+              <p className="text-sm font-semibold text-[var(--color-text-secondary)]">{day}</p>
+              <p className={`mt-0.5 text-xs ${isToday ? 'font-semibold text-[var(--color-gold-dark)]' : 'text-[var(--color-text-tertiary)]'}`}>
+                {formatDayKey(dayKey, { day: 'numeric' })}
+              </p>
+            </div>
+          );
+        })}
         {hours.map((hour) => (
           <FragmentRow
             key={hour}
@@ -93,11 +116,11 @@ function FragmentRow({
   hour: number;
   business: BusinessProfile;
   bookings: DashboardBookingRecord[];
-  weekDays: Date[];
+  weekDays: string[];
 }) {
   return (
     <>
-      <div className="pt-4 text-sm text-[var(--color-text-secondary)]">
+      <div className="pt-4 text-right text-xs text-[var(--color-text-secondary)]">
         {formatTimeLabel(
           new Date(`2024-01-01T${String(hour).padStart(2, '0')}:00:00`),
           business.timezone,
@@ -109,17 +132,24 @@ function FragmentRow({
             isSameBusinessDay(item.start_time, day, business.timezone) &&
             getHourInTimezone(item.start_time, business.timezone) === hour,
         );
+        const isToday = day === getBusinessTodayKey(business.timezone);
         return (
           <div
-            key={`${hour}-${day.toISOString()}`}
-            className="min-h-[72px] rounded-[18px] bg-[var(--color-surface-2)] p-2"
+            key={`${hour}-${day}`}
+            className={`min-h-[72px] rounded-[18px] p-2 ${
+              booking
+                ? ''
+                : isToday
+                  ? 'calendar-slot-today'
+                  : 'bg-[var(--color-surface-3)]'
+            }`}
           >
             {booking ? (
               <div
-                className={`rounded-[14px] px-2 py-2 text-xs ${colorForStatus(booking.status)}`}
+                className={`rounded-[14px] border-l-[3px] px-2 py-2 text-xs ${colorForStatus(booking.status)}`}
               >
-                <p className="font-semibold">{booking.customer_name}</p>
-                <p>{booking.service?.name ?? 'Service unavailable'}</p>
+                <p className="font-semibold text-[var(--color-text-primary)]">{booking.customer_name}</p>
+                <p className="mt-0.5 text-[var(--color-text-secondary)]">{booking.service?.name ?? 'Service unavailable'}</p>
               </div>
             ) : null}
           </div>
@@ -127,35 +157,4 @@ function FragmentRow({
       })}
     </>
   );
-}
-
-function isSameBusinessDay(value: string, day: Date, timezone: string) {
-  return getDayKey(new Date(value), timezone) === getDayKey(day, timezone);
-}
-
-function getDayKey(date: Date, timezone: string) {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(date);
-}
-
-function getHourInTimezone(value: string, timezone: string) {
-  return Number(
-    new Intl.DateTimeFormat('en-US', {
-      timeZone: timezone,
-      hour: '2-digit',
-      hour12: false,
-    }).format(new Date(value)),
-  );
-}
-
-function colorForStatus(status: DashboardBookingRecord['status']) {
-  if (status === 'completed')
-    return 'bg-[var(--color-success)]/20 text-[var(--color-text-primary)]';
-  if (status === 'cancelled')
-    return 'bg-slate-200 text-[var(--color-text-primary)]';
-  return 'bg-[var(--color-void)] text-white';
 }

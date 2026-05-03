@@ -52,7 +52,19 @@ export const BUSINESS_THEMES: BusinessThemeDefinition[] = [
       '--hero-glow': '#c9a45c',
       '--hero-glow-soft': 'rgba(201,164,92,0.14)',
       '--media-gradient': 'linear-gradient(135deg,#f7f4ef,#eee9df)',
-      '--grid-pattern': 'linear-gradient(rgba(139,107,26,0.12) 1px,transparent 1px),linear-gradient(90deg,rgba(139,107,26,0.12) 1px,transparent 1px)'
+      '--grid-pattern': 'linear-gradient(rgba(139,107,26,0.12) 1px,transparent 1px),linear-gradient(90deg,rgba(139,107,26,0.12) 1px,transparent 1px)',
+      '--stat-icon-bg': '#f7f4ef',
+      '--stat-icon-color': '#0c0b09',
+      '--revenue-gradient': 'linear-gradient(165deg,#0c0b09 0%,#1c1610 55%,#0f0d0b 100%)',
+      '--calendar-today-column': 'rgba(201,164,92,0.06)',
+      '--calendar-booking-bg': 'rgba(201,164,92,0.12)',
+      '--sidebar-active-bg': '#f7f4ef',
+      '--mobile-nav-active-bg': '#f7f4ef',
+      '--empty-state-icon': '#aaaaaa',
+      '--stat-positive-bg': '#f2ede3',
+      '--stat-positive-color': '#8b6b1a',
+      '--stat-info-bg': '#f7f4ef',
+      '--stat-info-color': '#0c0b09'
     }
   },
   {
@@ -89,7 +101,19 @@ export const BUSINESS_THEMES: BusinessThemeDefinition[] = [
       '--hero-glow': '#e0b3a2',
       '--hero-glow-soft': 'rgba(224,179,162,0.16)',
       '--media-gradient': 'linear-gradient(135deg,#fcf1ec,#f2ddd2)',
-      '--grid-pattern': 'linear-gradient(rgba(199,143,123,0.18) 1px,transparent 1px),linear-gradient(90deg,rgba(199,143,123,0.18) 1px,transparent 1px)'
+      '--grid-pattern': 'linear-gradient(rgba(199,143,123,0.18) 1px,transparent 1px),linear-gradient(90deg,rgba(199,143,123,0.18) 1px,transparent 1px)',
+      '--stat-icon-bg': '#f8efea',
+      '--stat-icon-color': '#4d3e39',
+      '--revenue-gradient': 'linear-gradient(160deg,#5b4a43 0%,#7c675f 52%,#9e7f72 100%)',
+      '--calendar-today-column': 'rgba(199,143,123,0.06)',
+      '--calendar-booking-bg': 'rgba(199,143,123,0.12)',
+      '--sidebar-active-bg': '#f8efea',
+      '--mobile-nav-active-bg': '#f8efea',
+      '--empty-state-icon': '#a3928d',
+      '--stat-positive-bg': '#f4e7df',
+      '--stat-positive-color': '#8f5b49',
+      '--stat-info-bg': '#f8efea',
+      '--stat-info-color': '#4d3e39'
     }
   },
   {
@@ -126,7 +150,19 @@ export const BUSINESS_THEMES: BusinessThemeDefinition[] = [
       '--hero-glow': '#45f0df',
       '--hero-glow-soft': 'rgba(69,240,223,0.16)',
       '--media-gradient': 'linear-gradient(135deg,#eff8ff,#dff4ff)',
-      '--grid-pattern': 'linear-gradient(rgba(29,78,216,0.16) 1px,transparent 1px),linear-gradient(90deg,rgba(29,78,216,0.16) 1px,transparent 1px)'
+      '--grid-pattern': 'linear-gradient(rgba(29,78,216,0.16) 1px,transparent 1px),linear-gradient(90deg,rgba(29,78,216,0.16) 1px,transparent 1px)',
+      '--stat-icon-bg': '#edf6ff',
+      '--stat-icon-color': '#14213d',
+      '--revenue-gradient': 'linear-gradient(155deg,#14213d 0%,#1d4ed8 58%,#0ea5e9 100%)',
+      '--calendar-today-column': 'rgba(69,240,223,0.06)',
+      '--calendar-booking-bg': 'rgba(69,240,223,0.12)',
+      '--sidebar-active-bg': '#edf6ff',
+      '--mobile-nav-active-bg': '#edf6ff',
+      '--empty-state-icon': '#7b93ab',
+      '--stat-positive-bg': '#dff4ff',
+      '--stat-positive-color': '#1d4ed8',
+      '--stat-info-bg': '#e7fbff',
+      '--stat-info-color': '#14213d'
     }
   }
 ];
