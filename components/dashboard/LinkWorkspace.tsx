@@ -17,7 +17,7 @@ export function LinkWorkspace({ publicPage }: { publicPage: PublicPageData }) {
   );
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
+    <div className="grid gap-6 xl:grid-cols-[520px_minmax(0,1fr)] 2xl:grid-cols-[560px_minmax(0,1fr)]">
       <div className="space-y-4">
         <div>
           <h1 className="font-display text-5xl">My Link</h1>

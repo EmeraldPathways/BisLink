@@ -98,7 +98,7 @@ export function LinkEditor({
                       {group}
                     </p>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <div className="grid grid-cols-2 gap-2 xl:gap-3">
                     {options.map((theme) => (
                       <ThemeOptionCard
                         key={theme.key}
@@ -275,7 +275,7 @@ function ThemeOptionCard({
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`rounded-[18px] border p-2.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] ${
+      className={`rounded-[18px] border p-2.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] xl:rounded-[20px] xl:p-3 ${
         selected
           ? 'border-[var(--color-void)] bg-[var(--color-surface)] shadow-[0_8px_20px_rgba(12,11,9,0.08)]'
           : 'border-[var(--color-border)] bg-white hover:border-[var(--color-border-dark)] hover:shadow-[0_6px_16px_rgba(12,11,9,0.05)]'
@@ -284,18 +284,18 @@ function ThemeOptionCard({
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border border-white/30 bg-[image:var(--hero-gradient)] text-[var(--hero-text-1)] shadow-sm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border border-white/30 bg-[image:var(--hero-gradient)] text-[var(--hero-text-1)] shadow-sm xl:h-10 xl:w-10"
             style={theme.style}
           >
-            <Icon className="h-4 w-4" />
+            <Icon className="h-4 w-4 xl:h-[18px] xl:w-[18px]" />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-[13px] font-semibold text-[var(--color-text-primary)]">{theme.label}</p>
-            <p className="mt-0.5 truncate text-[11px] text-[var(--color-text-secondary)]">{theme.description}</p>
+            <p className="truncate text-[13px] font-semibold text-[var(--color-text-primary)] xl:text-[14px]">{theme.label}</p>
+            <p className="mt-0.5 truncate text-[11px] text-[var(--color-text-secondary)] xl:text-[12px]">{theme.description}</p>
           </div>
         </div>
         <span
-          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border xl:h-5 xl:w-5 ${
             selected
               ? 'border-[var(--color-void)] bg-[var(--color-void)] text-white'
               : 'border-[var(--color-border)] text-transparent'
@@ -305,25 +305,25 @@ function ThemeOptionCard({
         </span>
       </div>
 
-      <div className="mt-2.5 rounded-[14px] border border-[var(--page-border)] bg-[var(--page-surface)] p-2" style={theme.style}>
-        <div className="overflow-hidden rounded-[12px] border border-[var(--tab-border)] bg-[var(--page-bg)]">
-          <div className="bg-[image:var(--hero-gradient)] px-2 py-2 text-[var(--hero-text-1)]">
+      <div className="mt-2.5 rounded-[14px] border border-[var(--page-border)] bg-[var(--page-surface)] p-2 xl:mt-3 xl:rounded-[16px] xl:p-2.5" style={theme.style}>
+        <div className="overflow-hidden rounded-[12px] border border-[var(--tab-border)] bg-[var(--page-bg)] xl:rounded-[14px]">
+          <div className="bg-[image:var(--hero-gradient)] px-2 py-2 text-[var(--hero-text-1)] xl:px-2.5 xl:py-2.5">
             <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-[8px] bg-[var(--cta-accent-bg)] text-[9px] font-semibold text-[var(--cta-accent-text)]">
+              <div className="flex h-6 w-6 items-center justify-center rounded-[8px] bg-[var(--cta-accent-bg)] text-[9px] font-semibold text-[var(--cta-accent-text)] xl:h-7 xl:w-7">
                 CT
               </div>
               <div className="min-w-0 flex-1">
-                <div className="h-2 w-14 rounded-full bg-white/90" />
-                <div className="mt-1 h-1.5 w-9 rounded-full bg-white/35" />
+                <div className="h-2 w-14 rounded-full bg-white/90 xl:w-16" />
+                <div className="mt-1 h-1.5 w-9 rounded-full bg-white/35 xl:w-10" />
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-3 border-y border-[var(--tab-border)] bg-[image:var(--nav-gradient)] px-2 py-1.5">
+          <div className="grid grid-cols-3 border-y border-[var(--tab-border)] bg-[image:var(--nav-gradient)] px-2 py-1.5 xl:px-2.5 xl:py-2">
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="flex flex-col items-center gap-1">
                 <div className={`h-1 w-1 rounded-full ${index === 0 ? 'bg-[var(--nav-indicator)]' : 'bg-white/25'}`} />
                 <div
-                  className="h-1 w-5 rounded-full"
+                  className="h-1 w-5 rounded-full xl:w-6"
                   style={{
                     backgroundColor:
                       index === 0
@@ -334,20 +334,20 @@ function ThemeOptionCard({
               </div>
             ))}
           </div>
-          <div className="bg-[var(--page-bg)] p-2">
-            <div className="rounded-[10px] border border-[var(--page-border)] bg-[var(--page-card-bg)] p-2 shadow-[var(--card-shadow)]">
+          <div className="bg-[var(--page-bg)] p-2 xl:p-2.5">
+            <div className="rounded-[10px] border border-[var(--page-border)] bg-[var(--page-card-bg)] p-2 shadow-[var(--card-shadow)] xl:rounded-[12px] xl:p-2.5">
               <div className="flex items-start justify-between gap-1.5">
                 <div className="space-y-1">
-                  <div className="h-1.5 w-16 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text) 90%, transparent)' }} />
-                  <div className="h-1.5 w-20 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-secondary) 45%, transparent)' }} />
+                  <div className="h-1.5 w-16 rounded-full xl:w-20" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text) 90%, transparent)' }} />
+                  <div className="h-1.5 w-20 rounded-full xl:w-24" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-secondary) 45%, transparent)' }} />
                 </div>
-                <div className="flex h-6 w-6 items-center justify-center rounded-[8px] bg-[var(--page-surface-muted)] text-[var(--page-text-secondary)]">
+                <div className="flex h-6 w-6 items-center justify-center rounded-[8px] bg-[var(--page-surface-muted)] text-[var(--page-text-secondary)] xl:h-7 xl:w-7">
                   <Icon className="h-3 w-3" />
                 </div>
               </div>
               <div className="mt-2 flex items-center justify-between">
-                <div className="h-1.5 w-10 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-muted) 25%, transparent)' }} />
-                <div className="rounded-full bg-[var(--cta-bg)] px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-[var(--cta-text)]">
+                <div className="h-1.5 w-10 rounded-full xl:w-12" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-muted) 25%, transparent)' }} />
+                <div className="rounded-full bg-[var(--cta-bg)] px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-[var(--cta-text)] xl:px-2.5">
                   {theme.preview.ctaLabel}
                 </div>
               </div>
