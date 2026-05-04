@@ -86,7 +86,7 @@ export function LinkEditor({
           <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
             Theme
           </label>
-          <div className="space-y-5">
+          <div className="space-y-4">
             {themeGroups.map((group) => {
               const options = BUSINESS_THEMES.filter((theme) => theme.preview.group === group);
               if (!options.length) return null;
@@ -94,18 +94,11 @@ export function LinkEditor({
               return (
                 <section key={group} className="space-y-2">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
                       {group}
                     </p>
-                    <p className="mt-1 text-sm text-[var(--color-text-tertiary)]">
-                      {group === 'Editorial'
-                        ? 'Sharper, typography-led directions.'
-                        : group === 'Studio'
-                          ? 'Softer, warmer service brands.'
-                          : 'Higher-energy performance brands.'}
-                    </p>
                   </div>
-                  <div className="grid gap-3">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {options.map((theme) => (
                       <ThemeOptionCard
                         key={theme.key}
@@ -282,61 +275,55 @@ function ThemeOptionCard({
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`rounded-[24px] border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] ${
+      className={`rounded-[18px] border p-2.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] ${
         selected
-          ? 'border-[var(--color-void)] bg-[var(--color-surface)] shadow-[0_14px_34px_rgba(12,11,9,0.08)]'
-          : 'border-[var(--color-border)] bg-white hover:border-[var(--color-border-dark)] hover:shadow-[0_10px_28px_rgba(12,11,9,0.05)]'
+          ? 'border-[var(--color-void)] bg-[var(--color-surface)] shadow-[0_8px_20px_rgba(12,11,9,0.08)]'
+          : 'border-[var(--color-border)] bg-white hover:border-[var(--color-border-dark)] hover:shadow-[0_6px_16px_rgba(12,11,9,0.05)]'
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <div
-            className="flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/30 bg-[image:var(--hero-gradient)] text-[var(--hero-text-1)] shadow-sm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border border-white/30 bg-[image:var(--hero-gradient)] text-[var(--hero-text-1)] shadow-sm"
             style={theme.style}
           >
-            <Icon className="h-5 w-5" />
+            <Icon className="h-4 w-4" />
           </div>
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
-              {theme.preview.kicker}
-            </p>
-            <p className="text-sm font-semibold text-[var(--color-text-primary)]">{theme.label}</p>
-            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{theme.description}</p>
+          <div className="min-w-0">
+            <p className="truncate text-[13px] font-semibold text-[var(--color-text-primary)]">{theme.label}</p>
+            <p className="mt-0.5 truncate text-[11px] text-[var(--color-text-secondary)]">{theme.description}</p>
           </div>
         </div>
         <span
-          className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border ${
+          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
             selected
               ? 'border-[var(--color-void)] bg-[var(--color-void)] text-white'
               : 'border-[var(--color-border)] text-transparent'
           }`}
         >
-          <Check className="h-3.5 w-3.5" />
+          <Check className="h-3 w-3" />
         </span>
       </div>
 
-      <div className="mt-4 rounded-[22px] border border-[var(--page-border)] bg-[var(--page-surface)] p-3" style={theme.style}>
-        <div className="overflow-hidden rounded-[18px] border border-[var(--tab-border)] bg-[var(--page-bg)]">
-          <div className="bg-[image:var(--hero-gradient)] px-3 py-3 text-[var(--hero-text-1)]">
+      <div className="mt-2.5 rounded-[14px] border border-[var(--page-border)] bg-[var(--page-surface)] p-2" style={theme.style}>
+        <div className="overflow-hidden rounded-[12px] border border-[var(--tab-border)] bg-[var(--page-bg)]">
+          <div className="bg-[image:var(--hero-gradient)] px-2 py-2 text-[var(--hero-text-1)]">
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-[var(--cta-accent-bg)] text-[11px] font-semibold text-[var(--cta-accent-text)]">
+              <div className="flex h-6 w-6 items-center justify-center rounded-[8px] bg-[var(--cta-accent-bg)] text-[9px] font-semibold text-[var(--cta-accent-text)]">
                 CT
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[var(--hero-kicker)]">
-                  {theme.preview.kicker}
-                </div>
-                <div className="mt-1 h-2.5 w-24 rounded-full bg-white/90" />
-                <div className="mt-1 h-2 w-14 rounded-full bg-white/35" />
+                <div className="h-2 w-14 rounded-full bg-white/90" />
+                <div className="mt-1 h-1.5 w-9 rounded-full bg-white/35" />
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-4 border-y border-[var(--tab-border)] bg-[image:var(--nav-gradient)] px-2 py-2">
-            {Array.from({ length: 4 }).map((_, index) => (
+          <div className="grid grid-cols-3 border-y border-[var(--tab-border)] bg-[image:var(--nav-gradient)] px-2 py-1.5">
+            {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="flex flex-col items-center gap-1">
-                <div className={`h-1.5 w-1.5 rounded-full ${index === 0 ? 'bg-[var(--nav-indicator)]' : 'bg-white/25'}`} />
+                <div className={`h-1 w-1 rounded-full ${index === 0 ? 'bg-[var(--nav-indicator)]' : 'bg-white/25'}`} />
                 <div
-                  className="h-1 w-7 rounded-full"
+                  className="h-1 w-5 rounded-full"
                   style={{
                     backgroundColor:
                       index === 0
@@ -347,25 +334,20 @@ function ThemeOptionCard({
               </div>
             ))}
           </div>
-          <div className="bg-[var(--page-bg)] p-3">
-            <div className="rounded-[16px] border border-[var(--page-border)] bg-[var(--page-card-bg)] p-3 shadow-[var(--card-shadow)]">
-              <div className="flex items-start justify-between gap-2">
-                <div className="space-y-1.5">
-                  <div className="h-2.5 w-24 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text) 90%, transparent)' }} />
-                  <div className="h-2 w-28 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-secondary) 45%, transparent)' }} />
+          <div className="bg-[var(--page-bg)] p-2">
+            <div className="rounded-[10px] border border-[var(--page-border)] bg-[var(--page-card-bg)] p-2 shadow-[var(--card-shadow)]">
+              <div className="flex items-start justify-between gap-1.5">
+                <div className="space-y-1">
+                  <div className="h-1.5 w-16 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text) 90%, transparent)' }} />
+                  <div className="h-1.5 w-20 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-secondary) 45%, transparent)' }} />
                 </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--page-surface-muted)] text-[var(--page-text-secondary)]">
-                  <Icon className="h-3.5 w-3.5" />
-                </div>
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <div className="h-3 w-16 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-muted) 25%, transparent)' }} />
-                <div className="rounded-full bg-[var(--badge-bg)] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--badge-text)]">
-                  {theme.preview.badge}
+                <div className="flex h-6 w-6 items-center justify-center rounded-[8px] bg-[var(--page-surface-muted)] text-[var(--page-text-secondary)]">
+                  <Icon className="h-3 w-3" />
                 </div>
               </div>
-              <div className="mt-3 flex justify-end">
-                <div className="rounded-full bg-[var(--cta-bg)] px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--cta-text)]">
+              <div className="mt-2 flex items-center justify-between">
+                <div className="h-1.5 w-10 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-muted) 25%, transparent)' }} />
+                <div className="rounded-full bg-[var(--cta-bg)] px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-[var(--cta-text)]">
                   {theme.preview.ctaLabel}
                 </div>
               </div>
@@ -373,11 +355,6 @@ function ThemeOptionCard({
           </div>
         </div>
       </div>
-
-      <p className="mt-3 text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-text-primary)]">
-        Best for
-      </p>
-      <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">{theme.preview.bestFor}</p>
     </button>
   );
 }
