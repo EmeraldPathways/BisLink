@@ -3,7 +3,12 @@ import { ADMIN_EMAIL } from '@/lib/admin';
 import { getAgentDiagnostics } from '@/lib/agent-diagnostics';
 import { getStripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/server';
-import type { AgentDiagnostics, DiagnosticCheck, DiagnosticState } from '@/types';
+import type {
+  AgentDiagnostics,
+  DiagnosticCheck,
+  DiagnosticState,
+  SupportTicketRecord
+} from '@/types';
 
 type RawBusiness = {
   id: string;
@@ -313,7 +318,7 @@ export async function getAdminBusinessDetailData(id: string) {
 
 export async function getAdminSupportData() {
   const admin = requireAdminClient();
-  const [reviews, businesses, refundedOrders, refundedBookings] = await Promise.all([
+  const [reviews, businesses, refundedOrders, refundedBookings, supportTickets] = await Promise.all([
     admin.from('reviews').select('id,business_id,customer_name,rating,text,is_published,created_at').order('created_at', { ascending: false }).limit(25),
     admin
       .from('businesses')
@@ -325,10 +330,17 @@ export async function getAdminSupportData() {
       .select('id,business_id,customer_name,status,payment_status,amount_paid,start_time')
       .or('status.eq.cancelled,payment_status.eq.refunded')
       .order('start_time', { ascending: false })
-      .limit(20)
+      .limit(20),
+    admin
+      .from('support_tickets')
+      .select('id,business_id,ticket_type,status,priority,source,created_by_role,subject,message,customer_name,customer_email,assigned_admin_email,resolved_at,created_at,updated_at')
+      .in('ticket_type', ['owner_support', 'escalation'])
+      .order('created_at', { ascending: false })
+      .limit(50)
   ]);
 
   const businessRows = (businesses.data ?? []) as RawBusiness[];
+  const businessNameMap = new Map(businessRows.map((business) => [business.id, business.name]));
   const onboardingRisks = await Promise.all(
     businessRows.map(async (business) => {
       const counts = await getBusinessCounts(admin, business.id);
@@ -348,6 +360,10 @@ export async function getAdminSupportData() {
   );
 
   return {
+    tickets: ((supportTickets.data ?? []) as SupportTicketRecord[]).map((ticket) => ({
+      ...ticket,
+      businessName: businessNameMap.get(ticket.business_id) ?? 'Unknown business'
+    })),
     reviews: reviews.data ?? [],
     onboardingRisks: onboardingRisks.filter((item) => item.missing.length > 0),
     refundedOrders: refundedOrders.data ?? [],

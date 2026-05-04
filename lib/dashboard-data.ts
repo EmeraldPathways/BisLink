@@ -17,7 +17,8 @@ import type {
   RevenuePoint,
   ReviewRecord,
   ServiceRecord,
-  SpecialismRecord
+  SpecialismRecord,
+  SupportTicketRecord
 } from '@/types';
 
 const DEFAULT_CURRENCY = 'usd';
@@ -245,6 +246,32 @@ export async function getPayoutsData() {
       allTime:
         paidBookings.filter((item) => item.payment_status === 'paid' && item.status !== 'cancelled').reduce((sum, item) => sum + (item.amount_paid ?? 0), 0) +
         paidOrders.filter((item) => item.status === 'paid' || item.status === 'fulfilled').reduce((sum, item) => sum + item.total_amount, 0)
+    }
+  };
+}
+
+export async function getSupportData() {
+  const { business } = await getCurrentOwnerBusiness();
+  const supabase = createAdminClient() ?? (await createClient());
+  const { data } = await supabase
+    .from('support_tickets')
+    .select(
+      'id,business_id,ticket_type,status,priority,source,created_by_role,subject,message,customer_name,customer_email,assigned_admin_email,resolved_at,created_at,updated_at'
+    )
+    .eq('business_id', business.id)
+    .in('ticket_type', ['public_support', 'escalation'])
+    .order('created_at', { ascending: false });
+
+  const tickets = ((data ?? []) as SupportTicketRecord[]).map(normalizeSupportTicket);
+
+  return {
+    business,
+    tickets,
+    counts: {
+      open: tickets.filter((ticket) => ticket.status === 'open').length,
+      inProgress: tickets.filter((ticket) => ticket.status === 'in_progress').length,
+      resolved: tickets.filter((ticket) => ticket.status === 'resolved').length,
+      highPriority: tickets.filter((ticket) => ticket.priority === 'high').length
     }
   };
 }
@@ -517,4 +544,17 @@ function normalizeAvailability(record: AvailabilityRecord): AvailabilityRecord {
 
 function normalizeBlockedTime(record: BlockedTimeRecord): BlockedTimeRecord {
   return { ...record, reason: record.reason ?? null };
+}
+
+function normalizeSupportTicket(ticket: SupportTicketRecord): SupportTicketRecord {
+  return {
+    ...ticket,
+    subject: ticket.subject ?? null,
+    customer_name: ticket.customer_name ?? null,
+    customer_email: ticket.customer_email ?? null,
+    assigned_admin_email: ticket.assigned_admin_email ?? null,
+    resolved_at: ticket.resolved_at ?? null,
+    created_at: ticket.created_at ?? new Date().toISOString(),
+    updated_at: ticket.updated_at ?? ticket.created_at ?? new Date().toISOString()
+  };
 }

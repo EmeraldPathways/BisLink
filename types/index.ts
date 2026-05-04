@@ -166,6 +166,33 @@ export type PublicContactSubmission = {
   honeypot?: string;
 };
 
+export type SupportTicketType =
+  | 'public_support'
+  | 'owner_support'
+  | 'escalation';
+export type SupportTicketStatus = 'open' | 'in_progress' | 'resolved';
+export type SupportTicketPriority = 'normal' | 'high';
+export type SupportTicketSource = 'contact_form' | 'owner_dashboard';
+export type SupportTicketCreatedByRole = 'public_user' | 'owner' | 'admin';
+
+export type SupportTicketRecord = {
+  id: string;
+  business_id: string;
+  ticket_type: SupportTicketType;
+  status: SupportTicketStatus;
+  priority: SupportTicketPriority;
+  source: SupportTicketSource;
+  created_by_role: SupportTicketCreatedByRole;
+  subject: string | null;
+  message: string;
+  customer_name: string | null;
+  customer_email: string | null;
+  assigned_admin_email: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type AvailabilityRecord = {
   id: string;
   business_id: string;

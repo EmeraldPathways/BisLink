@@ -401,6 +401,44 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['services']['Insert']>;
         Relationships: [];
       };
+      support_tickets: {
+        Row: {
+          assigned_admin_email: string | null;
+          business_id: string;
+          created_at: string;
+          created_by_role: 'public_user' | 'owner' | 'admin';
+          customer_email: string | null;
+          customer_name: string | null;
+          id: string;
+          message: string;
+          priority: 'normal' | 'high';
+          resolved_at: string | null;
+          source: 'contact_form' | 'owner_dashboard';
+          status: 'open' | 'in_progress' | 'resolved';
+          subject: string | null;
+          ticket_type: 'public_support' | 'owner_support' | 'escalation';
+          updated_at: string;
+        };
+        Insert: {
+          assigned_admin_email?: string | null;
+          business_id: string;
+          created_at?: string;
+          created_by_role: 'public_user' | 'owner' | 'admin';
+          customer_email?: string | null;
+          customer_name?: string | null;
+          id?: string;
+          message: string;
+          priority?: 'normal' | 'high';
+          resolved_at?: string | null;
+          source: 'contact_form' | 'owner_dashboard';
+          status?: 'open' | 'in_progress' | 'resolved';
+          subject?: string | null;
+          ticket_type: 'public_support' | 'owner_support' | 'escalation';
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['support_tickets']['Insert']>;
+        Relationships: [];
+      };
       specialisms: {
         Row: {
           business_id: string;

@@ -60,7 +60,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    const supabase = createAdminClient() ?? (await createClient());
+    const admin = createAdminClient();
+    const supabase = admin ?? (await createClient());
     const { data: business, error } = await supabase
       .from('businesses')
       .select('name, email, contact_email, owner_id, slug')
@@ -98,6 +99,51 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'No contact email configured' },
         { status: 400 },
+      );
+    }
+
+    if (!admin) {
+      await writeAppLog({
+        level: 'error',
+        source: 'api.contact',
+        event: 'support_ticket_admin_missing',
+        message: 'Supabase admin client is required to persist support tickets',
+        context: { business_id: businessId }
+      });
+      return NextResponse.json(
+        { error: 'Support inbox is unavailable' },
+        { status: 500 }
+      );
+    }
+
+    const { error: ticketError } = await admin.from('support_tickets').insert({
+      business_id: businessId,
+      ticket_type: 'public_support',
+      status: 'open',
+      priority: 'normal',
+      source: 'contact_form',
+      created_by_role: 'public_user',
+      subject: null,
+      message,
+      customer_name: senderName,
+      customer_email: senderEmail
+    });
+
+    if (ticketError) {
+      await writeAppLog({
+        level: 'error',
+        source: 'api.contact',
+        event: 'support_ticket_insert_failed',
+        message: 'Could not persist support ticket for public contact submission',
+        context: {
+          business_id: businessId,
+          owner_id: business.owner_id,
+          error: ticketError.message
+        }
+      });
+      return NextResponse.json(
+        { error: 'Could not create support ticket' },
+        { status: 500 }
       );
     }
 

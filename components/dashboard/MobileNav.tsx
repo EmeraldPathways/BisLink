@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Clock3,
   DollarSign,
+  LifeBuoy,
   Link2,
   MoreHorizontal,
   Settings,
@@ -28,6 +29,7 @@ const primaryItems = [
 
 const moreItems = [
   { label: 'Customers', href: '/customers', icon: Users },
+  { label: 'Support', href: '/support', icon: LifeBuoy },
   { label: 'Reviews', href: '/reviews', icon: Star },
   { label: 'My Link', href: '/link', icon: Link2 },
   { label: 'Payouts', href: '/payouts', icon: DollarSign },

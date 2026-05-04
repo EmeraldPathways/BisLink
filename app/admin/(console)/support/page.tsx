@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AdminActionButton } from '@/components/admin/AdminActionButton';
+import { AdminSupportInbox } from '@/components/admin/AdminSupportInbox';
 import { AdminTopbar } from '@/components/admin/AdminTopbar';
 import { requireAdminUser } from '@/lib/admin';
 import { getAdminSupportData } from '@/lib/admin-console-data';
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminSupportPage() {
   await requireAdminUser();
-  const { reviews, onboardingRisks, refundedOrders, bookingIssues } =
+  const { tickets, reviews, onboardingRisks, refundedOrders, bookingIssues } =
     await getAdminSupportData();
 
   return (
@@ -17,6 +18,8 @@ export default async function AdminSupportPage() {
         title="Support + moderation"
         description="Moderate reviews, surface businesses with incomplete setup, and inspect recent payment and booking issues."
       />
+
+      <AdminSupportInbox tickets={tickets} />
 
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="rounded-[28px] border border-[var(--color-border)] bg-white p-6">
