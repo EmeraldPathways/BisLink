@@ -1,10 +1,10 @@
-import { ArrowUpRight, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
 import type { Service } from './BookingPage';
 
 export function ServiceCard({
   service,
-  onClick,
+  onClick
 }: {
   service: Service;
   onClick: () => void;
@@ -32,21 +32,15 @@ export function ServiceCard({
 
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[15px] font-semibold text-[var(--color-text-primary)]">
-            {service.name}
-          </p>
-          <p className="mt-1 max-w-[24rem] text-[13px] leading-5 text-[var(--color-text-secondary)]">
-            {service.description}
-          </p>
+          <p className="text-[15px] font-semibold text-[var(--color-text-primary)]">{service.name}</p>
+          <p className="mt-1 max-w-[24rem] text-[13px] leading-5 text-[var(--color-text-secondary)]">{service.description}</p>
           <p className="mt-3 flex items-center gap-1 text-[13px] text-[var(--color-text-tertiary)]">
             <Clock className="h-3 w-3" /> {service.duration_minutes} min
-            <span className="ml-2 text-[16px] font-bold text-[var(--color-text-primary)]">
-              {formatPrice(service.price, service.currency)}
-            </span>
+            <span className="ml-2 text-[16px] font-bold text-[var(--color-text-primary)]">{formatPrice(service.price, service.currency)}</span>
           </p>
         </div>
-        <div className="flex h-[30px] w-[30px] translate-x-0 items-center justify-center rounded-[10px] bg-[var(--page-surface-muted)] text-[var(--page-text-secondary)] transition group-hover:translate-x-0.5 group-hover:bg-[var(--cta-bg)] group-hover:text-[var(--cta-text)]">
-          <ArrowUpRight className="h-3.5 w-3.5" />
+        <div className="inline-flex items-center justify-center rounded-full bg-[var(--cta-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--cta-text)]">
+          Book →
         </div>
       </div>
     </button>

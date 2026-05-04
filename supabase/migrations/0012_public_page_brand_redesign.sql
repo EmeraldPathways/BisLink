@@ -1,0 +1,14 @@
+ALTER TABLE businesses
+ADD COLUMN IF NOT EXISTS cover_image_url TEXT,
+ADD COLUMN IF NOT EXISTS primary_cta_label TEXT,
+ADD COLUMN IF NOT EXISTS announcement_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS announcement_text TEXT,
+ADD COLUMN IF NOT EXISTS youtube_url TEXT,
+ADD COLUMN IF NOT EXISTS custom_primary_color TEXT,
+ADD COLUMN IF NOT EXISTS custom_font_pairing TEXT,
+ADD COLUMN IF NOT EXISTS stat_one_label TEXT,
+ADD COLUMN IF NOT EXISTS stat_one_value TEXT,
+ADD COLUMN IF NOT EXISTS stat_two_label TEXT,
+ADD COLUMN IF NOT EXISTS stat_two_value TEXT,
+ADD COLUMN IF NOT EXISTS stat_three_label TEXT,
+ADD COLUMN IF NOT EXISTS stat_three_value TEXT;

@@ -54,6 +54,7 @@ export type BusinessProfile = {
   tagline?: string | null;
   full_bio?: string | null;
   photo_url?: string | null;
+  cover_image_url?: string | null;
   location?: string | null;
   address?: string | null;
   parking_notes?: string | null;
@@ -61,11 +62,23 @@ export type BusinessProfile = {
   website_url?: string | null;
   instagram_handle?: string | null;
   tiktok_handle?: string | null;
+  youtube_url?: string | null;
   whatsapp_number?: string | null;
   email?: string | null;
   phone?: string | null;
   years_experience?: number | null;
   google_review_url?: string | null;
+  primary_cta_label?: string | null;
+  announcement_enabled?: boolean;
+  announcement_text?: string | null;
+  custom_primary_color?: string | null;
+  custom_font_pairing?: string | null;
+  stat_one_label?: string | null;
+  stat_one_value?: string | null;
+  stat_two_label?: string | null;
+  stat_two_value?: string | null;
+  stat_three_label?: string | null;
+  stat_three_value?: string | null;
   contact_email?: string | null;
   timezone: string;
   currency: string;
@@ -136,6 +149,19 @@ export type ReviewRecord = {
   text: string;
   is_verified: boolean;
   is_published: boolean;
+  created_at: string;
+};
+
+export type PortfolioItemRecord = {
+  id: string;
+  business_id: string;
+  title?: string | null;
+  description?: string | null;
+  media_type: 'image' | 'video_link';
+  image_url?: string | null;
+  external_url?: string | null;
+  sort_order: number;
+  is_active: boolean;
   created_at: string;
 };
 
@@ -290,4 +316,5 @@ export type PublicPageData = {
   reviews: ReviewRecord[];
   credentials: CredentialRecord[];
   specialisms: SpecialismRecord[];
+  portfolioItems: PortfolioItemRecord[];
 };

@@ -8,11 +8,32 @@ const schema = z.object({
   category: z.string().trim().min(1).max(120),
   theme_key: z.enum(BUSINESS_THEME_KEYS),
   bio: z.string().trim().max(1000).default(''),
+  photo_url: z.string().url().optional().or(z.literal('')),
+  cover_image_url: z.string().url().optional().or(z.literal('')),
   tagline: z.string().trim().max(140).optional().or(z.literal('')),
   full_bio: z.string().trim().max(4000).optional().or(z.literal('')),
+  primary_cta_label: z.string().trim().max(40).optional().or(z.literal('')),
+  announcement_enabled: z.boolean().optional(),
+  announcement_text: z.string().trim().max(180).optional().or(z.literal('')),
   location: z.string().trim().max(120).optional().or(z.literal('')),
   address: z.string().trim().max(240).optional().or(z.literal('')),
+  website_url: z.string().url().optional().or(z.literal('')),
   instagram_handle: z.string().trim().max(120).optional().or(z.literal('')),
+  tiktok_handle: z.string().trim().max(120).optional().or(z.literal('')),
+  youtube_url: z.string().url().optional().or(z.literal('')),
+  whatsapp_number: z.string().trim().max(40).optional().or(z.literal('')),
+  email: z.string().email().optional().or(z.literal('')),
+  phone: z.string().trim().max(40).optional().or(z.literal('')),
+  google_review_url: z.string().url().optional().or(z.literal('')),
+  years_experience: z.coerce.number().int().min(0).max(100).optional().nullable(),
+  stat_one_label: z.string().trim().max(40).optional().or(z.literal('')),
+  stat_one_value: z.string().trim().max(40).optional().or(z.literal('')),
+  stat_two_label: z.string().trim().max(40).optional().or(z.literal('')),
+  stat_two_value: z.string().trim().max(40).optional().or(z.literal('')),
+  stat_three_label: z.string().trim().max(40).optional().or(z.literal('')),
+  stat_three_value: z.string().trim().max(40).optional().or(z.literal('')),
+  custom_primary_color: z.string().trim().regex(/^#([0-9A-Fa-f]{6})$/, 'Use a valid hex colour').optional().or(z.literal('')),
+  custom_font_pairing: z.enum(['theme-default', 'editorial', 'modern', 'friendly', 'premium']).optional(),
   slug: z
     .string()
     .trim()
@@ -49,14 +70,14 @@ export async function PATCH(req: NextRequest) {
     }
   }
 
-  const payload = {
-    ...parsed.data,
-    tagline: parsed.data.tagline || null,
-    full_bio: parsed.data.full_bio || null,
-    location: parsed.data.location || null,
-    address: parsed.data.address || null,
-    instagram_handle: parsed.data.instagram_handle || null,
-  };
+  const payload = Object.fromEntries(
+    Object.entries(parsed.data).map(([key, value]) => {
+      if (typeof value === 'string') {
+        return [key, value || null];
+      }
+      return [key, value];
+    }),
+  );
 
   const { data, error } = await supabase
     .from('businesses')

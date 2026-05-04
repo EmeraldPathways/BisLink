@@ -21,6 +21,7 @@ export default async function SlugPage({
       reviews={publicPage.reviews}
       credentials={publicPage.credentials}
       specialisms={publicPage.specialisms}
+      portfolioItems={publicPage.portfolioItems}
     />
   );
 }

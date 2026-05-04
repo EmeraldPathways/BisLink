@@ -1,86 +1,60 @@
 'use client';
 
-import Image from 'next/image';
 import { Check } from 'lucide-react';
 import type { BusinessProfile, CredentialRecord, ReviewRecord, SpecialismRecord } from '@/types';
 
 export function AboutTab({
+  id = 'about',
   business,
   credentials,
   specialisms,
-  reviews,
+  reviews: _reviews,
   onBook
 }: {
+  id?: string;
   business: BusinessProfile;
   credentials: CredentialRecord[];
   specialisms: SpecialismRecord[];
   reviews: ReviewRecord[];
   onBook: () => void;
 }) {
-  const published = reviews.filter((review) => review.is_published);
-  const average = published.reduce((sum, review) => sum + review.rating, 0) / Math.max(published.length, 1);
-  const hasReviews = published.length > 0;
   const hasBio = Boolean(business.full_bio?.trim());
   const hasCredentials = credentials.length > 0;
   const hasSpecialisms = specialisms.length > 0;
-  const years = business.years_experience ?? 0;
-
   const stats = [
-    years > 0 ? ['Years', String(years)] : ['Experience', 'New'],
-    hasReviews ? ['Rating', average.toFixed(1)] : ['Rating', 'New']
-  ] as Array<[string, string]>;
+    business.years_experience ? { label: 'Years Experience', value: `${business.years_experience}+` } : null,
+    business.stat_one_label && business.stat_one_value ? { label: business.stat_one_label, value: business.stat_one_value } : null,
+    business.stat_two_label && business.stat_two_value ? { label: business.stat_two_label, value: business.stat_two_value } : null,
+    business.stat_three_label && business.stat_three_value ? { label: business.stat_three_label, value: business.stat_three_value } : null
+  ].filter(Boolean) as Array<{ label: string; value: string }>;
 
   return (
-    <section className="space-y-4 px-2 pb-10 pt-6">
-      <div className="rounded-[var(--card-radius)] bg-[image:var(--hero-gradient)] px-5 py-6 text-[var(--hero-text)]">
-        <div className="flex items-center gap-4">
-          <div className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-[22px] bg-[linear-gradient(135deg,var(--cta-accent-bg),var(--accent-strong))] font-display text-2xl font-semibold text-[var(--cta-accent-text)]">
-            {business.photo_url ? (
-              <Image
-                alt={business.name}
-                className="h-full w-full object-cover"
-                height={72}
-                src={business.photo_url}
-                width={72}
-              />
-            ) : (
-              business.name.slice(0, 2).toUpperCase()
-            )}
-          </div>
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--hero-kicker)]">
-              {business.category}
-              {years > 0 ? ` · ${years} Years` : null}
-            </p>
-            {business.tagline ? (
-              <p className="mt-2 font-display text-[20px] italic text-[var(--hero-text)]">
-                &quot;{business.tagline}&quot;
-              </p>
-            ) : null}
-          </div>
-        </div>
+    <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-10 pt-6">
+      <div className="px-3">
+        <h2 className="font-display text-3xl text-[var(--text-1)]">About</h2>
       </div>
 
-      <div className={`grid gap-3 ${stats.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-        {stats.map(([label, value]) => (
-          <div
-            key={label}
-            className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] px-3 py-4 text-center shadow-[var(--card-shadow)]"
-          >
-            <p className="font-display text-[26px] font-semibold text-[var(--text-1)]">{value}</p>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-[var(--text-5)]">
-              {label}
-            </p>
-          </div>
-        ))}
-      </div>
+      {stats.length ? (
+        <div className={`grid gap-3 ${stats.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] px-3 py-4 text-center shadow-[var(--card-shadow)]"
+            >
+              <p className="font-display text-[26px] font-semibold text-[var(--text-1)]">{stat.value}</p>
+              <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-[var(--text-5)]">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {hasBio ? (
         <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
-          <h3 className="font-display text-[19px] text-[var(--text-1)]">My Story</h3>
+          <h3 className="font-display text-[19px] text-[var(--text-1)]">Story</h3>
           <div className="mt-4 space-y-4">
             {(business.full_bio ?? '')
               .split('\n')
+              .map((paragraph) => paragraph.trim())
               .filter(Boolean)
               .map((paragraph, index) => (
                 <p key={index} className="text-[14px] leading-[1.75] text-[var(--text-2)]">
@@ -96,10 +70,7 @@ export function AboutTab({
           <h3 className="font-display text-[19px] text-[var(--text-1)]">Credentials</h3>
           <div className="mt-4 flex flex-wrap gap-2">
             {credentials.map((credential) => (
-              <span
-                key={credential.id}
-                className="flex items-center gap-1 rounded-full bg-[var(--badge-soft-bg)] px-3 py-1.5 text-[11px] font-semibold text-[var(--badge-soft-text)]"
-              >
+              <span key={credential.id} className="flex items-center gap-1 rounded-full bg-[var(--badge-soft-bg)] px-3 py-1.5 text-[11px] font-semibold text-[var(--badge-soft-text)]">
                 <Check className="h-3 w-3" aria-hidden="true" /> {credential.label}
               </span>
             ))}
@@ -112,10 +83,7 @@ export function AboutTab({
           <h3 className="font-display text-[19px] text-[var(--text-1)]">Specialisms</h3>
           <div className="mt-4 flex flex-wrap gap-2">
             {specialisms.map((specialism) => (
-              <span
-                key={specialism.id}
-                className="rounded-full bg-[var(--page-card-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--text-2)]"
-              >
+              <span key={specialism.id} className="rounded-full bg-[var(--page-card-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--text-2)]">
                 {specialism.label}
               </span>
             ))}
@@ -123,11 +91,7 @@ export function AboutTab({
         </div>
       ) : null}
 
-      <button
-        type="button"
-        onClick={onBook}
-        className="w-full rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-5 py-4 text-sm font-semibold text-[var(--cta-text)]"
-      >
+      <button type="button" onClick={onBook} className="w-full rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-5 py-4 text-sm font-semibold text-[var(--cta-text)]">
         Book a Session
       </button>
     </section>

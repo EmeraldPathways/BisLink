@@ -8,6 +8,7 @@ import type {
   CustomerRecord,
   DashboardStats,
   OrderRecord,
+  PortfolioItemRecord,
   PayoutRecord,
   ProductRecord,
   RevenuePoint,
@@ -45,12 +46,22 @@ export const demoBusiness: BusinessProfile = {
   is_active: true,
   instagram_handle: '@studioeleven',
   tiktok_handle: '@studioelevenmoves',
+  youtube_url: 'https://www.youtube.com/@studioeleven',
   whatsapp_number: '+1 555 300 4400',
   email: 'hello@studioeleven.com',
   phone: '+1 555 300 4400',
   years_experience: 9,
   google_review_url: 'https://google.com/maps/reviews/demo',
-  google_maps_url: 'https://www.google.com/maps/search/?api=1&query=218%20Atlantic%20Avenue%2C%20Brooklyn%2C%20NY%2011201'
+  google_maps_url: 'https://www.google.com/maps/search/?api=1&query=218%20Atlantic%20Avenue%2C%20Brooklyn%2C%20NY%2011201',
+  primary_cta_label: 'Book Training',
+  announcement_enabled: true,
+  announcement_text: '2 new evening slots just opened for May.',
+  stat_one_label: 'Clients Helped',
+  stat_one_value: '200+',
+  stat_two_label: 'Avg Review',
+  stat_two_value: '4.9/5',
+  stat_three_label: 'Weekly Classes',
+  stat_three_value: '12'
 };
 
 export const demoCredentials: CredentialRecord[] = [
@@ -196,6 +207,45 @@ export const demoProducts: ProductRecord[] = [
     sort_order: 4,
     rating: 4.6,
     review_count: 12
+  }
+];
+
+export const demoPortfolioItems: PortfolioItemRecord[] = [
+  {
+    id: 'portfolio_1',
+    business_id: businessId,
+    title: 'Strength Block',
+    description: 'Six-week progress snapshot from a beginner client.',
+    media_type: 'image',
+    image_url: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80',
+    external_url: '',
+    sort_order: 0,
+    is_active: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'portfolio_2',
+    business_id: businessId,
+    title: 'Mobility Reset',
+    description: 'Recovery flow from an in-studio session.',
+    media_type: 'image',
+    image_url: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80',
+    external_url: '',
+    sort_order: 1,
+    is_active: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'portfolio_3',
+    business_id: businessId,
+    title: 'Client Reel',
+    description: 'Quick movement recap from a weekly coaching block.',
+    media_type: 'video_link',
+    image_url: '',
+    external_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    sort_order: 2,
+    is_active: true,
+    created_at: new Date().toISOString()
   }
 ];
 

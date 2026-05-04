@@ -6,6 +6,8 @@ import { formatPrice } from '@/lib/utils/formatting';
 import type { ProductRecord } from '@/types';
 
 export function ProductsTab({
+  id = 'products',
+  business,
   products,
   categories,
   activeCategory,
@@ -15,6 +17,8 @@ export function ProductsTab({
   inCart,
   getQuantity
 }: {
+  id?: string;
+  business: { name: string };
   products: ProductRecord[];
   categories: string[];
   activeCategory: string;
@@ -25,7 +29,11 @@ export function ProductsTab({
   getQuantity: (productId: string) => number;
 }) {
   return (
-    <section className="space-y-4 px-2 pb-24 pt-6">
+    <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-24 pt-6">
+      <div className="px-3">
+        <h2 className="font-display text-3xl text-[var(--text-1)]">Shop</h2>
+        <p className="mt-1 text-sm text-[var(--text-3)]">Products and digital resources from {business.name}.</p>
+      </div>
       <div className="flex gap-2 overflow-x-auto pb-1">
         {categories.map((category) => {
           const active = category === activeCategory;
@@ -113,11 +121,7 @@ export function ProductsTab({
                         disabled={!product.in_stock || reachedCartLimit}
                         className={`flex h-7 w-7 items-center justify-center rounded-[9px] text-sm ${inCart(product.id) ? 'bg-[var(--cta-accent-bg)] text-[var(--cta-accent-text)]' : 'bg-[var(--page-surface-emphasis)] text-[var(--text-2)]'} disabled:cursor-not-allowed disabled:opacity-50`}
                       >
-                        {inCart(product.id) ? (
-                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                        ) : (
-                          <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                        )}
+                        {inCart(product.id) ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Plus className="h-3.5 w-3.5" aria-hidden="true" />}
                       </button>
                     </div>
                   </div>

@@ -219,6 +219,11 @@ Default active tab: `bookings`.
 - Decorative hero glows are clipped internally so tab focus no longer shifts the hero horizontally.
 - Review counts are derived from one shared summary source in `lib/reviews.ts` / `lib/demo-data.ts`.
 - Product cards expose full descriptions accessibly and open a clearer detail flow.
+- Public-page mobile layout now uses a full-width viewport treatment on small screens while preserving the centered card on desktop.
+- The footer now renders at the `PublicPage` shell level so it appears consistently across all tabs.
+- Reviews empty states now avoid misleading `0.0` / five-star presentation, support partial star fills, and use clearer zero-review CTA copy.
+- About tab sections now hide empty content, avoid fake stats for new businesses, and present new profiles with cleaner fallback labels.
+- Hero metadata no longer shows noisy "New profile" copy, and zero-review profiles no longer render an orphaned divider before the location.
 - Contact form fields now use visible labels, inline validation, and a honeypot-backed submission payload.
 - Contact delivery now resolves the business via the admin-capable lookup path, falls back to `business.email` when `contact_email` is blank, and surfaces explicit Resend send failures from `/api/contact`.
 - Location presentation is a linked map-style card rather than duplicated placeholder address text.
@@ -392,7 +397,7 @@ The app includes a real internal super-admin console under `/admin`.
 - `/admin/(console)` exposes:
   - overview
   - businesses list + business detail
-  - support / moderation
+  - support / moderation, including owner/admin support inbox views
   - finance
   - agents diagnostics
   - settings / environment status
@@ -463,6 +468,7 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - post-signup Stripe recovery from `/payouts`, including a visible Stripe onboarding CTA when onboarding was skipped or left incomplete
 - live payout status derived from the connected Stripe account rather than trusting only the cached `stripe_onboarded` flag
 - internal admin console backed by live Supabase, Stripe, and expanded diagnostics
+- internal admin support/moderation section is in place
 - booking/order lifecycle processing with tighter idempotent guards, structured logs, and clearer retry semantics
 - product checkout hardening:
   - admin-capable business lookup instead of false `Business not found`
@@ -496,6 +502,7 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - booking payment-intent creation fixed to resolve live businesses through the admin-capable lookup path instead of failing at the payment step with a false `Business not found`
 - public review links now expire after 30 days instead of remaining valid indefinitely
 - middleware protection now covers the full owner route-group surface, closing the previous defense-in-depth gap outside `/dashboard`
+- current public-page UI/UX polish pass is complete across bookings, products, reviews, about, contact, and shared shell/footer behavior
 
 ### Still incomplete / highest remaining risk
 
@@ -518,7 +525,7 @@ The release-hardening implementation pass is now in place. The next stage is pro
 
 ### Goal
 
-Validate the hardening work in real runtime conditions, close any issues found from replay/manual verification, and then move into narrower release-readiness polish instead of another platform-wide refactor.
+Validate the hardening work in real runtime conditions, close any issues found from replay/manual verification, and then move into narrower release-readiness polish instead of another platform-wide refactor. Support/moderation and the latest public-page UI pass are complete; they are no longer active implementation tracks.
 
 ### Priority Order
 

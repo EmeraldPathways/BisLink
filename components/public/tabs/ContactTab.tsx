@@ -1,12 +1,17 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ExternalLink, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { ExternalLink, Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import type { BusinessProfile, PublicContactSubmission } from '@/types';
+import { SocialIconLinks } from '../SocialIconLinks';
 
 type FormErrors = Partial<Record<'senderName' | 'senderEmail' | 'message', string>>;
 
-export function ContactTab({ business }: { business: BusinessProfile }) {
+function normalizePhone(value: string | null | undefined) {
+  return (value ?? '').replace(/[^\d]/g, '');
+}
+
+export function ContactTab({ id = 'contact', business }: { id?: string; business: BusinessProfile }) {
   const [form, setForm] = useState({ senderName: '', senderEmail: '', message: '', website: '' });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -17,24 +22,18 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
     () =>
       [
         business.email ? { icon: Mail, label: 'Email', value: business.email, href: `mailto:${business.email}` } : null,
-        business.phone || business.whatsapp_number
-          ? {
-              icon: Phone,
-              label: business.phone ? 'Phone' : 'WhatsApp',
-              value: business.phone ?? business.whatsapp_number ?? '',
-              href: `tel:${business.phone ?? business.whatsapp_number ?? ''}`
-            }
-          : null,
-        business.instagram_handle
+        business.phone ? { icon: Phone, label: 'Phone', value: business.phone, href: `tel:${business.phone}` } : null,
+        business.whatsapp_number
           ? {
               icon: MessageCircle,
-              label: 'Instagram',
-              value: business.instagram_handle,
-              href: `https://instagram.com/${business.instagram_handle.replace('@', '')}`
+              label: 'WhatsApp',
+              value: business.whatsapp_number,
+              href: `https://wa.me/${normalizePhone(business.whatsapp_number)}`
             }
-          : null
+          : null,
+        business.website_url ? { icon: Globe, label: 'Website', value: business.website_url, href: business.website_url } : null
       ].filter(Boolean) as Array<{ icon: typeof Mail; label: string; value: string; href: string }>,
-    [business.email, business.instagram_handle, business.phone, business.whatsapp_number]
+    [business.email, business.phone, business.website_url, business.whatsapp_number]
   );
 
   const hasLocation = Boolean(business.address || business.location || business.google_maps_url);
@@ -93,26 +92,36 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
   }
 
   return (
-    <section className="space-y-4 px-2 pb-10 pt-6">
+    <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-10 pt-6">
+      <div className="px-3">
+        <h2 className="font-display text-3xl text-[var(--text-1)]">Contact</h2>
+        <p className="mt-1 text-sm text-[var(--text-3)]">Send a message or connect on social.</p>
+      </div>
+
       <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
-        {rows.length ? (
-          rows.map((row) => (
-            <a key={row.label} href={row.href} className="flex items-center justify-between border-b border-[var(--border)] py-4 last:border-b-0">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
-                  <row.icon className="h-4 w-4" />
+        {rows.length
+          ? rows.map((row) => (
+              <a
+                key={row.label}
+                href={row.href}
+                target={row.href.startsWith('http') ? '_blank' : undefined}
+                rel={row.href.startsWith('http') ? 'noreferrer' : undefined}
+                className="flex items-center justify-between border-b border-[var(--border)] py-4 last:border-b-0"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
+                    <row.icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--text-1)]">{row.label}</p>
+                    <p className="text-sm text-[var(--text-3)]">{row.value}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-[var(--text-1)]">{row.label}</p>
-                  <p className="text-sm text-[var(--text-3)]">{row.value}</p>
-                </div>
-              </div>
-              <span className="text-[var(--text-3)]">{'->'}</span>
-            </a>
-          ))
-        ) : (
-          <p className="text-sm text-[var(--text-3)]">No direct contact channels are configured yet. Use the message form below.</p>
-        )}
+                <span className="text-[var(--text-3)]">{'->'}</span>
+              </a>
+            ))
+          : null}
+        <SocialIconLinks business={business} variant="contact" />
       </div>
 
       <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
@@ -220,9 +229,7 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
               </a>
             ) : null}
           </>
-        ) : (
-          <p className="mt-4 text-sm text-[var(--text-3)]">Location details are not configured yet.</p>
-        )}
+        ) : null}
       </div>
     </section>
   );

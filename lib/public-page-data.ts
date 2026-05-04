@@ -2,6 +2,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { normalizeBusiness } from '@/lib/owner';
 import {
   normalizeCredential,
+  normalizePortfolioItem,
   normalizeProduct,
   normalizeReview,
   normalizeService,
@@ -20,7 +21,7 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
 
   if (!business) return null;
 
-  const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }] = await Promise.all([
+  const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, { data: portfolioItems }] = await Promise.all([
     supabase
       .from('services')
       .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji')
@@ -41,7 +42,14 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
       .eq('is_published', true)
       .order('created_at', { ascending: false }),
     supabase.from('credentials').select('id,business_id,label,sort_order').eq('business_id', business.id).order('sort_order', { ascending: true }),
-    supabase.from('specialisms').select('id,business_id,label,sort_order').eq('business_id', business.id).order('sort_order', { ascending: true })
+    supabase.from('specialisms').select('id,business_id,label,sort_order').eq('business_id', business.id).order('sort_order', { ascending: true }),
+    supabase
+      .from('portfolio_items')
+      .select('id,business_id,title,description,media_type,image_url,external_url,sort_order,is_active,created_at')
+      .eq('business_id', business.id)
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+      .limit(6)
   ]);
 
   return {
@@ -50,6 +58,7 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
     products: (products ?? []).map(normalizeProduct),
     reviews: (reviews ?? []).map(normalizeReview),
     credentials: (credentials ?? []).map(normalizeCredential),
-    specialisms: (specialisms ?? []).map(normalizeSpecialism)
+    specialisms: (specialisms ?? []).map(normalizeSpecialism),
+    portfolioItems: (portfolioItems ?? []).map(normalizePortfolioItem)
   };
 }
