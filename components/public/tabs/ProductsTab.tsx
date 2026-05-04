@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Package, Plus } from 'lucide-react';
+import { Check, Eye, Package, Plus } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
 import type { ProductRecord } from '@/types';
 
@@ -87,7 +87,7 @@ export function ProductsTab({
                 }}
                 className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-[9px] bg-white/90 text-[var(--gold-dark)] shadow-sm"
               >
-                <Plus className="h-3.5 w-3.5 rotate-45" aria-hidden="true" />
+                <Eye className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </div>
             <div className="p-3">

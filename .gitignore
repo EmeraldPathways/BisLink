@@ -5,7 +5,7 @@
 node_modules/
 coverage/
 dist/
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 .env
 .env.local
 import.env
@@ -13,7 +13,15 @@ ybial-agents/node_modules/
 ybial-agents/coverage/
 ybial-agents/dist/
 ybial-agents/.env
+ybial-agents/.gcloudignore
+.claude/settings.local.json
+.codex/
+.ai-codex/
+.vscode/
+.token-savior-cache.json
+docs/superpowers/plans/
 *.log
 
 # Sentry Config File
 .env.sentry-build-plugin
+.vercel

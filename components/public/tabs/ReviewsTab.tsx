@@ -1,9 +1,30 @@
 'use client';
 
-import { Check, Star } from 'lucide-react';
+import { Check, MessageSquare, Star } from 'lucide-react';
 import { getReviewSummaryFromReviews } from '@/lib/reviews';
 import { getInitials } from '@/lib/utils/formatting';
 import type { BusinessProfile, ReviewRecord } from '@/types';
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex justify-center gap-1" aria-hidden="true">
+      {Array.from({ length: 5 }).map((_, index) => {
+        const fillPercent = Math.min(Math.max(rating - index, 0), 1) * 100;
+        return (
+          <div key={index} className="relative h-4 w-4">
+            <Star className="absolute inset-0 h-4 w-4 text-[var(--gold)]/25" />
+            <div
+              className="absolute inset-0 overflow-hidden"
+              style={{ width: `${fillPercent}%` }}
+            >
+              <Star className="h-4 w-4 fill-[var(--gold)] text-[var(--gold)]" />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export function ReviewsTab({
   business,
@@ -18,50 +39,63 @@ export function ReviewsTab({
 }) {
   const published = reviews.filter((review) => review.is_published);
   const reviewSummary = getReviewSummaryFromReviews(reviews);
+  const hasReviews = reviewSummary.publishedCount > 0;
 
   return (
     <section className="space-y-4 px-2 pb-10 pt-6">
-      <div className="rounded-[18px] bg-[var(--void)] px-5 py-6 text-center text-[var(--hero-text-1)]">
-        <p className="font-display text-[64px] leading-none tracking-[-2px]">
-          {reviewSummary.average.toFixed(1)}
-        </p>
-        <div className="mt-2 flex justify-center gap-1">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Star
-              key={index}
-              className="h-4 w-4 fill-[var(--gold)] text-[var(--gold)]"
-              aria-hidden="true"
-            />
-          ))}
-        </div>
-        <p className="mt-3 text-[13px] text-[var(--hero-text-3)]">
-          Based on {reviewSummary.publishedCount} reviews
-        </p>
-        <div className="mt-5 space-y-2">
-          {breakdown.map((item) => (
-            <div key={item.rating} className="flex items-center gap-3 text-sm">
-              <span className="flex w-8 items-center gap-0.5 text-left text-[var(--hero-text-2)]">
-                {item.rating}
-                <Star className="h-2.5 w-2.5 fill-current" aria-hidden="true" />
-              </span>
-              <div className="h-1.5 flex-1 rounded-full bg-white/10">
-                <div
-                  className="h-1.5 rounded-full bg-[var(--gold)]"
-                  style={{
-                    width:
-                      item.count === 0
-                        ? '0%'
-                        : `max(${Math.min(item.percent * 100, 100)}%, 4px)`
-                  }}
-                />
+      {hasReviews ? (
+        /* Rating summary card */
+        <div className="rounded-[18px] bg-[var(--void)] px-5 py-6 text-center text-[var(--hero-text-1)]">
+          <p className="font-display text-[64px] leading-none tracking-[-2px]">
+            {reviewSummary.average.toFixed(1)}
+          </p>
+          <div className="mt-2">
+            <StarRating rating={reviewSummary.average} />
+          </div>
+          <p className="mt-3 text-[13px] text-[var(--hero-text-3)]">
+            Based on {reviewSummary.publishedCount} review
+            {reviewSummary.publishedCount !== 1 ? 's' : ''}
+          </p>
+          <div className="mt-5 space-y-2">
+            {breakdown.map((item) => (
+              <div key={item.rating} className="flex items-center gap-3 text-sm">
+                <span className="flex w-8 items-center gap-0.5 text-left text-[var(--hero-text-2)]">
+                  {item.rating}
+                  <Star className="h-2.5 w-2.5 fill-current" aria-hidden="true" />
+                </span>
+                <div className="h-1.5 flex-1 rounded-full bg-white/10">
+                  <div
+                    className="h-1.5 rounded-full bg-[var(--gold)]"
+                    style={{
+                      width:
+                        item.count === 0
+                          ? '0%'
+                          : `max(${Math.min(item.percent * 100, 100)}%, 4px)`
+                    }}
+                  />
+                </div>
+                <span className="w-10 text-right text-[12px] text-[var(--hero-text-3)]">
+                  {Math.round(item.percent * 100)}%
+                </span>
               </div>
-              <span className="w-10 text-right text-[12px] text-[var(--hero-text-3)]">
-                {Math.round(item.percent * 100)}%
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        /* Empty state when no reviews */
+        <div className="flex flex-col items-center rounded-[18px] bg-[var(--surface-2)] px-5 py-10 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--surface-3)]">
+            <MessageSquare className="h-6 w-6 text-[var(--text-3)]" />
+          </div>
+          <p className="mt-4 font-display text-[20px] text-[var(--text-1)]">
+            No reviews yet
+          </p>
+          <p className="mt-2 text-sm text-[var(--text-3)]">
+            Be the first to share your experience after your session.
+          </p>
+        </div>
+      )}
+
       {published.map((review) => (
         <div
           key={review.id}
@@ -104,10 +138,13 @@ export function ReviewsTab({
           </p>
         </div>
       ))}
+
       <div className="rounded-[18px] bg-[var(--surface-2)] px-5 py-5 text-center">
         <h3 className="font-display text-[20px] text-[var(--text-1)]">Ready to start?</h3>
         <p className="mt-2 text-sm text-[var(--text-3)]">
-          Join {reviewSummary.publishedCount}+ people who&apos;ve trained with {business.name}
+          {hasReviews
+            ? `Join ${reviewSummary.publishedCount}+ people who've trained with ${business.name}`
+            : `Be the first to book a session with ${business.name}`}
         </p>
         <button
           type="button"

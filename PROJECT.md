@@ -16,7 +16,7 @@ Pricing model: flat subscription, no per-booking fees.
 
 | Layer | Choice |
 |---|---|
-| Framework | Next.js 14 App Router |
+| Framework | Next.js 16 App Router |
 | Language | TypeScript |
 | Styling | Tailwind CSS + CSS custom properties |
 | UI Components | shadcn/ui (Radix UI) |
@@ -32,6 +32,7 @@ Pricing model: flat subscription, no per-booking fees.
 | Hosting | Vercel |
 | DNS/CDN | Cloudflare |
 | Animations | Framer Motion |
+| Linting/Formatting | ESLint 9 flat config + Biome |
 
 ---
 
@@ -40,6 +41,9 @@ Pricing model: flat subscription, no per-booking fees.
 ### Fonts
 - Display/headings: Cormorant Garamond (400, 600)
 - UI/body: DM Sans (300, 400, 500, 600)
+- Theme-specific additions:
+  - `wellness-studio`: Fraunces display with DM Sans UI
+  - `bright-performance`: Space Grotesk display with Manrope UI
 
 ### CSS Variables (`app/globals.css`)
 All canonical variables use the `--color-*` prefix. Shorthand aliases are also defined for compatibility.
@@ -63,6 +67,20 @@ All canonical variables use the `--color-*` prefix. Shorthand aliases are also d
 | `--color-text-secondary` | `#888888` | Secondary body text |
 | `--color-text-tertiary` | `#AAAAAA` | Hints/placeholders |
 | `--color-success` | `#4ADE80` | Live availability dot |
+
+### Business Theme Presets
+
+The public business page now supports three curated per-business presets driven by `businesses.theme_key`.
+
+| Theme Key | Direction | Best Fit |
+|---|---|---|
+| `classic-luxe` | Existing dark luxe gold identity | Premium service brands and high-trust specialists |
+| `wellness-studio` | Softer, warmer, calmer treatment | Massage, salons, beauty, hair, wellness |
+| `bright-performance` | Brighter, cleaner, energetic contrast | Gyms, PTs, fitness, coaching |
+
+Theme presets are resolved through `lib/business-themes.ts` and applied at the `PublicPage` container level so layout stays shared while colors, fonts, gradients, and surfaces change by business.
+
+This feature depends on the `businesses.theme_key` column and check constraint defined in `supabase/migrations/0010_business_theme_presets.sql`. Any new or drifted environment must have that schema change applied for owner theme saves to work.
 
 ### Hero Section
 Dark gradient: `linear-gradient(165deg, #0C0B09 0%, #1C1610 55%, #0F0D0B 100%)` with radial gold glow accents and staggered motion on load.
@@ -133,8 +151,13 @@ components/
     MobileCalendar.tsx          Single-day mobile calendar
     CalendarView.tsx            Desktop weekly grid + mobile calendar switch
     CustomersList.tsx           Search/filter/sort customer UI
+    Sidebar.tsx                 Desktop owner nav shell
+    SidebarNav.tsx              Shared dashboard nav links
     StatsBar.tsx                Mobile 2x2 stat layout
-    LinkEditor.tsx              Labeled owner link editor form
+    LinkEditor.tsx              Labeled owner link editor form + business theme picker
+    LinkWorkspace.tsx           Owner link editor + live public preview wrapper
+    ProductForm.tsx             Owner product create/edit form
+    ReviewsManager.tsx          Owner review moderation UI
   payments/
     EmbeddedPaymentForm.tsx     Shared Stripe Payment Element wrapper
 
@@ -152,6 +175,7 @@ hooks/
   useBreakpoint.ts             SSR-safe mobile breakpoint hook
 
 lib/
+  business-themes.ts            Theme preset registry + token maps
   demo-data.ts                  Demo dataset for explicit demo route
   public-page-data.ts           Live public page read model
   dashboard-data.ts             Live owner dashboard read model
@@ -200,6 +224,8 @@ Default active tab: `bookings`.
 - Location presentation is a linked map-style card rather than duplicated placeholder address text.
 - Booking sheet scrolling was hardened on mobile by switching the sheet panel to an explicit viewport-tied height so the date step remains scrollable inside the bottom sheet.
 - Public slug pages now render dynamically rather than serving a short-lived cached not-found state, so newly created businesses appear immediately after setup.
+- Public styling is now theme-driven through `business.theme_key`, with `classic-luxe`, `wellness-studio`, and `bright-performance` presets.
+- The owner `My Link` area now includes a visual three-card theme picker with immediate preview updates before save.
 
 ---
 
@@ -209,7 +235,7 @@ All monetary values are stored in cents. Row Level Security is enabled.
 
 | Table | Purpose |
 |---|---|
-| `businesses` | Core profile, slug, Stripe/calendar tokens, contact fields |
+| `businesses` | Core profile, slug, theme preset, Stripe/calendar tokens, contact fields |
 | `services` | Bookable services |
 | `availability` | Working hours per day of week |
 | `blocked_times` | Manual time-off blocks |
@@ -225,6 +251,7 @@ All monetary values are stored in cents. Row Level Security is enabled.
 ### Important lifecycle / integrity columns
 
 ```sql
+businesses.theme_key TEXT CHECK IN ('classic-luxe', 'wellness-studio', 'bright-performance')
 bookings.confirmation_sent BOOLEAN
 bookings.reminder_24h_sent BOOLEAN
 bookings.reminder_1h_sent BOOLEAN
@@ -260,10 +287,11 @@ POST   /api/owner/services               Create owner service
 PATCH  /api/owner/services/[id]          Update/toggle owner service
 POST   /api/owner/products               Create owner product
 PATCH  /api/owner/products/[id]          Update/toggle owner product
-PUT    /api/owner/availability           Replace owner weekly availability
+POST   /api/owner/availability           Upsert owner weekly availability day
 POST   /api/owner/blocked-times          Create blocked time
 DELETE /api/owner/blocked-times/[id]     Remove blocked time
 PATCH  /api/owner/reviews/[id]           Toggle owner review visibility
+GET    /api/owner/onboarding             Load onboarding state
 PUT    /api/owner/onboarding             Persist onboarding business/services/availability
 
 PATCH  /api/admin/businesses/[id]/status         Activate/deactivate business
@@ -274,6 +302,7 @@ GET    /api/admin/agents/diagnostics            Fetch internal diagnostics summa
 GET    /api/availability                 Live slot generation by business/service/date
 GET    /api/bookings/[id]                Poll booking payment/confirmation status
 POST   /api/bookings                     Create booking + PaymentIntent
+POST   /api/checkout                     Shared checkout-session route from canonical checkout schema
 POST   /api/orders                       Create order + PaymentIntent
 POST   /api/contact                      Public contact form submission
 POST   /api/reviews                      Public review submission
@@ -287,8 +316,12 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 
 ## Key Business Logic
 
+- Public-page theming is driven by `business.theme_key`, resolved through `lib/business-themes.ts`, with app-level fallback to `classic-luxe` for older or missing data.
+- Owner `My Link` editing now includes a three-card theme picker with immediate preview updates in the right-side public-page frame before persisting changes.
+- Theme persistence requires the `0010_business_theme_presets.sql` schema change; the live BisLink Supabase project was realigned after schema drift so owner dashboard theme saves now succeed.
 - Slot availability is generated from `availability`, minus overlapping `bookings` and `blocked_times`, accounting for service duration + buffer time.
 - Stripe Payment Element is used for bookings and product checkout. Stripe webhooks remain the source of truth for completion.
+- `lib/payments/checkout.ts` is now the canonical checkout-session path, with `/api/checkout` using the native schema directly and `/api/orders` retained as a legacy-compatible adapter for the current cart payload shape.
 - Booking confirmation flow: `payment_intent.succeeded` -> confirm booking -> trigger booking lifecycle -> send confirmation email and create Google Calendar event idempotently.
 - Order confirmation flow: `payment_intent.succeeded` -> persist or mark the order `paid` from `payment_intent_id` inside the webhook -> await order lifecycle -> send buyer confirmation email and seller order notification email.
 - Reminder flow: 24h and 1h reminders are tracked with `reminder_24h_sent` and `reminder_1h_sent`.
@@ -302,6 +335,7 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - Public contact submissions now include stricter field validation plus a honeypot field that is rejected server-side when populated.
 - Public contact delivery now uses the same admin-capable business lookup approach as the public-page read path, falls back to `business.email`, and returns an explicit error when Resend rejects a send attempt.
 - Public booking intent creation now uses the same admin-capable business lookup approach as availability and public-page reads, preventing false `Business not found` failures at the payment step.
+- Dynamic page routes now await `params` under Next 16, fixing live slug/admin detail regressions after the framework upgrade.
 - Admin diagnostics now distinguish configured, partial, pending processing, reconnect needed, and runtime-incomplete states.
 - Owner-facing payout and booking surfaces now expose clearer runtime status for calendar sync, contact delivery, and order confirmation processing.
 - Booking lifecycle retries only persist missing side effects, and order lifecycle no longer marks `confirmation_sent` true unless the confirmation email actually succeeds.
@@ -311,6 +345,7 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - Sentry is wired for runtime error capture via `instrumentation.ts`, `instrumentation-client.ts`, and the global error boundary.
 - Owner and admin surfaces now include explicit sign-out actions instead of relying on manual route switching back to login pages.
 - Owner mutation routes now use the admin-capable Supabase path after server-side ownership has already been verified, avoiding RLS-related write failures on products and similar owner writes.
+- Owner dashboard read routes now also use the admin-capable Supabase path after owner/business resolution, preventing false empty states where public pages have data but dashboard lists appear blank.
 - Owner service form error handling now converts structured validation payloads into readable text instead of crashing the dashboard when a Zod error object is returned.
 - Middleware now explicitly protects all owner dashboard route-group pages (`/calendar`, `/services`, `/products`, `/customers`, `/reviews`, `/link`, `/payouts`, `/availability`) instead of relying only on layout-level redirects.
 
@@ -384,6 +419,9 @@ The app includes a real internal super-admin console under `/admin`.
 | `owner-dashboard-update` | Live owner dashboard reads + owner mutation wiring |
 | `admin-dash-update` | Internal admin console, diagnostics, finance, support, and moderation views |
 | `public-data` | Public live-data migration workstream |
+| `3-themes-update` | Business theme presets, theme registry, and owner live preview |
+| `owner-dashboard-ui-fix` | Owner dashboard UI and interaction fixes |
+| `snyk-scan` | Dependency and security remediation pass |
 
 ---
 
@@ -403,6 +441,8 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - public contact form submission
 - public review submission with duplicate protection
 - shared public `/demo` and `/[slug]` experience with sticky semantic tabs, frame-aware sheets in demo mode, and consistent review totals
+- three owner-selectable public-page theme presets with live preview in `/link`
+- live Supabase schema alignment for `businesses.theme_key`, fixing owner dashboard theme persistence in the current BisLink project
 - dynamic public slug rendering so new business links are available immediately after setup
 - owner dashboard reads across bookings, customers, services, products, reviews, availability, link settings, and payouts
 - owner mutations for services, products, availability, blocked times, review visibility, and business profile updates
@@ -415,6 +455,7 @@ The app is now mostly live across owner, public, and payment-critical flows.
   - responsive services/products layouts and empty states
   - improved payouts/stat-card/mobile filters
   - labeled My Link fields and stronger focus treatment
+  - live theme picker preview for public-page branding
 - owner dashboard auth/session UX:
   - desktop sidebar sign-out action
   - mobile More drawer sign-out action
@@ -433,10 +474,14 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - security remediation pass:
   - root app upgraded to `next@16.2.3`
   - root lint stack upgraded to `eslint@9.27.0` and `eslint-config-next@16.2.3`
+  - ESLint now runs through flat config in `eslint.config.mjs`
   - `postcss` pinned/overridden to `8.5.10`
   - `functions` upgraded to `@google-cloud/functions-framework@5.0.2` and `googleapis@152.0.0`
   - `ybial-agents` upgraded to `@google-cloud/functions-framework@5.0.2`
   - server-side Supabase helpers and typed route handlers were updated for Next 16 compatibility
+- live post-upgrade production fixes:
+  - dynamic public slug pages and admin business detail pages now await async route `params`
+  - owner dashboard reads now use the admin-capable data path, fixing cases where services/products exist publicly but appear empty in the owner dashboard
 - public product/service freshness improvements:
   - owner product and service edits revalidate the live public slug page
   - public products now exclude out-of-stock items to match policy
@@ -460,6 +505,7 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - public/operator messaging around delayed lifecycle processing can still be improved further in production conditions
 - buyer/seller email delivery still depends on correct Resend and Cloud Function env/config in production
 - the remaining Snyk findings are transitive `uuid@8.3.2` paths inside `cloudevents` from `@google-cloud/functions-framework`; there is no safe upstream-supported fix yet
+- the `functions` package was redeployed after the dependency upgrade, but `ybial-agents` still needs a safe deploy-path fix before its runtime dependency updates are fully live in Google Cloud
 - Biome backlog reduction is in progress; the repo now has scoped config, but not all source files are clean yet
 
 ### Implication

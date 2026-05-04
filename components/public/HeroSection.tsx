@@ -58,10 +58,8 @@ export function HeroSection({
               <span className="font-medium text-[var(--hero-text-1)]">{rating.toFixed(1)}</span>
               <span>({reviewCount} reviews)</span>
             </span>
-          ) : (
-            <span className="text-[var(--hero-text-2)]">New profile</span>
-          )}
-          {hasLocation ? <span className="h-[14px] w-px bg-[var(--border-hero)]" /> : null}
+          ) : null}
+          {hasReviews && hasLocation ? <span className="h-[14px] w-px bg-[var(--border-hero)]" /> : null}
           {hasLocation ? (
             <span className="flex items-center gap-1">
               <MapPin className="h-3.5 w-3.5" />

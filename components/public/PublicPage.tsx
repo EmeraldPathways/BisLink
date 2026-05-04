@@ -70,7 +70,7 @@ export function PublicPage({
     >
       <div
         ref={frameRef}
-        className="relative mx-auto max-w-[430px] bg-[var(--bg)] pt-[max(env(safe-area-inset-top),1.5rem)]"
+        className="relative mx-auto w-full bg-[var(--bg)] pt-[max(env(safe-area-inset-top),1.5rem)] md:max-w-[430px]"
       >
         <HeroSection business={business} rating={reviewSummary.average} reviewCount={reviewSummary.publishedCount} />
 
@@ -100,6 +100,10 @@ export function PublicPage({
           ) : null}
           {activeTab === 'contact' ? <ContactTab business={business} /> : null}
         </div>
+
+        <p className="mt-8 pb-6 text-center text-[11px] text-[var(--text-7)]">
+          Powered by Your Business in a Link
+        </p>
 
         <BookingSheet
           business={business}

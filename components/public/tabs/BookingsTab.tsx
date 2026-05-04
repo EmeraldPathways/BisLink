@@ -20,7 +20,6 @@ export function BookingsTab({
           </motion.div>
         ))}
       </div>
-      <p className="pt-8 text-center text-[11px] text-[var(--text-7)]">Powered by Your Business in a Link</p>
     </section>
   );
 }

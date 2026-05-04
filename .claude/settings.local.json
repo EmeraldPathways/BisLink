@@ -16,7 +16,11 @@
       "Bash(tasklist)",
       "Bash(powershell -Command 'Get-Process chrome | Select-Object Id, MainWindowTitle | Where-Object { $_.MainWindowTitle -ne '\\\\'''\\\\'' }')",
       "Skill(update-config)",
-      "Skill(update-config:*)"
+      "Skill(update-config:*)",
+      "Bash(grep -E \"\\\\.tsx$\")",
+      "Bash(awk '{print $NF}')",
+      "Read(//c/Users/dubli/.claude/skills/ui-ux-pro-max/**)",
+      "Bash(dir \"C:\\\\Users\\\\dubli\\\\.claude\\\\skills\\\\ui-ux-pro-max\")"
     ]
   }
 }
