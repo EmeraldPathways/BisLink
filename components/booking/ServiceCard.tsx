@@ -15,14 +15,15 @@ export function ServiceCard({
     <button
       type="button"
       onClick={onClick}
-      className="group relative w-full rounded-[18px] border-[1.5px] border-[var(--color-border)] bg-white p-[18px] pb-[52px] text-left transition duration-150 hover:-translate-y-0.5 hover:border-[#d4d4d0] hover:shadow-[0_8px_28px_rgba(0,0,0,0.08)] active:scale-[0.98]"
+      className="group relative w-full rounded-[var(--card-radius)] border-[1.5px] border-[var(--page-border)] bg-[var(--page-card-bg)] p-[18px] pb-[52px] text-left transition duration-150 hover:-translate-y-0.5 hover:border-[var(--page-border-strong)] hover:shadow-[var(--card-hover-shadow)] active:scale-[0.98]"
+      style={{ boxShadow: 'var(--card-shadow)' }}
     >
       {service.tag ? (
         <span
           className={`absolute bottom-4 right-4 z-10 rounded-full px-[9px] py-[3px] text-[9px] font-semibold uppercase tracking-[0.08em] ${
             isLightTag
-              ? 'bg-[var(--color-gold-muted)] text-[var(--color-gold-dark)]'
-              : 'bg-[var(--color-void)] text-[var(--color-gold)]'
+              ? 'bg-[var(--badge-soft-bg)] text-[var(--badge-soft-text)]'
+              : 'bg-[var(--badge-bg)] text-[var(--badge-text)]'
           }`}
         >
           {service.tag}
@@ -44,7 +45,7 @@ export function ServiceCard({
             </span>
           </p>
         </div>
-        <div className="flex h-[30px] w-[30px] translate-x-0 items-center justify-center rounded-[10px] bg-[#f2f2f0] text-[#555] transition group-hover:translate-x-0.5 group-hover:bg-[var(--color-void)] group-hover:text-[var(--color-gold)]">
+        <div className="flex h-[30px] w-[30px] translate-x-0 items-center justify-center rounded-[10px] bg-[var(--page-surface-muted)] text-[var(--page-text-secondary)] transition group-hover:translate-x-0.5 group-hover:bg-[var(--cta-bg)] group-hover:text-[var(--cta-text)]">
           <ArrowUpRight className="h-3.5 w-3.5" />
         </div>
       </div>

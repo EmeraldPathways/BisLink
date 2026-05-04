@@ -99,8 +99,8 @@ export function StepTime({
               onClick={() => setSelected(slot)}
               className={`rounded-xl border px-3 py-3 text-sm font-medium ${
                 active
-                  ? 'border-[var(--color-void)] bg-[var(--color-void)] text-white'
-                  : 'border-[#e8e8e8] bg-white text-[var(--color-text-primary)]'
+                  ? 'border-[var(--cta-bg)] bg-[var(--cta-bg)] text-[var(--cta-text)]'
+                  : 'border-[var(--input-border)] bg-[var(--page-card-bg)] text-[var(--color-text-primary)]'
               }`}
             >
               {formatTimeLabel(new Date(`${date}T${slot}:00`), timezone)}

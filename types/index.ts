@@ -17,7 +17,10 @@ export type DiagnosticState =
 export type BusinessThemeKey =
   | 'classic-luxe'
   | 'wellness-studio'
-  | 'bright-performance';
+  | 'bright-performance'
+  | 'editorial-minimal'
+  | 'warm-studio'
+  | 'dark-athletic';
 
 export type DiagnosticCheck = {
   name: string;

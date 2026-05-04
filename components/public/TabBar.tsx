@@ -17,7 +17,7 @@ export function TabBar({ activeTab, onChange }: { activeTab: PublicTab; onChange
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <nav aria-label="Public page sections" role="tablist" className="border-t border-white/10">
+    <nav aria-label="Public page sections" role="tablist" className="border-t border-[var(--tab-border)]">
       <LayoutGroup>
         <div className="flex px-2">
           {tabs.map((tab) => {
@@ -33,8 +33,8 @@ export function TabBar({ activeTab, onChange }: { activeTab: PublicTab; onChange
                 aria-controls={`panel-${tab.id}`}
                 tabIndex={active ? 0 : -1}
                 onClick={() => onChange(tab.id)}
-                className={`relative flex-1 px-2 py-3 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-gold)] focus-visible:outline-offset-[-2px] ${
-                  active ? 'text-[var(--color-gold)]' : 'text-[var(--hero-text-3)]'
+                className={`relative flex-1 px-2 py-3 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-[-2px] ${
+                  active ? 'text-[var(--nav-active)]' : 'text-[var(--nav-text)]'
                 }`}
               >
                 <div className="flex justify-center">
@@ -44,7 +44,7 @@ export function TabBar({ activeTab, onChange }: { activeTab: PublicTab; onChange
                 {active ? (
                   <motion.span
                     layoutId={shouldReduceMotion ? undefined : 'public-tab-indicator'}
-                    className="absolute inset-x-0 bottom-0 mx-auto h-0.5 w-6 rounded-t-sm bg-[var(--color-gold)]"
+                    className="absolute inset-x-0 bottom-0 mx-auto h-0.5 w-6 rounded-t-sm bg-[var(--nav-indicator)]"
                     transition={{ duration: 0.2 }}
                   />
                 ) : null}

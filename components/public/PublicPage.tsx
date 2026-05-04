@@ -64,17 +64,17 @@ export function PublicPage({
 
   return (
     <main
-      className="min-h-screen overflow-x-hidden bg-[var(--bg)]"
+      className="min-h-screen overflow-x-hidden bg-[var(--page-bg)]"
       data-theme={theme.key}
       style={themeStyle}
     >
       <div
         ref={frameRef}
-        className="relative mx-auto w-full bg-[var(--bg)] pt-[max(env(safe-area-inset-top),1.5rem)] md:max-w-[430px]"
+        className="relative mx-auto w-full bg-[var(--page-bg)] pt-[max(env(safe-area-inset-top),1.5rem)] md:max-w-[430px]"
       >
         <HeroSection business={business} rating={reviewSummary.average} reviewCount={reviewSummary.publishedCount} />
 
-        <div className="sticky top-0 z-30 bg-[image:var(--tab-gradient)] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
+        <div className="sticky top-0 z-30 bg-[image:var(--nav-gradient)] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
           <TabBar activeTab={activeTab} onChange={setActiveTab} />
         </div>
 
@@ -144,18 +144,18 @@ export function PublicPage({
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
               onClick={() => setCartOpen(true)}
-              className={`z-40 flex items-center justify-between rounded-[16px] bg-[var(--void)] px-4 py-4 text-white shadow-[0_8px_32px_rgba(0,0,0,0.30)] ${
+              className={`z-40 flex items-center justify-between rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-4 py-4 text-[var(--cta-text)] shadow-[var(--panel-shadow)] ${
                 presentation === 'demo'
                   ? 'sticky bottom-4 mx-4 mt-4 w-[calc(100%-32px)]'
                   : 'fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 w-[calc(100%-32px)] max-w-[390px] -translate-x-1/2'
               }`}
             >
               <span className="flex items-center gap-3">
-                <span className="rounded-full bg-[var(--gold)] px-2 py-1 text-xs font-semibold text-[var(--void)]">{count}</span>
+                <span className="rounded-full bg-[var(--cta-accent-bg)] px-2 py-1 text-xs font-semibold text-[var(--cta-accent-text)]">{count}</span>
                 <span className="text-sm font-medium">{count} items</span>
               </span>
               <span className="text-sm font-semibold">{formatPrice(total)}</span>
-              <span className="rounded-full bg-[var(--gold)] px-3 py-1.5 text-sm font-semibold text-[var(--void)]">Pay</span>
+              <span className="rounded-full bg-[var(--cta-accent-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--cta-accent-text)]">Pay</span>
             </motion.button>
           ) : null}
         </AnimatePresence>

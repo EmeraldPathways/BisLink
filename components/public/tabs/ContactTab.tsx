@@ -45,17 +45,9 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
   function validateForm() {
     const nextErrors: FormErrors = {};
 
-    if (form.senderName.trim().length < 2) {
-      nextErrors.senderName = 'Enter your name.';
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.senderEmail.trim())) {
-      nextErrors.senderEmail = 'Enter a valid email address.';
-    }
-
-    if (form.message.trim().length < 10) {
-      nextErrors.message = 'Message must be at least 10 characters.';
-    }
+    if (form.senderName.trim().length < 2) nextErrors.senderName = 'Enter your name.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.senderEmail.trim())) nextErrors.senderEmail = 'Enter a valid email address.';
+    if (form.message.trim().length < 10) nextErrors.message = 'Message must be at least 10 characters.';
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -64,9 +56,7 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
     setError(null);
@@ -104,12 +94,12 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
 
   return (
     <section className="space-y-4 px-2 pb-10 pt-6">
-      <div className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-white p-5">
+      <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
         {rows.length ? (
           rows.map((row) => (
             <a key={row.label} href={row.href} className="flex items-center justify-between border-b border-[var(--border)] py-4 last:border-b-0">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--surface-2)] text-[var(--gold-dark)]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
                   <row.icon className="h-4 w-4" />
                 </div>
                 <div>
@@ -117,7 +107,7 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
                   <p className="text-sm text-[var(--text-3)]">{row.value}</p>
                 </div>
               </div>
-              <span className="text-[var(--text-3)]">→</span>
+              <span className="text-[var(--text-3)]">{'->'}</span>
             </a>
           ))
         ) : (
@@ -125,7 +115,7 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
         )}
       </div>
 
-      <div className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-white p-5">
+      <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
         <h3 className="font-display text-[19px] text-[var(--text-1)]">Send a message</h3>
         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
           <div className="hidden">
@@ -150,7 +140,7 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
                 setForm((current) => ({ ...current, senderName: event.target.value }));
                 setErrors((current) => ({ ...current, senderName: undefined }));
               }}
-              className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3"
+              className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3"
               required
               minLength={2}
             />
@@ -168,7 +158,7 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
                 setForm((current) => ({ ...current, senderEmail: event.target.value }));
                 setErrors((current) => ({ ...current, senderEmail: undefined }));
               }}
-              className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3"
+              className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3"
               type="email"
               required
             />
@@ -186,7 +176,7 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
                 setForm((current) => ({ ...current, message: event.target.value }));
                 setErrors((current) => ({ ...current, message: undefined }));
               }}
-              className="min-h-[120px] w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3"
+              className="min-h-[120px] w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3"
               required
               minLength={10}
             />
@@ -195,13 +185,13 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
 
           {message ? <p className="text-sm text-green-700">{message}</p> : null}
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <button disabled={loading} className="w-full rounded-[15px] bg-[var(--void)] px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">
+          <button disabled={loading} className="w-full rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-5 py-4 text-sm font-semibold text-[var(--cta-text)] disabled:cursor-not-allowed disabled:opacity-60">
             {loading ? 'Sending...' : 'Send Message'}
           </button>
         </form>
       </div>
 
-      <div className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-white p-5">
+      <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
         <h3 className="font-display text-[19px] text-[var(--text-1)]">Location</h3>
         {hasLocation ? (
           <>
@@ -212,9 +202,9 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
                 rel="noreferrer"
                 className="mt-4 block overflow-hidden rounded-[16px] border border-[var(--border)] bg-[image:var(--media-gradient)]"
               >
-                <div className="relative flex min-h-[132px] items-center justify-center overflow-hidden px-5 text-center text-[var(--gold-dark)]">
+                <div className="relative flex min-h-[132px] items-center justify-center overflow-hidden px-5 text-center text-[var(--accent-strong)]">
                   <div className="absolute inset-0 bg-[image:var(--grid-pattern)] opacity-40 [background-size:28px_28px]" />
-                  <div className="relative flex items-center gap-2 rounded-full bg-white/85 px-4 py-2 text-sm font-semibold shadow-sm">
+                  <div className="relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm" style={{ backgroundColor: 'color-mix(in srgb, var(--page-card-bg) 90%, transparent)' }}>
                     <MapPin className="h-4 w-4" />
                     Open in Google Maps
                   </div>
@@ -224,7 +214,7 @@ export function ContactTab({ business }: { business: BusinessProfile }) {
             <p className="mt-4 text-sm font-semibold text-[var(--text-1)]">{business.address ?? business.location}</p>
             {business.parking_notes ? <p className="mt-2 text-sm leading-6 text-[var(--text-3)]">{business.parking_notes}</p> : null}
             {mapHref ? (
-              <a href={mapHref} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--gold-dark)]">
+              <a href={mapHref} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent-strong)]">
                 Open in Maps
                 <ExternalLink className="h-4 w-4" />
               </a>

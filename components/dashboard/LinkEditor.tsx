@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
-import { Check, Dumbbell, Flower2, Sparkles } from 'lucide-react';
+import { Check, Dumbbell, Flame, Flower2, Newspaper, Sparkles, Zap } from 'lucide-react';
 import { BUSINESS_THEMES, type BusinessThemeDefinition } from '@/lib/business-themes';
 import type { BusinessProfile, BusinessThemeKey } from '@/types';
 
@@ -22,8 +22,13 @@ type FormState = {
 const themeIcons: Record<BusinessThemeKey, typeof Sparkles> = {
   'classic-luxe': Sparkles,
   'wellness-studio': Flower2,
-  'bright-performance': Dumbbell
+  'bright-performance': Dumbbell,
+  'editorial-minimal': Newspaper,
+  'warm-studio': Flame,
+  'dark-athletic': Zap
 };
+
+const themeGroups = ['Editorial', 'Studio', 'Performance'] as const;
 
 export function LinkEditor({
   business,
@@ -81,15 +86,38 @@ export function LinkEditor({
           <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
             Theme
           </label>
-          <div className="grid gap-3">
-            {BUSINESS_THEMES.map((theme) => (
-              <ThemeOptionCard
-                key={theme.key}
-                theme={theme}
-                selected={form.theme_key === theme.key}
-                onSelect={() => updateField('theme_key', theme.key)}
-              />
-            ))}
+          <div className="space-y-5">
+            {themeGroups.map((group) => {
+              const options = BUSINESS_THEMES.filter((theme) => theme.preview.group === group);
+              if (!options.length) return null;
+
+              return (
+                <section key={group} className="space-y-2">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+                      {group}
+                    </p>
+                    <p className="mt-1 text-sm text-[var(--color-text-tertiary)]">
+                      {group === 'Editorial'
+                        ? 'Sharper, typography-led directions.'
+                        : group === 'Studio'
+                          ? 'Softer, warmer service brands.'
+                          : 'Higher-energy performance brands.'}
+                    </p>
+                  </div>
+                  <div className="grid gap-3">
+                    {options.map((theme) => (
+                      <ThemeOptionCard
+                        key={theme.key}
+                        theme={theme}
+                        selected={form.theme_key === theme.key}
+                        onSelect={() => updateField('theme_key', theme.key)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         </div>
 
@@ -214,7 +242,7 @@ export function LinkEditor({
           Open Link
         </a>
         <button onClick={save} disabled={isPending} className="rounded-2xl border border-[var(--color-border)] px-4 py-3 text-sm font-semibold disabled:opacity-60">
-          {isPending ? 'Saving…' : 'Save Changes'}
+          {isPending ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
       {message ? <p className="mt-4 text-xs text-green-700">{message}</p> : null}
@@ -254,10 +282,10 @@ function ThemeOptionCard({
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`rounded-[22px] border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] ${
+      className={`rounded-[24px] border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-void)] ${
         selected
-          ? 'border-[var(--color-void)] shadow-[0_12px_30px_rgba(12,11,9,0.08)]'
-          : 'border-[var(--color-border)] hover:border-[var(--color-border-dark)]/30 hover:shadow-[0_8px_24px_rgba(12,11,9,0.05)]'
+          ? 'border-[var(--color-void)] bg-[var(--color-surface)] shadow-[0_14px_34px_rgba(12,11,9,0.08)]'
+          : 'border-[var(--color-border)] bg-white hover:border-[var(--color-border-dark)] hover:shadow-[0_10px_28px_rgba(12,11,9,0.05)]'
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -269,6 +297,9 @@ function ThemeOptionCard({
             <Icon className="h-5 w-5" />
           </div>
           <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+              {theme.preview.kicker}
+            </p>
             <p className="text-sm font-semibold text-[var(--color-text-primary)]">{theme.label}</p>
             <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{theme.description}</p>
           </div>
@@ -284,28 +315,69 @@ function ThemeOptionCard({
         </span>
       </div>
 
-      <div className="mt-4 rounded-[18px] border border-[var(--color-border)] p-3" style={theme.style}>
-        <div className="rounded-[16px] bg-[image:var(--hero-gradient)] px-3 py-3 text-[var(--hero-text-1)]">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-[12px] bg-[linear-gradient(135deg,var(--gold),var(--gold-dark))]" />
-            <div className="space-y-1">
-              <div className="h-2 w-16 rounded-full bg-white/80" />
-              <div className="h-2 w-10 rounded-full bg-white/35" />
+      <div className="mt-4 rounded-[22px] border border-[var(--page-border)] bg-[var(--page-surface)] p-3" style={theme.style}>
+        <div className="overflow-hidden rounded-[18px] border border-[var(--tab-border)] bg-[var(--page-bg)]">
+          <div className="bg-[image:var(--hero-gradient)] px-3 py-3 text-[var(--hero-text-1)]">
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-[var(--cta-accent-bg)] text-[11px] font-semibold text-[var(--cta-accent-text)]">
+                CT
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[var(--hero-kicker)]">
+                  {theme.preview.kicker}
+                </div>
+                <div className="mt-1 h-2.5 w-24 rounded-full bg-white/90" />
+                <div className="mt-1 h-2 w-14 rounded-full bg-white/35" />
+              </div>
             </div>
           </div>
-        </div>
-        <div className="mt-3 grid grid-cols-[1fr_auto] gap-3">
-          <div className="space-y-2">
-            <div className="h-3 w-20 rounded-full bg-[var(--surface-3)]" />
-            <div className="h-3 w-28 rounded-full bg-[var(--surface-2)]" />
+          <div className="grid grid-cols-4 border-y border-[var(--tab-border)] bg-[image:var(--nav-gradient)] px-2 py-2">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="flex flex-col items-center gap-1">
+                <div className={`h-1.5 w-1.5 rounded-full ${index === 0 ? 'bg-[var(--nav-indicator)]' : 'bg-white/25'}`} />
+                <div
+                  className="h-1 w-7 rounded-full"
+                  style={{
+                    backgroundColor:
+                      index === 0
+                        ? 'color-mix(in srgb, var(--nav-active) 85%, transparent)'
+                        : 'color-mix(in srgb, var(--nav-text) 45%, transparent)'
+                  }}
+                />
+              </div>
+            ))}
           </div>
-          <div className="rounded-full bg-[var(--void)] px-3 py-1 text-[10px] font-semibold text-white">
-            Book
+          <div className="bg-[var(--page-bg)] p-3">
+            <div className="rounded-[16px] border border-[var(--page-border)] bg-[var(--page-card-bg)] p-3 shadow-[var(--card-shadow)]">
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1.5">
+                  <div className="h-2.5 w-24 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text) 90%, transparent)' }} />
+                  <div className="h-2 w-28 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-secondary) 45%, transparent)' }} />
+                </div>
+                <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--page-surface-muted)] text-[var(--page-text-secondary)]">
+                  <Icon className="h-3.5 w-3.5" />
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div className="h-3 w-16 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--page-text-muted) 25%, transparent)' }} />
+                <div className="rounded-full bg-[var(--badge-bg)] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--badge-text)]">
+                  {theme.preview.badge}
+                </div>
+              </div>
+              <div className="mt-3 flex justify-end">
+                <div className="rounded-full bg-[var(--cta-bg)] px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--cta-text)]">
+                  {theme.preview.ctaLabel}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <p className="mt-3 text-xs leading-5 text-[var(--color-text-secondary)]">{theme.audience}</p>
+      <p className="mt-3 text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-text-primary)]">
+        Best for
+      </p>
+      <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">{theme.preview.bestFor}</p>
     </button>
   );
 }

@@ -53,8 +53,8 @@ export function CartSheet({
   const framed = presentation === 'demo' && !isMobile && containerRef?.current;
   const shellClassName = framed ? 'absolute inset-0 z-50' : 'fixed inset-0 z-50';
   const panelClassName = framed
-    ? 'hide-scrollbar absolute bottom-0 left-0 right-0 min-h-[78%] max-h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)]'
-    : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto min-h-[78dvh] max-h-[calc(100dvh-8px)] w-full max-w-[520px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-white px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[0_-24px_64px_rgba(0,0,0,0.22)] md:max-w-[430px] md:rounded-t-[26px] md:px-4';
+    ? 'hide-scrollbar absolute bottom-0 left-0 right-0 min-h-[78%] max-h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)]'
+    : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto min-h-[78dvh] max-h-[calc(100dvh-8px)] w-full max-w-[520px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)] md:max-w-[430px] md:rounded-t-[26px] md:px-4';
 
   async function handleCreateIntent() {
     setLoadingIntent(true);
@@ -121,27 +121,27 @@ export function CartSheet({
           transition={{ duration: 0.38, ease: [0.32, 0.72, 0, 1] }}
           className={panelClassName}
         >
-          <div className="mx-auto mb-4 h-1 w-[38px] rounded bg-[#e0e0e0]" />
+          <div className="mx-auto mb-4 h-1 w-[38px] rounded bg-[var(--sheet-handle)]" />
           <div className="flex items-center justify-between">
             <p className="font-display text-[24px] text-[var(--text-1)]">Your Cart</p>
-            <button type="button" aria-label="Close cart" className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--surface-3)]" onClick={onClose}>
+            <button type="button" aria-label="Close cart" className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--page-surface-emphasis)]" onClick={onClose}>
               <X className="h-4 w-4" />
             </button>
           </div>
           <div className="mt-4 space-y-3">
             {items.map((item) => (
-              <div key={item.product.id} className="flex items-center justify-between rounded-[16px] bg-[var(--surface-2)] px-4 py-4">
+              <div key={item.product.id} className="flex items-center justify-between rounded-[16px] bg-[var(--page-surface-muted)] px-4 py-4">
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-1)]">{item.product.name}</p>
                   <p className="text-sm text-[var(--text-3)]">
-                    {item.qty} × {formatPrice(item.product.price)}
+                    {item.qty} x {formatPrice(item.product.price)}
                   </p>
                 </div>
                 <p className="text-sm font-semibold text-[var(--text-1)]">{formatPrice(item.product.price * item.qty)}</p>
               </div>
             ))}
           </div>
-          <div className="mt-5 rounded-[15px] bg-[var(--surface-2)] px-4 py-4">
+          <div className="mt-5 rounded-[15px] bg-[var(--page-surface-muted)] px-4 py-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-[var(--text-1)]">Total</span>
               <span className="text-[18px] font-bold text-[var(--text-1)]">{formatPrice(total)}</span>
@@ -149,21 +149,21 @@ export function CartSheet({
           </div>
           <div className="mt-5 space-y-3">
             {success ? (
-              <div className="rounded-[16px] bg-[var(--surface-2)] px-4 py-5 text-sm text-[var(--text-2)]">
+              <div className="rounded-[16px] bg-[var(--page-surface-muted)] px-4 py-5 text-sm text-[var(--text-2)]">
                 Your payment was received. We&apos;re processing your order confirmation now.
               </div>
             ) : (
               <>
-                <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3" placeholder="Customer name" />
-                <input value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3" placeholder="Email" type="email" />
-                <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3" placeholder="Phone (optional)" />
-                <input value={shippingLine1} onChange={(event) => setShippingLine1(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3" placeholder="Shipping address (optional)" />
+                <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Customer name" />
+                <input value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Email" type="email" />
+                <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Phone (optional)" />
+                <input value={shippingLine1} onChange={(event) => setShippingLine1(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Shipping address (optional)" />
                 {shippingLine1 ? (
                   <div className="grid grid-cols-2 gap-3">
-                    <input value={shippingCity} onChange={(event) => setShippingCity(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3" placeholder="City" />
-                    <input value={shippingRegion} onChange={(event) => setShippingRegion(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3" placeholder="Region" />
-                    <input value={shippingPostalCode} onChange={(event) => setShippingPostalCode(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3" placeholder="Postal code" />
-                    <input value={shippingCountry} onChange={(event) => setShippingCountry(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--border)] bg-[var(--bg)] px-4 py-3" placeholder="Country" />
+                    <input value={shippingCity} onChange={(event) => setShippingCity(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="City" />
+                    <input value={shippingRegion} onChange={(event) => setShippingRegion(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Region" />
+                    <input value={shippingPostalCode} onChange={(event) => setShippingPostalCode(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Postal code" />
+                    <input value={shippingCountry} onChange={(event) => setShippingCountry(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Country" />
                   </div>
                 ) : null}
               </>
@@ -174,7 +174,7 @@ export function CartSheet({
             <button
               onClick={handleCreateIntent}
               disabled={!stripePromise || !canCreateIntent || loadingIntent}
-              className="mt-6 w-full rounded-[15px] bg-[var(--void)] px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-[var(--surface-3)] disabled:text-[var(--text-5)]"
+              className="mt-6 w-full rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-5 py-4 text-sm font-semibold text-[var(--cta-text)] disabled:cursor-not-allowed disabled:bg-[var(--page-surface-emphasis)] disabled:text-[var(--text-5)]"
             >
               {loadingIntent ? 'Preparing payment...' : `Continue to payment - ${formatPrice(total, business.currency)}`}
             </button>
