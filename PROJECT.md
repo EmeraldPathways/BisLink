@@ -224,8 +224,8 @@ Default active tab: `bookings`.
 - Location presentation is a linked map-style card rather than duplicated placeholder address text.
 - Booking sheet scrolling was hardened on mobile by switching the sheet panel to an explicit viewport-tied height so the date step remains scrollable inside the bottom sheet.
 - Public slug pages now render dynamically rather than serving a short-lived cached not-found state, so newly created businesses appear immediately after setup.
-- Public styling is now theme-driven through `business.theme_key`, with `classic-luxe`, `wellness-studio`, and `bright-performance` presets.
-- The owner `My Link` area now includes a visual three-card theme picker with immediate preview updates before save.
+- Public styling is now theme-driven through `business.theme_key`, with six curated presets: `classic-luxe`, `wellness-studio`, `bright-performance`, `editorial-minimal`, `warm-studio`, and `dark-athletic`.
+- The owner `My Link` area now includes a compact, mobile-first six-theme picker with immediate preview updates before save.
 
 ---
 
