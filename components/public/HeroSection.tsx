@@ -36,7 +36,8 @@ export function HeroSection({
         </div>
       </div>
 
-      <div className="relative z-10 -mt-12 px-6 pb-8">
+      <div className="relative z-10 -mt-12 px-4 pb-6">
+        <div className="rounded-[28px] border border-white/60 bg-[color:color-mix(in_srgb,var(--page-card-bg)_96%,white)] px-5 pb-6 pt-5 shadow-[0_22px_50px_rgba(19,14,10,0.12)] backdrop-blur">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-end gap-4">
           <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-[var(--page-bg)] bg-[linear-gradient(135deg,var(--cta-accent-bg),var(--accent-strong))] font-display text-2xl font-semibold text-[var(--cta-accent-text)] shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
             {business.photo_url ? (
@@ -58,7 +59,7 @@ export function HeroSection({
           {heroBio}
         </motion.p>
 
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-4 flex flex-wrap items-center gap-3 text-[13px] text-[var(--text-4)]">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-4 flex flex-wrap items-center gap-3 text-[13px] text-[var(--text-3)]">
           {hasReviews ? (
             <span className="flex items-center gap-1">
               <Star className="h-3.5 w-3.5 fill-[var(--accent)] text-[var(--accent)]" />
@@ -80,11 +81,12 @@ export function HeroSection({
           <button
             type="button"
             onClick={onPrimaryAction}
-            className="mt-5 inline-flex rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-5 py-3.5 text-sm font-semibold text-[var(--cta-text)]"
+            className="mt-6 inline-flex w-full items-center justify-center rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-5 py-4 text-sm font-semibold text-[var(--cta-text)] shadow-[0_16px_32px_rgba(22,16,10,0.2)]"
           >
             {business.primary_cta_label?.trim() || 'Book a Session'}
           </button>
         </motion.div>
+        </div>
       </div>
     </header>
   );

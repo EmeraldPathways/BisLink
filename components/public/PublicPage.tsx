@@ -59,6 +59,15 @@ export function PublicPage({
   specialisms: SpecialismRecord[];
   portfolioItems: PortfolioItemRecord[];
 }) {
+  const showAbout = Boolean(
+    business.full_bio?.trim() ||
+      business.years_experience ||
+      (business.stat_one_label && business.stat_one_value) ||
+      (business.stat_two_label && business.stat_two_value) ||
+      (business.stat_three_label && business.stat_three_value) ||
+      credentials.length ||
+      specialisms.length
+  );
   const [selectedService, setSelectedService] = useState<ServiceRecord | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<ProductRecord | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
@@ -85,11 +94,11 @@ export function PublicPage({
         services.length ? { id: 'bookings' as const, label: 'Book', icon: CalendarDays } : null,
         showPortfolio ? { id: 'portfolio' as const, label: 'Work', icon: BriefcaseBusiness } : null,
         showProducts ? { id: 'products' as const, label: 'Shop', icon: ShoppingBag } : null,
-        { id: 'about' as const, label: 'About', icon: User },
+        showAbout ? { id: 'about' as const, label: 'About', icon: User } : null,
         showReviews ? { id: 'reviews' as const, label: 'Reviews', icon: Star } : null,
         { id: 'contact' as const, label: 'Contact', icon: MessageCircle }
       ].filter((section): section is SectionDefinition => section !== null),
-    [services.length, showPortfolio, showProducts, showReviews]
+    [services.length, showPortfolio, showProducts, showAbout, showReviews]
   );
 
   useEffect(() => {
@@ -133,7 +142,11 @@ export function PublicPage({
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[var(--page-bg)]" data-theme={theme.key} style={themeStyle}>
-      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pt-[max(env(safe-area-inset-top),1.5rem)] md:max-w-[430px]">
+      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pt-[max(env(safe-area-inset-top),1.5rem)] md:max-w-[520px] lg:max-w-[560px]">
+        <div className="sticky top-0 z-30 mb-4 bg-[image:var(--nav-gradient)] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
+          <TabBar sections={sections} activeSection={activeSection} onNavigate={scrollToSection} />
+        </div>
+
         <HeroSection
           business={business}
           rating={reviewSummary.average}
@@ -142,10 +155,6 @@ export function PublicPage({
         />
 
         <AnnouncementBar business={business} />
-
-        <div className="sticky top-0 z-30 bg-[image:var(--nav-gradient)] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
-          <TabBar sections={sections} activeSection={activeSection} onNavigate={scrollToSection} />
-        </div>
 
         {services.length ? <BookingsTab id="bookings" services={services} onSelect={setSelectedService} /> : null}
 
@@ -168,14 +177,16 @@ export function PublicPage({
           />
         ) : null}
 
-        <AboutTab
-          id="about"
-          business={business}
-          credentials={credentials}
-          specialisms={specialisms}
-          reviews={reviews}
-          onBook={() => scrollToSection('bookings')}
-        />
+        {showAbout ? (
+          <AboutTab
+            id="about"
+            business={business}
+            credentials={credentials}
+            specialisms={specialisms}
+            reviews={reviews}
+            onBook={() => scrollToSection('bookings')}
+          />
+        ) : null}
 
         {showReviews ? (
           <ReviewsTab

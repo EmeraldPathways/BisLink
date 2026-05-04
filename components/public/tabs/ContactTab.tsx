@@ -98,9 +98,14 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
         <p className="mt-1 text-sm text-[var(--text-3)]">Send a message or connect on social.</p>
       </div>
 
-      <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
-        {rows.length
-          ? rows.map((row) => (
+      {rows.length || (business.instagram_handle || business.tiktok_handle || business.youtube_url || business.website_url || business.whatsapp_number) ? (
+        <div
+          className={`rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] shadow-[var(--card-shadow)] ${
+            rows.length ? 'p-5' : 'p-3'
+          }`}
+        >
+          {rows.length
+            ? rows.map((row) => (
               <a
                 key={row.label}
                 href={row.href}
@@ -120,9 +125,10 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                 <span className="text-[var(--text-3)]">{'->'}</span>
               </a>
             ))
-          : null}
-        <SocialIconLinks business={business} variant="contact" />
-      </div>
+            : null}
+          <SocialIconLinks business={business} variant="contact" />
+        </div>
+      ) : null}
 
       <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
         <h3 className="font-display text-[19px] text-[var(--text-1)]">Send a message</h3>
