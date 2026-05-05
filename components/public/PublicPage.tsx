@@ -2,8 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
+import type { ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BriefcaseBusiness, CalendarDays, MessageCircle, ShoppingBag, Star, User } from 'lucide-react';
+import type {
+  LinkEditorMode,
+  MobileEditSection
+} from '@/components/dashboard/link-editor-sections';
 import { BookingSheet } from '@/components/booking/BookingSheet';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import type {
@@ -50,7 +55,8 @@ export function PublicPage({
   reviews,
   credentials,
   specialisms,
-  portfolioItems
+  portfolioItems,
+  ownerPreview
 }: {
   mode?: 'default' | 'demo';
   business: BusinessProfile;
@@ -60,6 +66,10 @@ export function PublicPage({
   credentials: CredentialRecord[];
   specialisms: SpecialismRecord[];
   portfolioItems: PortfolioItemRecord[];
+  ownerPreview?: {
+    mode: LinkEditorMode;
+    onEditSection: (section: MobileEditSection) => void;
+  };
 }) {
   const showAbout = Boolean(
     business.full_bio?.trim() ||
@@ -81,6 +91,7 @@ export function PublicPage({
   const { activeCategory, setActiveCategory, categories, filtered } = useProducts(products.filter((product) => product.is_active));
   const reviewSummary = useMemo(() => getReviewSummaryFromReviews(reviews), [reviews]);
   const presentation = mode === 'demo' && !isMobile ? 'demo' : 'default';
+  const showOwnerPreview = Boolean(ownerPreview && isMobile);
   const theme = useMemo(() => resolveBusinessTheme(business.theme_key), [business.theme_key]);
   const themeStyle = useMemo(
     () => applyBusinessBrandOverrides(theme.style as CSSProperties, business),
@@ -90,6 +101,7 @@ export function PublicPage({
   const visiblePortfolioItems = useMemo(() => portfolioItems.filter((item) => item.is_active).slice(0, 6), [portfolioItems]);
   const showProducts = filtered.length > 0;
   const showPortfolio = visiblePortfolioItems.length > 0;
+  const showTrust = reviewSummary.publishedCount > 0 && publishedReviews.length > 0;
   const showReviews = reviewSummary.publishedCount > 2;
   const sections = useMemo(
     () =>
@@ -158,6 +170,159 @@ export function PublicPage({
       ? 'more'
       : activeSection;
 
+  const heroSection = (
+    <HeroSection
+      business={business}
+      rating={reviewSummary.average}
+      reviewCount={reviewSummary.publishedCount}
+      onPrimaryAction={() => scrollToSection('bookings')}
+    />
+  );
+  const announcementSection =
+    business.announcement_enabled && business.announcement_text?.trim() ? (
+      <AnnouncementBar business={business} />
+    ) : null;
+  const bookingsSection = services.length ? (
+    <BookingsTab id="bookings" services={services} onSelect={setSelectedService} />
+  ) : null;
+  const trustSection = showTrust ? (
+    <TrustStrip business={business} reviews={publishedReviews} reviewSummary={reviewSummary} />
+  ) : null;
+  const portfolioSection = showPortfolio ? (
+    <PortfolioSection id="portfolio" items={visiblePortfolioItems} />
+  ) : null;
+  const productsSection = showProducts ? (
+    <ProductsTab
+      id="products"
+      business={business}
+      products={filtered}
+      categories={categories}
+      activeCategory={activeCategory}
+      onCategoryChange={setActiveCategory}
+      onOpen={setSelectedProduct}
+      onAdd={addItem}
+      inCart={hasItem}
+      getQuantity={getQuantity}
+    />
+  ) : null;
+  const aboutSection = showAbout ? (
+    <AboutTab
+      id="about"
+      business={business}
+      credentials={credentials}
+      specialisms={specialisms}
+      reviews={reviews}
+      onBook={() => scrollToSection('bookings')}
+    />
+  ) : null;
+  const reviewsSection = showReviews ? (
+    <ReviewsTab
+      id="reviews"
+      business={business}
+      reviews={reviews}
+      breakdown={getReviewBreakdownFromReviews(reviews)}
+      onBook={() => scrollToSection('bookings')}
+    />
+  ) : null;
+  const contactSection = <ContactTab id="contact" business={business} />;
+
+  function wrapEditableRegion(
+    section: MobileEditSection,
+    label: string,
+    content: ReactNode,
+    placeholder?: ReactNode
+  ) {
+    const visibleContent = content ?? placeholder;
+
+    if (!showOwnerPreview || !ownerPreview || !visibleContent) {
+      return visibleContent;
+    }
+
+    return (
+      <OwnerPreviewRegion
+        label={label}
+        onEdit={() => ownerPreview.onEditSection(section)}
+      >
+        {visibleContent}
+      </OwnerPreviewRegion>
+    );
+  }
+
+  const renderedHero = wrapEditableRegion(
+    ownerPreview?.mode === 'theme' ? 'preset' : 'hero',
+    ownerPreview?.mode === 'theme' ? 'Theme preset' : 'Hero',
+    heroSection
+  );
+
+  const renderedLinkAnnouncement = wrapEditableRegion(
+    'announcement',
+    'Announcement',
+    announcementSection,
+    <OwnerPreviewPlaceholder
+      title="Announcement"
+      description="Tap to add a message bar to the preview."
+    />
+  );
+
+  const renderedLinkPortfolio = wrapEditableRegion(
+    'portfolio',
+    'Portfolio',
+    portfolioSection,
+    <OwnerPreviewPlaceholder
+      title="Portfolio"
+      description="Tap to add portfolio items and featured work."
+    />
+  );
+
+  const renderedLinkAbout = wrapEditableRegion(
+    'about',
+    'About & Trust',
+    trustSection,
+    showAbout ? null : (
+      <OwnerPreviewPlaceholder
+        title="About & Trust"
+        description="Tap to add your story, stats, and trust details."
+      />
+    )
+  );
+
+  const renderedThemeBody = wrapEditableRegion(
+    'brand',
+    'Brand styling',
+    <div>
+      {announcementSection}
+      {bookingsSection}
+      {trustSection}
+      {portfolioSection}
+      {productsSection}
+      {aboutSection}
+      {reviewsSection}
+      {contactSection}
+    </div>
+  );
+
+  const renderedLinkFooter = showOwnerPreview && ownerPreview?.mode === 'link'
+    ? wrapEditableRegion(
+        'settings',
+        'Link settings',
+        <OwnerPreviewPlaceholder
+          title="Link Settings"
+          description="Tap to edit the slug, copy the link, or open the public page."
+        />
+      )
+    : null;
+
+  const renderedThemeFooter = showOwnerPreview && ownerPreview?.mode === 'theme'
+    ? wrapEditableRegion(
+        'save',
+        'Save theme',
+        <OwnerPreviewPlaceholder
+          title="Save Theme"
+          description="Tap to save your theme changes."
+        />
+      )
+    : null;
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[var(--page-bg)]" data-theme={theme.key} style={themeStyle}>
       <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pb-24 pt-[env(safe-area-inset-top)] md:max-w-[520px] md:pb-0 md:pt-[max(env(safe-area-inset-top),1.5rem)] lg:max-w-[560px]">
@@ -165,58 +330,26 @@ export function PublicPage({
           <TabBar sections={sections} activeSection={activeSection} onNavigate={scrollToSection} />
         </div>
 
-        <HeroSection
-          business={business}
-          rating={reviewSummary.average}
-          reviewCount={reviewSummary.publishedCount}
-          onPrimaryAction={() => scrollToSection('bookings')}
-        />
+        {renderedHero}
 
-        <AnnouncementBar business={business} />
-
-        {services.length ? <BookingsTab id="bookings" services={services} onSelect={setSelectedService} /> : null}
-
-        <TrustStrip business={business} reviews={publishedReviews} reviewSummary={reviewSummary} />
-
-        {showPortfolio ? <PortfolioSection id="portfolio" items={visiblePortfolioItems} /> : null}
-
-        {showProducts ? (
-          <ProductsTab
-            id="products"
-            business={business}
-            products={filtered}
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            onOpen={setSelectedProduct}
-            onAdd={addItem}
-            inCart={hasItem}
-            getQuantity={getQuantity}
-          />
-        ) : null}
-
-        {showAbout ? (
-          <AboutTab
-            id="about"
-            business={business}
-            credentials={credentials}
-            specialisms={specialisms}
-            reviews={reviews}
-            onBook={() => scrollToSection('bookings')}
-          />
-        ) : null}
-
-        {showReviews ? (
-          <ReviewsTab
-            id="reviews"
-            business={business}
-            reviews={reviews}
-            breakdown={getReviewBreakdownFromReviews(reviews)}
-            onBook={() => scrollToSection('bookings')}
-          />
-        ) : null}
-
-        <ContactTab id="contact" business={business} />
+        {ownerPreview?.mode === 'theme' ? (
+          <>
+            {renderedThemeBody}
+            {renderedThemeFooter}
+          </>
+        ) : (
+          <>
+            {renderedLinkAnnouncement}
+            {bookingsSection}
+            {renderedLinkAbout}
+            {renderedLinkPortfolio}
+            {productsSection}
+            {wrapEditableRegion('about', 'About & Trust', aboutSection)}
+            {reviewsSection}
+            {wrapEditableRegion('contact', 'Contact & Social', contactSection)}
+            {renderedLinkFooter}
+          </>
+        )}
 
         <p className="mt-8 pb-6 text-center text-[11px] text-[var(--text-7)]">Powered by Your Business in a Link</p>
 
@@ -283,20 +416,64 @@ export function PublicPage({
           ) : null}
         </AnimatePresence>
       </div>
-      <MobileBottomNav
-        activeItem={mobileActiveItem}
-        onNavigate={(id) => {
-          if (id === 'home') {
-            scrollToHome();
-            return;
-          }
+      {showOwnerPreview ? null : (
+        <MobileBottomNav
+          activeItem={mobileActiveItem}
+          onNavigate={(id) => {
+            if (id === 'home') {
+              scrollToHome();
+              return;
+            }
 
-          scrollToSection(id);
-        }}
-        onMore={() => setMoreOpen(true)}
-        canBook={services.length > 0}
-        canShop={showProducts}
-      />
+            scrollToSection(id);
+          }}
+          onMore={() => setMoreOpen(true)}
+          canBook={services.length > 0}
+          canShop={showProducts}
+        />
+      )}
     </main>
+  );
+}
+
+function OwnerPreviewRegion({
+  label,
+  onEdit,
+  children
+}: {
+  label: string;
+  onEdit: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="relative">
+      {children}
+      <button
+        type="button"
+        onClick={onEdit}
+        aria-label={`Edit ${label}`}
+        className="absolute inset-0 z-10 md:hidden"
+      />
+      <div className="pointer-events-none absolute left-3 top-3 z-20 rounded-full bg-black/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-white md:hidden">
+        Edit {label}
+      </div>
+    </div>
+  );
+}
+
+function OwnerPreviewPlaceholder({
+  title,
+  description
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="px-2 py-4">
+      <div className="rounded-[24px] border border-dashed border-[var(--border)] bg-[var(--page-card-bg)] px-4 py-5 shadow-[var(--card-shadow)]">
+        <p className="font-display text-[22px] text-[var(--text-1)]">{title}</p>
+        <p className="mt-2 text-sm text-[var(--text-3)]">{description}</p>
+      </div>
+    </div>
   );
 }
