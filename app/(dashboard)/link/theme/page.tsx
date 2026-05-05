@@ -5,5 +5,5 @@ export const dynamic = 'force-dynamic';
 
 export default async function Page() {
   const { publicPage } = await getLinkData();
-  return <LinkWorkspace publicPage={publicPage} mode="link" />;
+  return <LinkWorkspace publicPage={publicPage} mode="theme" />;
 }

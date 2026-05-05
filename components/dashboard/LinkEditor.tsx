@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { Check, Dumbbell, Flame, Flower2, Newspaper, Sparkles, Zap } from 'lucide-react';
 import { ImageUploadField } from '@/components/dashboard/ImageUploadField';
 import { PortfolioEditor } from '@/components/dashboard/PortfolioEditor';
+import type { LinkWorkspaceMode } from '@/components/dashboard/LinkWorkspace';
 import { FONT_PAIRINGS } from '@/lib/business-brand-overrides';
 import { BUSINESS_THEMES, type BusinessThemeDefinition } from '@/lib/business-themes';
 import type { BusinessProfile, BusinessThemeKey, PortfolioItemRecord } from '@/types';
@@ -78,11 +79,13 @@ function toPortfolioPayload(item: PortfolioItemRecord, sortOrder: number) {
 export function LinkEditor({
   business,
   portfolioItems,
+  mode = 'link',
   onPreviewBusinessChange,
   onPreviewPortfolioChange
 }: {
   business: BusinessProfile;
   portfolioItems: PortfolioItemRecord[];
+  mode?: LinkWorkspaceMode;
   onPreviewBusinessChange?: (business: BusinessProfile) => void;
   onPreviewPortfolioChange?: (items: PortfolioItemRecord[]) => void;
 }) {
@@ -193,119 +196,133 @@ export function LinkEditor({
     setMessage('Link copied');
   }
 
+  const isThemeMode = mode === 'theme';
+
   return (
     <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
       <div className="space-y-6">
-        <EditorSection title="Theme Preset">
-          <div className="space-y-4">
-            {themeGroups.map((group) => {
-              const options = BUSINESS_THEMES.filter((theme) => theme.preview.group === group);
-              if (!options.length) return null;
+        {isThemeMode ? (
+          <>
+            <EditorSection title="Theme Preset">
+              <div className="space-y-4">
+                {themeGroups.map((group) => {
+                  const options = BUSINESS_THEMES.filter((theme) => theme.preview.group === group);
+                  if (!options.length) return null;
 
-              return (
-                <section key={group} className="space-y-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">{group}</p>
-                  <div className="grid grid-cols-2 gap-2 xl:gap-3">
-                    {options.map((theme) => (
-                      <ThemeOptionCard key={theme.key} theme={theme} selected={form.theme_key === theme.key} onSelect={() => updateField('theme_key', theme.key)} />
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        </EditorSection>
+                  return (
+                    <section key={group} className="space-y-2">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">{group}</p>
+                      <div className="grid grid-cols-2 gap-2 xl:gap-3">
+                        {options.map((theme) => (
+                          <ThemeOptionCard key={theme.key} theme={theme} selected={form.theme_key === theme.key} onSelect={() => updateField('theme_key', theme.key)} />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
+              </div>
+            </EditorSection>
 
-        <EditorSection title="Brand Styling">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">Primary colour</label>
-              <input type="color" value={form.custom_primary_color || '#000000'} onChange={(event) => updateField('custom_primary_color', event.target.value)} className="h-12 w-full rounded-xl border border-[var(--color-border)] bg-white p-2" />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">Hex</label>
-              <input value={form.custom_primary_color} onChange={(event) => updateField('custom_primary_color', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="#RRGGBB" />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button type="button" onClick={() => updateField('custom_primary_color', '')} className="rounded-xl border border-[var(--color-border)] px-4 py-2 text-sm font-semibold">
-              Use theme colour
-            </button>
-          </div>
-          <div className="space-y-1">
-            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">Font pairing</label>
-            <select value={form.custom_font_pairing} onChange={(event) => updateField('custom_font_pairing', event.target.value as FormState['custom_font_pairing'])} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3">
-              {Object.entries(FONT_PAIRINGS).map(([key, value]) => (
-                <option key={key} value={key}>
-                  {value?.label ?? 'Theme Default'}
-                </option>
-              ))}
-            </select>
-          </div>
-        </EditorSection>
+            <EditorSection title="Brand Styling">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">Primary colour</label>
+                  <input type="color" value={form.custom_primary_color || '#000000'} onChange={(event) => updateField('custom_primary_color', event.target.value)} className="h-12 w-full rounded-xl border border-[var(--color-border)] bg-white p-2" />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">Hex</label>
+                  <input value={form.custom_primary_color} onChange={(event) => updateField('custom_primary_color', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="#RRGGBB" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => updateField('custom_primary_color', '')} className="rounded-xl border border-[var(--color-border)] px-4 py-2 text-sm font-semibold">
+                  Use theme colour
+                </button>
+              </div>
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">Font pairing</label>
+                <select value={form.custom_font_pairing} onChange={(event) => updateField('custom_font_pairing', event.target.value as FormState['custom_font_pairing'])} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3">
+                  {Object.entries(FONT_PAIRINGS).map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value?.label ?? 'Theme Default'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </EditorSection>
 
-        <EditorSection title="Hero">
-          <ImageUploadField label="Profile photo" description="Shown as the main circular photo." value={form.photo_url} kind="profile" onChange={(url) => updateField('photo_url', url)} />
-          <ImageUploadField label="Cover image" description="Shown behind the hero content." value={form.cover_image_url} kind="cover" aspectHint="CTA fallback: Book a Session. Cover fallback: selected theme background." onChange={(url) => updateField('cover_image_url', url)} />
-          <FormInput label="Business name" value={form.name} onChange={(value) => updateField('name', value)} />
-          <FormInput label="Category" value={form.category} onChange={(value) => updateField('category', value)} />
-          <FormTextArea label="Tagline" value={form.tagline} onChange={(value) => updateField('tagline', value)} />
-          <FormTextArea label="Short bio" value={form.bio} onChange={(value) => updateField('bio', value)} />
-          <FormInput label="Primary CTA label" value={form.primary_cta_label} onChange={(value) => updateField('primary_cta_label', value)} />
-        </EditorSection>
+            <EditorSection title="Theme Settings">
+              <button onClick={save} disabled={isPending} className="w-full rounded-2xl border border-[var(--color-border)] px-4 py-3 text-sm font-semibold disabled:opacity-60">
+                {isPending ? 'Saving...' : 'Save Theme Settings'}
+              </button>
+            </EditorSection>
+          </>
+        ) : (
+          <>
+            <EditorSection title="Hero">
+              <ImageUploadField label="Profile photo" description="Shown as the main circular photo." value={form.photo_url} kind="profile" onChange={(url) => updateField('photo_url', url)} />
+              <ImageUploadField label="Cover image" description="Shown behind the hero content." value={form.cover_image_url} kind="cover" aspectHint="CTA fallback: Book a Session. Cover fallback: selected theme background." onChange={(url) => updateField('cover_image_url', url)} />
+              <FormInput label="Business name" value={form.name} onChange={(value) => updateField('name', value)} />
+              <FormInput label="Category" value={form.category} onChange={(value) => updateField('category', value)} />
+              <FormTextArea label="Tagline" value={form.tagline} onChange={(value) => updateField('tagline', value)} />
+              <FormTextArea label="Short bio" value={form.bio} onChange={(value) => updateField('bio', value)} />
+              <FormInput label="Primary CTA label" value={form.primary_cta_label} onChange={(value) => updateField('primary_cta_label', value)} />
+            </EditorSection>
 
-        <EditorSection title="Announcement Bar">
-          <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-primary)]">
-            <input type="checkbox" checked={form.announcement_enabled} onChange={(event) => updateField('announcement_enabled', event.target.checked)} />
-            Show announcement
-          </label>
-          <FormTextArea label="Announcement text" value={form.announcement_text} onChange={(value) => updateField('announcement_text', value)} />
-        </EditorSection>
+            <EditorSection title="Announcement Bar">
+              <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-primary)]">
+                <input type="checkbox" checked={form.announcement_enabled} onChange={(event) => updateField('announcement_enabled', event.target.checked)} />
+                Show announcement
+              </label>
+              <FormTextArea label="Announcement text" value={form.announcement_text} onChange={(value) => updateField('announcement_text', value)} />
+            </EditorSection>
 
-        <EditorSection title="Portfolio" description="Add up to 6 images, results, client work, Reels, TikToks or video links.">
-          <PortfolioEditor items={draftPortfolioItems} onChange={updatePortfolioItems} />
-        </EditorSection>
+            <EditorSection title="Portfolio" description="Add up to 6 images, results, client work, Reels, TikToks or video links.">
+              <PortfolioEditor items={draftPortfolioItems} onChange={updatePortfolioItems} />
+            </EditorSection>
 
-        <EditorSection title="About & Trust" description="Example: Clients Helped / 200+">
-          <FormTextArea label="Full bio" value={form.full_bio} onChange={(value) => updateField('full_bio', value)} />
-          <FormInput label="Years experience" value={form.years_experience} onChange={(value) => updateField('years_experience', value)} />
-          <div className="grid gap-3 sm:grid-cols-2">
-            <FormInput label="Stat 1 label" value={form.stat_one_label} onChange={(value) => updateField('stat_one_label', value)} />
-            <FormInput label="Stat 1 value" value={form.stat_one_value} onChange={(value) => updateField('stat_one_value', value)} />
-            <FormInput label="Stat 2 label" value={form.stat_two_label} onChange={(value) => updateField('stat_two_label', value)} />
-            <FormInput label="Stat 2 value" value={form.stat_two_value} onChange={(value) => updateField('stat_two_value', value)} />
-            <FormInput label="Stat 3 label" value={form.stat_three_label} onChange={(value) => updateField('stat_three_label', value)} />
-            <FormInput label="Stat 3 value" value={form.stat_three_value} onChange={(value) => updateField('stat_three_value', value)} />
-          </div>
-          <FormInput label="Google review URL" value={form.google_review_url} onChange={(value) => updateField('google_review_url', value)} />
-        </EditorSection>
+            <EditorSection title="About & Trust" description="Example: Clients Helped / 200+">
+              <FormTextArea label="Full bio" value={form.full_bio} onChange={(value) => updateField('full_bio', value)} />
+              <FormInput label="Years experience" value={form.years_experience} onChange={(value) => updateField('years_experience', value)} />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <FormInput label="Stat 1 label" value={form.stat_one_label} onChange={(value) => updateField('stat_one_label', value)} />
+                <FormInput label="Stat 1 value" value={form.stat_one_value} onChange={(value) => updateField('stat_one_value', value)} />
+                <FormInput label="Stat 2 label" value={form.stat_two_label} onChange={(value) => updateField('stat_two_label', value)} />
+                <FormInput label="Stat 2 value" value={form.stat_two_value} onChange={(value) => updateField('stat_two_value', value)} />
+                <FormInput label="Stat 3 label" value={form.stat_three_label} onChange={(value) => updateField('stat_three_label', value)} />
+                <FormInput label="Stat 3 value" value={form.stat_three_value} onChange={(value) => updateField('stat_three_value', value)} />
+              </div>
+              <FormInput label="Google review URL" value={form.google_review_url} onChange={(value) => updateField('google_review_url', value)} />
+            </EditorSection>
 
-        <EditorSection title="Contact & Social Links">
-          <FormInput label="Location" value={form.location} onChange={(value) => updateField('location', value)} />
-          <FormInput label="Full address" value={form.address} onChange={(value) => updateField('address', value)} />
-          <FormInput label="Email" value={form.email} onChange={(value) => updateField('email', value)} />
-          <FormInput label="Phone" value={form.phone} onChange={(value) => updateField('phone', value)} />
-          <FormInput label="WhatsApp number" value={form.whatsapp_number} onChange={(value) => updateField('whatsapp_number', value)} />
-          <FormInput label="Website URL" value={form.website_url} onChange={(value) => updateField('website_url', value)} />
-          <FormInput label="Instagram handle" value={form.instagram_handle} onChange={(value) => updateField('instagram_handle', value)} />
-          <FormInput label="TikTok handle" value={form.tiktok_handle} onChange={(value) => updateField('tiktok_handle', value)} />
-          <FormInput label="YouTube URL" value={form.youtube_url} onChange={(value) => updateField('youtube_url', value)} />
-        </EditorSection>
+            <EditorSection title="Contact & Social Links">
+              <FormInput label="Location" value={form.location} onChange={(value) => updateField('location', value)} />
+              <FormInput label="Full address" value={form.address} onChange={(value) => updateField('address', value)} />
+              <FormInput label="Email" value={form.email} onChange={(value) => updateField('email', value)} />
+              <FormInput label="Phone" value={form.phone} onChange={(value) => updateField('phone', value)} />
+              <FormInput label="WhatsApp number" value={form.whatsapp_number} onChange={(value) => updateField('whatsapp_number', value)} />
+              <FormInput label="Website URL" value={form.website_url} onChange={(value) => updateField('website_url', value)} />
+              <FormInput label="Instagram handle" value={form.instagram_handle} onChange={(value) => updateField('instagram_handle', value)} />
+              <FormInput label="TikTok handle" value={form.tiktok_handle} onChange={(value) => updateField('tiktok_handle', value)} />
+              <FormInput label="YouTube URL" value={form.youtube_url} onChange={(value) => updateField('youtube_url', value)} />
+            </EditorSection>
 
-        <EditorSection title="Link Settings">
-          <FormInput label="Slug" value={form.slug} onChange={(value) => updateField('slug', value.toLowerCase())} />
-          <div className="grid gap-3 sm:grid-cols-3">
-            <button onClick={copyLink} className="rounded-2xl bg-[var(--color-void)] px-4 py-3 text-sm font-semibold text-white">
-              Copy Link
-            </button>
-            <a href={`/${form.slug}`} className="rounded-2xl border border-[var(--color-border)] px-4 py-3 text-center text-sm font-semibold">
-              Open Link
-            </a>
-            <button onClick={save} disabled={isPending} className="rounded-2xl border border-[var(--color-border)] px-4 py-3 text-sm font-semibold disabled:opacity-60">
-              {isPending ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </EditorSection>
+            <EditorSection title="Link Settings">
+              <FormInput label="Slug" value={form.slug} onChange={(value) => updateField('slug', value.toLowerCase())} />
+              <div className="grid gap-3 sm:grid-cols-3">
+                <button onClick={copyLink} className="rounded-2xl bg-[var(--color-void)] px-4 py-3 text-sm font-semibold text-white">
+                  Copy Link
+                </button>
+                <a href={`/${form.slug}`} className="rounded-2xl border border-[var(--color-border)] px-4 py-3 text-center text-sm font-semibold">
+                  Open Link
+                </a>
+                <button onClick={save} disabled={isPending} className="rounded-2xl border border-[var(--color-border)] px-4 py-3 text-sm font-semibold disabled:opacity-60">
+                  {isPending ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </EditorSection>
+          </>
+        )}
       </div>
 
       {message ? <p className="mt-4 text-xs text-green-700">{message}</p> : null}

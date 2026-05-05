@@ -108,7 +108,8 @@ app/
     availability/               Working hours + blocked times
     customers/                  CRM - booking history, spend, order activity
     reviews/                    Review moderation + visibility
-    link/                       Customise public page bio/about/contact
+    link/                       My Link editor for public-page content, contact, and link settings
+      theme/                    Theme Settings page for presets, brand colour, and font pairing
     payouts/                    Stripe Connect + revenue chart + recent orders
   (onboarding)/onboarding/      5-step onboarding wizard
   admin/
@@ -154,8 +155,8 @@ components/
     Sidebar.tsx                 Desktop owner nav shell
     SidebarNav.tsx              Shared dashboard nav links
     StatsBar.tsx                Mobile 2x2 stat layout
-    LinkEditor.tsx              Labeled owner link editor form + business theme picker
-    LinkWorkspace.tsx           Owner link editor + live public preview wrapper
+    LinkEditor.tsx              Split owner editor for My Link content or Theme Settings controls
+    LinkWorkspace.tsx           Shared owner editor + live public preview wrapper for `/link` and `/link/theme`
     ProductForm.tsx             Owner product create/edit form
     ReviewsManager.tsx          Owner review moderation UI
   payments/
@@ -230,7 +231,7 @@ Default active tab: `bookings`.
 - Booking sheet scrolling was hardened on mobile by switching the sheet panel to an explicit viewport-tied height so the date step remains scrollable inside the bottom sheet.
 - Public slug pages now render dynamically rather than serving a short-lived cached not-found state, so newly created businesses appear immediately after setup.
 - Public styling is now theme-driven through `business.theme_key`, with six curated presets: `classic-luxe`, `wellness-studio`, `bright-performance`, `editorial-minimal`, `warm-studio`, and `dark-athletic`.
-- The owner `My Link` area now includes a compact, mobile-first six-theme picker with immediate preview updates before save.
+- Owner dashboard editing is now split across `/link` and `/link/theme`, with live public-page preview on both screens.
 
 ---
 
@@ -277,6 +278,8 @@ GET    /login                            Dedicated owner sign-in page
 GET    /callback                         Supabase auth callback and code exchange
 GET    /onboarding                       Auth-aware onboarding entry
 GET    /dashboard                        Owner dashboard shell
+GET    /link                             Owner My Link editor + live preview
+GET    /link/theme                       Owner Theme Settings + live preview
 GET    /demo                             Explicit Studio Eleven demo route
 GET    /[slug]                           Live public business page by slug
 
@@ -322,7 +325,8 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 ## Key Business Logic
 
 - Public-page theming is driven by `business.theme_key`, resolved through `lib/business-themes.ts`, with app-level fallback to `classic-luxe` for older or missing data.
-- Owner `My Link` editing now includes a three-card theme picker with immediate preview updates in the right-side public-page frame before persisting changes.
+- Owner editing is split between `/link` for public-page content/settings and `/link/theme` for theme preset, colour, and font controls.
+- Both owner pages keep the same right-side live public-page preview before persistence.
 - Theme persistence requires the `0010_business_theme_presets.sql` schema change; the live BisLink Supabase project was realigned after schema drift so owner dashboard theme saves now succeed.
 - Slot availability is generated from `availability`, minus overlapping `bookings` and `blocked_times`, accounting for service duration + buffer time.
 - Stripe Payment Element is used for bookings and product checkout. Stripe webhooks remain the source of truth for completion.
@@ -352,7 +356,7 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - Owner mutation routes now use the admin-capable Supabase path after server-side ownership has already been verified, avoiding RLS-related write failures on products and similar owner writes.
 - Owner dashboard read routes now also use the admin-capable Supabase path after owner/business resolution, preventing false empty states where public pages have data but dashboard lists appear blank.
 - Owner service form error handling now converts structured validation payloads into readable text instead of crashing the dashboard when a Zod error object is returned.
-- Middleware now explicitly protects all owner dashboard route-group pages (`/calendar`, `/services`, `/products`, `/customers`, `/reviews`, `/link`, `/payouts`, `/availability`) instead of relying only on layout-level redirects.
+- Middleware now explicitly protects all owner dashboard route-group pages (`/calendar`, `/services`, `/products`, `/customers`, `/reviews`, `/link`, `/link/theme`, `/payouts`, `/availability`) instead of relying only on layout-level redirects.
 
 ---
 
@@ -446,7 +450,7 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - public contact form submission
 - public review submission with duplicate protection
 - shared public `/demo` and `/[slug]` experience with sticky semantic tabs, frame-aware sheets in demo mode, and consistent review totals
-- three owner-selectable public-page theme presets with live preview in `/link`
+- split owner editing across `/link` and `/link/theme`, with live preview on both pages
 - live Supabase schema alignment for `businesses.theme_key`, fixing owner dashboard theme persistence in the current BisLink project
 - dynamic public slug rendering so new business links are available immediately after setup
 - owner dashboard reads across bookings, customers, services, products, reviews, availability, link settings, and payouts
@@ -460,7 +464,8 @@ The app is now mostly live across owner, public, and payment-critical flows.
   - responsive services/products layouts and empty states
   - improved payouts/stat-card/mobile filters
   - labeled My Link fields and stronger focus treatment
-  - live theme picker preview for public-page branding
+  - separate Theme Settings route for presets and brand styling
+  - live preview on both owner editor pages
 - owner dashboard auth/session UX:
   - desktop sidebar sign-out action
   - mobile More drawer sign-out action

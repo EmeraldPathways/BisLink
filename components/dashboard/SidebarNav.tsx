@@ -26,7 +26,8 @@ const navItems = [
   { label: 'Customers', href: '/customers', icon: Users },
   { label: 'Support', href: '/support', icon: LifeBuoy },
   { label: 'Reviews', href: '/reviews', icon: Star },
-  { label: 'My Link', href: '/link', icon: Link2 },
+  { label: 'My Link', href: '/link', icon: Link2, match: 'exact' as const },
+  { label: 'Theme', href: '/link/theme', icon: Settings, match: 'exact' as const },
   { label: 'Payouts', href: '/payouts', icon: DollarSign },
 ];
 
@@ -55,9 +56,11 @@ export function SidebarNav({
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{business.name}</p>
 
         <nav className="mt-8 space-y-1">
-          {navItems.map(({ label, href, icon: Icon }) => {
+          {navItems.map(({ label, href, icon: Icon, match }) => {
             const isActive =
-              pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+              match === 'exact'
+                ? pathname === href
+                : pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
             return (
               <Link
                 key={label}

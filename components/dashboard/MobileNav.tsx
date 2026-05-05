@@ -31,7 +31,8 @@ const moreItems = [
   { label: 'Customers', href: '/customers', icon: Users },
   { label: 'Support', href: '/support', icon: LifeBuoy },
   { label: 'Reviews', href: '/reviews', icon: Star },
-  { label: 'My Link', href: '/link', icon: Link2 },
+  { label: 'My Link', href: '/link', icon: Link2, match: 'exact' as const },
+  { label: 'Theme', href: '/link/theme', icon: Settings, match: 'exact' as const },
   { label: 'Payouts', href: '/payouts', icon: DollarSign },
   { label: 'Availability', href: '/availability', icon: Settings }
 ];
@@ -124,8 +125,11 @@ export function MobileNav({
             </div>
 
             <nav aria-label="Additional navigation">
-              {moreItems.map(({ label, href, icon: Icon }) => {
-                const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+              {moreItems.map(({ label, href, icon: Icon, match }) => {
+                const isActive =
+                  match === 'exact'
+                    ? pathname === href
+                    : pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
                 return (
                   <Link
                     key={label}
