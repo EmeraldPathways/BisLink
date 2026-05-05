@@ -24,7 +24,7 @@ export function HeroSection({
   const heroBio = business.tagline?.trim() || business.bio;
 
   return (
-    <header className="relative isolate overflow-hidden rounded-t-[var(--hero-radius)] text-[var(--hero-text)]">
+    <header className="relative isolate overflow-hidden rounded-none text-[var(--hero-text)]">
       <div className="relative h-[220px] w-full overflow-hidden bg-[image:var(--hero-gradient)]">
         {business.cover_image_url ? (
           <Image src={business.cover_image_url} alt={`${business.name} cover image`} fill className="object-cover" priority />
@@ -36,8 +36,8 @@ export function HeroSection({
         </div>
       </div>
 
-      <div className="relative z-10 -mt-12 px-4 pb-6">
-        <div className="rounded-[28px] border border-white/60 bg-[color:color-mix(in_srgb,var(--page-card-bg)_96%,white)] px-5 pb-6 pt-5 shadow-[0_22px_50px_rgba(19,14,10,0.12)] backdrop-blur">
+      <div className="relative z-10 -mt-12 px-0 pb-6">
+        <div className="rounded-none border border-white/60 bg-[color:color-mix(in_srgb,var(--page-card-bg)_96%,white)] px-5 pb-6 pt-5 shadow-[0_22px_50px_rgba(19,14,10,0.12)] backdrop-blur">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-end gap-4">
           <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-[var(--page-bg)] bg-[linear-gradient(135deg,var(--cta-accent-bg),var(--accent-strong))] font-display text-2xl font-semibold text-[var(--cta-accent-text)] shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
             {business.photo_url ? (
