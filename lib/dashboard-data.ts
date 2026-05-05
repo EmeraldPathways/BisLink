@@ -1,5 +1,6 @@
 import { addDays, format, startOfWeek, subDays } from 'date-fns';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { isMissingRelationError } from '@/lib/supabase/schema-compat';
 import { getStripe } from '@/lib/stripe/client';
 import { getCurrentOwnerBusiness } from '@/lib/owner';
 import type {
@@ -160,7 +161,7 @@ export async function getAvailabilityData() {
 export async function getLinkData() {
   const { business } = await getCurrentOwnerBusiness();
   const supabase = createAdminClient() ?? (await createClient());
-  const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, { data: portfolioItems }] = await Promise.all([
+  const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, portfolioResult] = await Promise.all([
     supabase
       .from('services')
       .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji')
@@ -185,6 +186,10 @@ export async function getLinkData() {
       .order('sort_order', { ascending: true })
   ]);
 
+  if (portfolioResult.error && !isMissingRelationError(portfolioResult.error, 'portfolio_items')) {
+    throw portfolioResult.error;
+  }
+
   return {
     business,
     publicPage: {
@@ -194,7 +199,7 @@ export async function getLinkData() {
       reviews: ((reviews ?? []) as ReviewRecord[]).map(normalizeReview),
       credentials: ((credentials ?? []) as CredentialRecord[]).map(normalizeCredential),
       specialisms: ((specialisms ?? []) as SpecialismRecord[]).map(normalizeSpecialism),
-      portfolioItems: ((portfolioItems ?? []) as PortfolioItemRecord[]).map(normalizePortfolioItem)
+      portfolioItems: ((portfolioResult.data ?? []) as PortfolioItemRecord[]).map(normalizePortfolioItem)
     } satisfies PublicPageData
   };
 }

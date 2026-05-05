@@ -126,14 +126,19 @@ export type Database = {
       businesses: {
         Row: {
           address: string | null;
+          announcement_enabled: boolean;
+          announcement_text: string | null;
           bio: string | null;
           category: string;
           clients_served: string | null;
           contact_email: string | null;
           contact_phone: string | null;
+          cover_image_url: string | null;
           created_at: string | null;
           credentials: string[] | null;
           currency: string | null;
+          custom_font_pairing: string | null;
+          custom_primary_color: string | null;
           email: string | null;
           experience: string | null;
           full_bio: string | null;
@@ -150,9 +155,16 @@ export type Database = {
           parking_notes: string | null;
           phone: string | null;
           photo_url: string | null;
+          primary_cta_label: string | null;
           quote: string | null;
           slug: string;
           specialisms: string[] | null;
+          stat_one_label: string | null;
+          stat_one_value: string | null;
+          stat_three_label: string | null;
+          stat_three_value: string | null;
+          stat_two_label: string | null;
+          stat_two_value: string | null;
           stripe_account_id: string | null;
           stripe_onboarded: boolean | null;
           tagline: string | null;
@@ -163,17 +175,23 @@ export type Database = {
           website_url: string | null;
           whatsapp_number: string | null;
           years_experience: number | null;
+          youtube_url: string | null;
         };
         Insert: {
           address?: string | null;
+          announcement_enabled?: boolean;
+          announcement_text?: string | null;
           bio?: string | null;
           category: string;
           clients_served?: string | null;
           contact_email?: string | null;
           contact_phone?: string | null;
+          cover_image_url?: string | null;
           created_at?: string | null;
           credentials?: string[] | null;
           currency?: string | null;
+          custom_font_pairing?: string | null;
+          custom_primary_color?: string | null;
           email?: string | null;
           experience?: string | null;
           full_bio?: string | null;
@@ -190,9 +208,16 @@ export type Database = {
           parking_notes?: string | null;
           phone?: string | null;
           photo_url?: string | null;
+          primary_cta_label?: string | null;
           quote?: string | null;
           slug: string;
           specialisms?: string[] | null;
+          stat_one_label?: string | null;
+          stat_one_value?: string | null;
+          stat_three_label?: string | null;
+          stat_three_value?: string | null;
+          stat_two_label?: string | null;
+          stat_two_value?: string | null;
           stripe_account_id?: string | null;
           stripe_onboarded?: boolean | null;
           tagline?: string | null;
@@ -203,6 +228,7 @@ export type Database = {
           website_url?: string | null;
           whatsapp_number?: string | null;
           years_experience?: number | null;
+          youtube_url?: string | null;
         };
         Update: Partial<Database['public']['Tables']['businesses']['Insert']>;
         Relationships: [];
@@ -333,6 +359,34 @@ export type Database = {
           sort_order?: number | null;
         };
         Update: Partial<Database['public']['Tables']['products']['Insert']>;
+        Relationships: [];
+      };
+      portfolio_items: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          description: string | null;
+          external_url: string | null;
+          id: string;
+          image_url: string | null;
+          is_active: boolean;
+          media_type: 'image' | 'video_link';
+          sort_order: number;
+          title: string | null;
+        };
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          description?: string | null;
+          external_url?: string | null;
+          id?: string;
+          image_url?: string | null;
+          is_active?: boolean;
+          media_type?: 'image' | 'video_link';
+          sort_order?: number;
+          title?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['portfolio_items']['Insert']>;
         Relationships: [];
       };
       reviews: {

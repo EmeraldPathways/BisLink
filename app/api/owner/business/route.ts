@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { BUSINESS_THEME_KEYS } from '@/lib/business-themes';
 import { requireOwnerBusiness } from '@/lib/owner-api';
+import { getPublicPageMigrationMessage, isMissingColumnError } from '@/lib/supabase/schema-compat';
 
 const schema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -85,7 +86,12 @@ export async function PATCH(req: NextRequest) {
     .eq('id', business.id)
     .select('*')
     .single();
-  if (error)
+  if (error) {
+    if (isMissingColumnError(error, 'businesses', 'announcement_enabled') || isMissingColumnError(error, 'businesses', 'cover_image_url')) {
+      return NextResponse.json({ error: getPublicPageMigrationMessage() }, { status: 500 });
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json({ business: data });
 }

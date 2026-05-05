@@ -1,4 +1,5 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { isMissingRelationError } from '@/lib/supabase/schema-compat';
 import { normalizeBusiness } from '@/lib/owner';
 import {
   normalizeCredential,
@@ -21,7 +22,7 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
 
   if (!business) return null;
 
-  const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, { data: portfolioItems }] = await Promise.all([
+  const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, portfolioResult] = await Promise.all([
     supabase
       .from('services')
       .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji')
@@ -52,6 +53,10 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
       .limit(6)
   ]);
 
+  if (portfolioResult.error && !isMissingRelationError(portfolioResult.error, 'portfolio_items')) {
+    throw portfolioResult.error;
+  }
+
   return {
     business: normalizeBusiness(business as Record<string, unknown>),
     services: (services ?? []).map(normalizeService),
@@ -59,6 +64,6 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
     reviews: (reviews ?? []).map(normalizeReview),
     credentials: (credentials ?? []).map(normalizeCredential),
     specialisms: (specialisms ?? []).map(normalizeSpecialism),
-    portfolioItems: (portfolioItems ?? []).map(normalizePortfolioItem)
+    portfolioItems: (portfolioResult.data ?? []).map(normalizePortfolioItem)
   };
 }
