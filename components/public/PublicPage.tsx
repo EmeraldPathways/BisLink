@@ -22,11 +22,13 @@ import { resolveBusinessTheme } from '@/lib/business-themes';
 import { getReviewBreakdownFromReviews, getReviewSummaryFromReviews } from '@/lib/reviews';
 import { formatPrice } from '@/lib/utils/formatting';
 import { HeroSection } from './HeroSection';
+import { MobileBottomNav } from './MobileBottomNav';
 import { AnnouncementBar } from './sections/AnnouncementBar';
 import { PortfolioSection } from './sections/PortfolioSection';
 import { TrustStrip } from './sections/TrustStrip';
 import { TabBar, type PublicSectionId } from './TabBar';
 import { CartSheet } from './sheets/CartSheet';
+import { MoreSheet } from './sheets/MoreSheet';
 import { ProductSheet } from './sheets/ProductSheet';
 import { AboutTab } from './tabs/AboutTab';
 import { BookingsTab } from './tabs/BookingsTab';
@@ -71,6 +73,7 @@ export function PublicPage({
   const [selectedService, setSelectedService] = useState<ServiceRecord | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<ProductRecord | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<PublicSectionId>('bookings');
   const frameRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -133,6 +136,7 @@ export function PublicPage({
   }, [sections]);
 
   function scrollToSection(id: PublicSectionId) {
+    setMoreOpen(false);
     setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({
       behavior: 'smooth',
@@ -140,10 +144,24 @@ export function PublicPage({
     });
   }
 
+  function scrollToHome() {
+    setMoreOpen(false);
+    setActiveSection(sections[0]?.id ?? 'contact');
+    frameRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+
+  const mobileActiveItem: 'home' | 'bookings' | 'products' | 'contact' | 'more' =
+    activeSection === 'portfolio' || activeSection === 'about' || activeSection === 'reviews'
+      ? 'more'
+      : activeSection;
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[var(--page-bg)]" data-theme={theme.key} style={themeStyle}>
-      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pt-[max(env(safe-area-inset-top),1.5rem)] md:max-w-[520px] lg:max-w-[560px]">
-        <div className="sticky top-0 z-30 mb-4 bg-[image:var(--nav-gradient)] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
+      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pb-24 pt-[max(env(safe-area-inset-top),1.5rem)] md:max-w-[520px] md:pb-0 lg:max-w-[560px]">
+        <div className="sticky top-0 z-30 mb-4 hidden bg-[image:var(--nav-gradient)] shadow-[0_10px_30px_rgba(0,0,0,0.18)] md:block">
           <TabBar sections={sections} activeSection={activeSection} onNavigate={scrollToSection} />
         </div>
 
@@ -233,6 +251,14 @@ export function PublicPage({
           presentation={presentation}
           containerRef={frameRef}
         />
+        <MoreSheet
+          open={moreOpen}
+          showPortfolio={showPortfolio}
+          showAbout={showAbout}
+          showReviews={showReviews}
+          onClose={() => setMoreOpen(false)}
+          onSelect={scrollToSection}
+        />
 
         <AnimatePresence>
           {showProducts && count > 0 ? (
@@ -244,7 +270,7 @@ export function PublicPage({
               className={`z-40 flex items-center justify-between rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-4 py-4 text-[var(--cta-text)] shadow-[var(--panel-shadow)] ${
                 presentation === 'demo'
                   ? 'sticky bottom-4 mx-4 mt-4 w-[calc(100%-32px)]'
-                  : 'fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 w-[calc(100%-32px)] max-w-[390px] -translate-x-1/2'
+                  : 'fixed bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] left-1/2 w-[calc(100%-32px)] max-w-[390px] -translate-x-1/2 md:bottom-[calc(env(safe-area-inset-bottom)+1rem)]'
               }`}
             >
               <span className="flex items-center gap-3">
@@ -257,6 +283,20 @@ export function PublicPage({
           ) : null}
         </AnimatePresence>
       </div>
+      <MobileBottomNav
+        activeItem={mobileActiveItem}
+        onNavigate={(id) => {
+          if (id === 'home') {
+            scrollToHome();
+            return;
+          }
+
+          scrollToSection(id);
+        }}
+        onMore={() => setMoreOpen(true)}
+        canBook={services.length > 0}
+        canShop={showProducts}
+      />
     </main>
   );
 }

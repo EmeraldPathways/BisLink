@@ -7,6 +7,7 @@ coverage/
 dist/
 *.tsbuildinfo
 .env
+.env.*
 .env.local
 import.env
 ybial-agents/node_modules/
