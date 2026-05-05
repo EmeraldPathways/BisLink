@@ -160,7 +160,7 @@ export function PublicPage({
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[var(--page-bg)]" data-theme={theme.key} style={themeStyle}>
-      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pb-24 pt-[max(env(safe-area-inset-top),1.5rem)] md:max-w-[520px] md:pb-0 lg:max-w-[560px]">
+      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pb-24 pt-[env(safe-area-inset-top)] md:max-w-[520px] md:pb-0 md:pt-[max(env(safe-area-inset-top),1.5rem)] lg:max-w-[560px]">
         <div className="sticky top-0 z-30 mb-4 hidden bg-[image:var(--nav-gradient)] shadow-[0_10px_30px_rgba(0,0,0,0.18)] md:block">
           <TabBar sections={sections} activeSection={activeSection} onNavigate={scrollToSection} />
         </div>

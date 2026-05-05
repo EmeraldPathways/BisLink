@@ -14,7 +14,7 @@ export function BookingsTab({
   onSelect: (service: ServiceRecord) => void;
 }) {
   return (
-    <section id={id} className="scroll-mt-20 px-2 pb-4 pt-5">
+    <section id={id} className="scroll-mt-20 px-0 pb-4 pt-5 md:px-2">
       <div className="px-3 pb-4">
         <h2 className="font-display text-3xl text-[var(--text-1)]">Work With Me</h2>
         <p className="mt-1 text-sm text-[var(--text-3)]">Choose a service and book your time.</p>

@@ -6,7 +6,7 @@ export function AnnouncementBar({ business }: { business: BusinessProfile }) {
   }
 
   return (
-    <section className="px-4 pt-4">
+    <section className="px-0 pt-4 md:px-4">
       <div className="rounded-[var(--card-radius)] bg-[var(--accent-soft)] px-4 py-3 text-sm font-semibold text-[var(--text-1)]">
         {business.announcement_text}
       </div>
