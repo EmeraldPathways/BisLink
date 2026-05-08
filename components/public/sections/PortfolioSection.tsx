@@ -14,7 +14,7 @@ export function PortfolioSection({
   return (
     <section id={id} className="scroll-mt-20 px-2 pb-8">
       <div className="px-3 pb-4">
-        <h2 className="font-display text-3xl text-[var(--text-1)]">Portfolio</h2>
+        <h2 className="font-display text-[28px] leading-[1.02] text-[var(--text-1)]">Portfolio</h2>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

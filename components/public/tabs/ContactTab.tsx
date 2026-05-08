@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { ArrowUpRight, Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import type { BusinessProfile, PublicContactSubmission } from '@/types';
 
 type FormErrors = Partial<Record<'senderName' | 'senderEmail' | 'message', string>>;
@@ -94,35 +94,32 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
   return (
     <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-10 pt-6">
       <div className="px-3">
-        <h2 className="font-display text-3xl text-[var(--text-1)]">Contact</h2>
+        <h2 className="font-display text-[28px] leading-[1.02] text-[var(--text-1)]">Contact</h2>
       </div>
 
       {rows.length ? (
-        <div
-          className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]"
-        >
-          {rows.length
-            ? rows.map((row) => (
-              <a
-                key={row.label}
-                href={row.href}
-                target={row.href.startsWith('http') ? '_blank' : undefined}
-                rel={row.href.startsWith('http') ? 'noreferrer' : undefined}
-                className="flex items-center justify-between border-b border-[var(--border)] py-4 last:border-b-0"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
-                    <row.icon className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--text-1)]">{row.label}</p>
-                    <p className="text-sm text-[var(--text-3)]">{row.value}</p>
-                  </div>
+        <div className="grid grid-cols-2 gap-3">
+          {rows.map((row) => (
+            <a
+              key={row.label}
+              href={row.href}
+              target={row.href.startsWith('http') ? '_blank' : undefined}
+              rel={row.href.startsWith('http') ? 'noreferrer' : undefined}
+              className="flex min-h-[92px] flex-col justify-between rounded-[22px] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-4 shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)]"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
+                  <row.icon className="h-4 w-4" />
                 </div>
-                <span className="text-[var(--text-3)]">{'->'}</span>
-              </a>
-            ))
-            : null}
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
+                  <ArrowUpRight className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-4 line-clamp-2 break-words text-sm font-semibold leading-5 text-[var(--text-1)]">
+                {row.value}
+              </p>
+            </a>
+          ))}
         </div>
       ) : null}
 
@@ -196,7 +193,10 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
 
           {message ? <p className="text-sm text-green-700">{message}</p> : null}
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <button disabled={loading} className="w-full rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-5 py-4 text-sm font-semibold text-[var(--cta-text)] disabled:cursor-not-allowed disabled:opacity-60">
+          <button
+            disabled={loading}
+            className="w-full rounded-[18px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 py-4 text-sm font-semibold text-white shadow-[0_18px_32px_rgba(139,104,37,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
+          >
             {loading ? 'Sending...' : 'Send Message'}
           </button>
         </form>

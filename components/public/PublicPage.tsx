@@ -50,7 +50,8 @@ function stackSections(items: Array<ReactNode | null | undefined>) {
   const visibleItems = items.filter(Boolean) as ReactNode[];
 
   return visibleItems.map((item, index) => (
-    <div key={index} className={index === 0 ? '' : 'mt-4 border-t border-[var(--page-border)] pt-4'}>
+    <div key={index} className={index === 0 ? '' : 'mt-6 pt-6'}>
+      {index > 0 ? <div className="mx-auto mb-6 h-px w-[calc(100%-3rem)] max-w-[420px] bg-[var(--page-border)]" /> : null}
       {item}
     </div>
   ));
@@ -218,7 +219,6 @@ export function PublicPage({
       credentials={credentials}
       specialisms={specialisms}
       reviews={reviews}
-      onBook={() => scrollToSection('bookings')}
     />
   ) : null;
   const reviewsSection = showReviews ? (

@@ -8,15 +8,13 @@ export function AboutTab({
   business,
   credentials,
   specialisms,
-  reviews: _reviews,
-  onBook
+  reviews: _reviews
 }: {
   id?: string;
   business: BusinessProfile;
   credentials: CredentialRecord[];
   specialisms: SpecialismRecord[];
   reviews: ReviewRecord[];
-  onBook: () => void;
 }) {
   const hasBio = Boolean(business.full_bio?.trim());
   const hasCredentials = credentials.length > 0;
@@ -31,7 +29,7 @@ export function AboutTab({
   return (
     <section id={id} className="scroll-mt-20 space-y-3 px-2 pb-8 pt-4">
       <div className="px-3">
-        <h2 className="font-display text-3xl text-[var(--text-1)]">About</h2>
+        <h2 className="font-display text-[28px] leading-[1.02] text-[var(--text-1)]">About</h2>
       </div>
 
       {hasBio ? (
@@ -90,10 +88,6 @@ export function AboutTab({
           </div>
         </div>
       ) : null}
-
-      <button type="button" onClick={onBook} className="w-full rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-5 py-4 text-sm font-semibold text-[var(--cta-text)]">
-        Book a Session
-      </button>
     </section>
   );
 }
