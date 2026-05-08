@@ -16,9 +16,7 @@ export function BookingsTab({
   return (
     <section id={id} className="scroll-mt-20 px-4 pb-4 pt-6 md:px-2">
       <div className="pb-4">
-        <p className="text-sm font-medium text-[var(--accent-strong)]">Hi, everyone</p>
-        <h2 className="mt-2 font-display text-[44px] leading-[0.95] text-[var(--text-1)]">Work With Me</h2>
-        <p className="mt-3 text-[16px] text-[var(--text-2)]">Choose a service and book your time.</p>
+        <h2 className="font-display text-3xl text-[var(--text-1)]">Work With Me</h2>
       </div>
       <div className="grid gap-4 min-[360px]:grid-cols-2">
         {services.map((service, index) => (

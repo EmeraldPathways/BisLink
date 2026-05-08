@@ -32,7 +32,6 @@ export function ProductsTab({
     <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-32 pt-4 md:pb-20">
       <div className="px-3">
         <h2 className="font-display text-3xl text-[var(--text-1)]">Shop</h2>
-        <p className="mt-1 text-sm text-[var(--text-3)]">Products and digital resources from {business.name}.</p>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1">
         {categories.map((category) => {

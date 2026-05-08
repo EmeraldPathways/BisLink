@@ -132,14 +132,15 @@ components/
     SignupForm.tsx              Client sign-up form
   public/
     PublicPage.tsx              Shared live/demo public page shell with frame-aware overlays
-    HeroSection.tsx             Dark hero with clipped decorative glow, avatar, bio, rating, location
-    TabBar.tsx                  Semantic 5-tab navigation with sticky support and focus states
+    HeroSection.tsx             Public hero card with cover image, inline announcement, avatar, social row, rating, location, and CTA
+    MobileBottomNav.tsx         Shared bottom navigation used on both mobile and desktop public pages
+    TabBar.tsx                  Legacy semantic section nav component retained in the repo but no longer mounted on the live public page
     tabs/
-      BookingsTab.tsx           Service list
+      BookingsTab.tsx           Compact service-card grid
       ProductsTab.tsx           Product grid + filters + accessible product detail entry
       ReviewsTab.tsx            Rating summary + review cards using shared review counts
-      AboutTab.tsx              Bio, stats, credentials, specialisms
-      ContactTab.tsx            Contact rows, validated form, linked map-style location card
+      AboutTab.tsx              Story, stats, credentials, specialisms
+      ContactTab.tsx            Contact rows, validated form, and theme-colored SVG map-style location card
     sheets/
       CartSheet.tsx             Product cart + checkout, demo-frame aware
       ProductSheet.tsx          Product detail sheet, demo-frame aware
@@ -202,7 +203,7 @@ ybial-agents/                   AI agent layer
 
 ## Public Page - 5-Tab System
 
-The shared public page powers both `/[slug]` and `/demo`. The tab system now uses semantic tab markup, visible keyboard focus states, and a sticky dark wrapper so navigation remains available while scrolling longer tab content. In demo mode, booking, product, and cart sheets render relative to the centered `max-w-[430px]` frame on desktop and fall back to full-viewport sheets on mobile.
+The shared public page powers both `/[slug]` and `/demo`. In demo mode, booking, product, and cart sheets render relative to the centered `max-w-[430px]` frame on desktop and fall back to full-viewport sheets on mobile.
 
 Default active tab: `bookings`.
 
@@ -225,13 +226,21 @@ Default active tab: `bookings`.
 - Reviews empty states now avoid misleading `0.0` / five-star presentation, support partial star fills, and use clearer zero-review CTA copy.
 - About tab sections now hide empty content, avoid fake stats for new businesses, and present new profiles with cleaner fallback labels.
 - Hero metadata no longer shows noisy "New profile" copy, and zero-review profiles no longer render an orphaned divider before the location.
+- Hero presentation was rebuilt into a lighter editorial card with a cover image, avatar, single social-icon row, inline announcement bar directly below the hero image, review metadata, location row, and full-width CTA.
+- Public navigation now reuses the same fixed bottom-menu component across mobile and desktop instead of using a separate desktop top tab bar.
+- Shared public-page sections now render with tighter spacing and divider lines between sections for a more compact vertical rhythm.
 - Contact form fields now use visible labels, inline validation, and a honeypot-backed submission payload.
 - Contact delivery now resolves the business via the admin-capable lookup path, falls back to `business.email` when `contact_email` is blank, and surfaces explicit Resend send failures from `/api/contact`.
-- Location presentation is a linked map-style card rather than duplicated placeholder address text.
+- Location presentation is now a theme-aware linked map card using an inline SVG background, centered Google Maps CTA, clearer address hierarchy, and parking-note support instead of duplicated placeholder address text.
 - Booking sheet scrolling was hardened on mobile by switching the sheet panel to an explicit viewport-tied height so the date step remains scrollable inside the bottom sheet.
+- Booking service cards were compacted to match the density and layout language of product cards.
+- Booking date selection was redesigned into a centered 7-column mobile calendar with adjacent-month filler days, tighter month controls, and a more reference-matched visual layout.
 - Public slug pages now render dynamically rather than serving a short-lived cached not-found state, so newly created businesses appear immediately after setup.
 - Public styling is now theme-driven through `business.theme_key`, with six curated presets: `classic-luxe`, `wellness-studio`, `bright-performance`, `editorial-minimal`, `warm-studio`, and `dark-athletic`.
 - Owner dashboard editing is now split across `/link` and `/link/theme`, with live public-page preview on both screens.
+- Desktop `My Link` editing now uses a tabbed section menu with `Link Settings` first to reduce long-scroll editing.
+- Desktop dashboard sidebar actions were regrouped so account controls and quick actions surface above the main nav.
+- About tab story content now renders above stat cards instead of below them.
 
 ---
 

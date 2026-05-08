@@ -43,7 +43,6 @@ export function ReviewsTab({
     <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-10 pt-6">
       <div className="px-3">
         <h2 className="font-display text-3xl text-[var(--text-1)]">More Reviews</h2>
-        <p className="mt-1 text-sm text-[var(--text-3)]">What clients say after working with {business.name}.</p>
       </div>
 
       <div className="rounded-[var(--card-radius)] bg-[image:var(--hero-gradient)] px-5 py-6 text-center text-[var(--hero-text)]">

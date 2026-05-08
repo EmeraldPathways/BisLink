@@ -56,11 +56,11 @@ export function SocialIconLinks({
             aria-label={`Open ${link.label}`}
             className={`inline-flex items-center gap-2 rounded-full border text-sm font-medium transition ${
               variant === 'hero'
-                ? 'h-10 w-10 justify-center border-[var(--page-border)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-[0_12px_24px_rgba(62,35,8,0.08)] hover:border-[var(--page-border-strong)] hover:bg-[var(--page-surface)]'
+                ? 'h-9 w-9 justify-center border-[var(--page-border)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-[0_10px_20px_rgba(62,35,8,0.06)] hover:border-[var(--page-border-strong)] hover:bg-[var(--page-surface)]'
                 : 'border-[var(--border)] bg-[var(--page-card-bg)] text-[var(--text-2)] hover:border-[var(--accent)]'
             }`}
           >
-            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+            <Icon className="h-3 w-3" aria-hidden="true" />
             {variant === 'hero' ? <span className="sr-only">{link.label}</span> : <span>{link.label}</span>}
           </a>
         );

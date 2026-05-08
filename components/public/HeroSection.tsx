@@ -51,28 +51,28 @@ export function HeroSection({
 
         <div className="px-5 pb-6 pt-5">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-start justify-between gap-4">
-            <div className="flex min-w-0 flex-1 items-center gap-4">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--page-border)] bg-[linear-gradient(135deg,#f4deb0,var(--accent))] font-display text-[26px] font-semibold text-[var(--accent-contrast)] shadow-[0_14px_30px_rgba(62,35,8,0.12)]">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--page-border)] bg-[linear-gradient(135deg,#f4deb0,var(--accent))] font-display text-[22px] font-semibold text-[var(--accent-contrast)] shadow-[0_10px_22px_rgba(62,35,8,0.1)]">
                 {business.photo_url ? (
-                  <Image alt={business.name} className="h-full w-full object-cover" height={80} src={business.photo_url} width={80} />
+                  <Image alt={business.name} className="h-full w-full object-cover" height={64} src={business.photo_url} width={64} />
                 ) : (
                   getInitials(business.name)
                 )}
               </div>
 
               <div className="min-w-0">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
                   {business.category}
                 </div>
-                <h1 className="mt-1 font-display text-[30px] leading-[0.98] text-[var(--text-1)] md:text-[34px]">
+                <h1 className="mt-1 font-display text-[24px] leading-[0.95] text-[var(--text-1)] md:text-[28px]">
                   {business.name}
                 </h1>
-                <p className="mt-1 text-[15px] text-[var(--accent-strong)]">
+                <p className="mt-1 text-[12px] leading-5 text-[var(--accent-strong)] md:text-[13px]">
                   {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
                 </p>
                 {hasReviews ? (
-                  <div className="mt-2 flex items-center gap-1.5 text-[13px] text-[var(--text-2)]">
-                    <Star className="h-3.5 w-3.5 fill-[var(--accent)] text-[var(--accent)]" />
+                  <div className="mt-1.5 flex items-center gap-1.5 text-[12px] text-[var(--text-2)]">
+                    <Star className="h-3 w-3 fill-[var(--accent)] text-[var(--accent)]" />
                     <span className="font-medium text-[var(--text-1)]">{rating.toFixed(1)}</span>
                     <span>({reviewCount} reviews)</span>
                   </div>
@@ -80,11 +80,11 @@ export function HeroSection({
               </div>
             </div>
 
-            <div className="flex shrink-0 flex-col items-end gap-3 pt-1 text-right">
+            <div className="flex shrink-0 flex-col items-end gap-2 pt-1 text-right">
               <SocialIconLinks business={business} variant="hero" />
               {hasLocation ? (
-                <div className="flex items-center justify-end gap-1.5 text-[14px] text-[var(--text-2)]">
-                  <MapPin className="h-4 w-4 text-[var(--accent-strong)]" />
+                <div className="flex items-center justify-end gap-1.5 text-[12px] text-[var(--text-2)] md:text-[13px]">
+                  <MapPin className="h-3.5 w-3.5 text-[var(--accent-strong)]" />
                   <span>{business.location}</span>
                 </div>
               ) : null}

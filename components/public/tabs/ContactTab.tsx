@@ -36,10 +36,11 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
     [business.email, business.phone, business.website_url, business.whatsapp_number]
   );
 
-  const hasLocation = Boolean(business.address || business.location || business.google_maps_url);
+  const locationText = business.address ?? business.location ?? null;
+  const hasLocation = Boolean(locationText || business.google_maps_url);
   const mapHref =
     business.google_maps_url ??
-    (business.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address)}` : null);
+    (locationText ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}` : null);
 
   function validateForm() {
     const nextErrors: FormErrors = {};
@@ -95,7 +96,6 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
     <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-10 pt-6">
       <div className="px-3">
         <h2 className="font-display text-3xl text-[var(--text-1)]">Contact</h2>
-        <p className="mt-1 text-sm text-[var(--text-3)]">Send a message or connect on social.</p>
       </div>
 
       {rows.length || (business.instagram_handle || business.tiktok_handle || business.youtube_url || business.website_url || business.whatsapp_number) ? (
@@ -210,55 +210,41 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
         <h3 className="font-display text-[28px] text-[var(--text-1)]">Location</h3>
         {hasLocation ? (
           <>
-            {mapHref ? (
-              <a
-                href={mapHref}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 block overflow-hidden rounded-[22px] border border-[var(--border)] bg-[var(--page-surface)]"
-              >
-                <div className="relative flex min-h-[170px] items-center justify-center overflow-hidden px-5 text-center text-[var(--accent-strong)]">
-                  <div className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--page-surface-muted)_75%,white)]" />
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 320 180"
-                    preserveAspectRatio="none"
-                    className="absolute inset-0 h-full w-full opacity-22"
-                    style={{ color: 'var(--accent-strong)' }}
-                  >
-                    <g fill="none" stroke="currentColor" strokeWidth="1.25">
-                      {Array.from({ length: 9 }).map((_, index) => (
-                        <line key={`h-${index}`} x1="0" y1={20 + index * 20} x2="320" y2={20 + index * 20} />
-                      ))}
-                      {Array.from({ length: 11 }).map((_, index) => (
-                        <line key={`v-${index}`} x1={20 + index * 28} y1="0" x2={20 + index * 28} y2="180" />
-                      ))}
-                    </g>
-                    <path
-                      d="M0 118 C44 104 72 136 116 122 C150 111 182 86 220 96 C256 105 284 132 320 118"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M0 74 C52 84 76 60 122 72 C164 82 210 118 248 110 C276 104 292 89 320 92"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div className="relative flex items-center gap-3 rounded-full border border-[var(--border)] px-6 py-3 text-base font-semibold shadow-[0_12px_30px_rgba(20,16,12,0.08)]" style={{ backgroundColor: 'color-mix(in srgb, var(--page-card-bg) 96%, white)' }}>
-                    <MapPin className="h-5 w-5" />
-                    Open in Google Maps
-                  </div>
+            <a
+              href={mapHref ?? '#'}
+              target="_blank"
+              rel="noreferrer"
+              className={`mt-4 block overflow-hidden rounded-[22px] border border-[var(--border)] bg-[var(--page-surface)] ${mapHref ? '' : 'pointer-events-none'}`}
+            >
+              <div className="relative flex min-h-[170px] items-center justify-center overflow-hidden px-5 text-center text-[var(--accent-strong)]">
+                <div className="absolute inset-0 bg-[#dfeefc]" />
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 320 180"
+                  preserveAspectRatio="none"
+                  className="absolute inset-0 h-full w-full opacity-30"
+                  style={{ color: 'color-mix(in srgb, var(--accent-strong) 22%, white)' }}
+                >
+                  <g fill="none" stroke="currentColor" strokeWidth="1.1">
+                    {Array.from({ length: 9 }).map((_, index) => (
+                      <line key={`h-${index}`} x1="0" y1={20 + index * 20} x2="320" y2={20 + index * 20} />
+                    ))}
+                    {Array.from({ length: 11 }).map((_, index) => (
+                      <line key={`v-${index}`} x1={20 + index * 28} y1="0" x2={20 + index * 28} y2="180" />
+                    ))}
+                  </g>
+                </svg>
+                <div className="relative flex items-center gap-3 rounded-full border border-[color:color-mix(in_srgb,var(--border)_70%,white)] bg-white px-6 py-3 text-base font-semibold text-[color:color-mix(in_srgb,var(--accent-strong)_88%,#0f766e)] shadow-[0_12px_30px_rgba(20,16,12,0.08)]">
+                  <MapPin className="h-5 w-5" />
+                  Open in Google Maps
                 </div>
-              </a>
+              </div>
+            </a>
+            {locationText ? (
+              <p className="mt-5 text-[18px] font-semibold leading-8 text-[var(--text-1)]">
+                {locationText}
+              </p>
             ) : null}
-            <p className="mt-5 text-[18px] font-semibold leading-8 text-[var(--text-1)]">
-              {business.address ?? business.location}
-            </p>
             {business.parking_notes ? (
               <p className="mt-3 text-[16px] leading-8 text-[var(--text-3)]">{business.parking_notes}</p>
             ) : null}

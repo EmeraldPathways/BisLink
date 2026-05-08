@@ -15,7 +15,6 @@ export function PortfolioSection({
     <section id={id} className="scroll-mt-20 px-2 pb-8">
       <div className="px-3 pb-4">
         <h2 className="font-display text-3xl text-[var(--text-1)]">Portfolio</h2>
-        <p className="mt-1 text-sm text-[var(--text-3)]">Recent work, results, and client moments.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
