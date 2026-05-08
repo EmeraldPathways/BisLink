@@ -174,8 +174,8 @@ export function PublicPage({
     });
   }
 
-  const mobileActiveItem: 'home' | 'bookings' | 'products' | 'contact' | 'more' =
-    activeSection === 'portfolio' || activeSection === 'about' || activeSection === 'reviews'
+  const mobileActiveItem: 'home' | 'bookings' | 'products' | 'about' | 'more' =
+    activeSection === 'portfolio' || activeSection === 'contact' || activeSection === 'reviews'
       ? 'more'
       : activeSection;
 
@@ -263,11 +263,7 @@ export function PublicPage({
   const renderedLinkPortfolio = wrapEditableRegion(
     'portfolio',
     'Portfolio',
-    portfolioSection,
-    <OwnerPreviewPlaceholder
-      title="Portfolio"
-      description="Tap to add portfolio items and featured work."
-    />
+    portfolioSection
   );
 
   const renderedLinkAbout = wrapEditableRegion(
@@ -371,7 +367,7 @@ export function PublicPage({
         <MoreSheet
           open={moreOpen}
           showPortfolio={showPortfolio}
-          showAbout={showAbout}
+          showContact={true}
           showReviews={showReviews}
           onClose={() => setMoreOpen(false)}
           onSelect={scrollToSection}
@@ -415,6 +411,7 @@ export function PublicPage({
             onMore={() => setMoreOpen(true)}
             canBook={services.length > 0}
             canShop={showProducts}
+            canAbout={showAbout}
             viewport="mobile"
           />
           <MobileBottomNav
@@ -430,6 +427,7 @@ export function PublicPage({
             onMore={() => setMoreOpen(true)}
             canBook={services.length > 0}
             canShop={showProducts}
+            canAbout={showAbout}
             viewport="desktop"
           />
         </>

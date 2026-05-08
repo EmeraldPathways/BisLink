@@ -1,9 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ExternalLink, Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import type { BusinessProfile, PublicContactSubmission } from '@/types';
-import { SocialIconLinks } from '../SocialIconLinks';
 
 type FormErrors = Partial<Record<'senderName' | 'senderEmail' | 'message', string>>;
 
@@ -98,11 +97,9 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
         <h2 className="font-display text-3xl text-[var(--text-1)]">Contact</h2>
       </div>
 
-      {rows.length || (business.instagram_handle || business.tiktok_handle || business.youtube_url || business.website_url || business.whatsapp_number) ? (
+      {rows.length ? (
         <div
-          className={`rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] shadow-[var(--card-shadow)] ${
-            rows.length ? 'p-5' : 'p-3'
-          }`}
+          className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]"
         >
           {rows.length
             ? rows.map((row) => (
@@ -126,7 +123,6 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
               </a>
             ))
             : null}
-          <SocialIconLinks business={business} variant="contact" />
         </div>
       ) : null}
 
@@ -247,12 +243,6 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
             ) : null}
             {business.parking_notes ? (
               <p className="mt-3 text-[16px] leading-8 text-[var(--text-3)]">{business.parking_notes}</p>
-            ) : null}
-            {mapHref ? (
-              <a href={mapHref} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-[16px] font-semibold text-[var(--accent-strong)]">
-                Open in Maps
-                <ExternalLink className="h-5 w-5" />
-              </a>
             ) : null}
           </>
         ) : null}

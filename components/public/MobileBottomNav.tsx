@@ -1,8 +1,8 @@
 'use client';
 
-import { CalendarDays, House, Menu, MessageCircle, ShoppingBag } from 'lucide-react';
+import { CalendarDays, House, Menu, ShoppingBag, User } from 'lucide-react';
 
-type MobileNavId = 'home' | 'bookings' | 'products' | 'contact' | 'more';
+type MobileNavId = 'home' | 'bookings' | 'products' | 'about' | 'more';
 
 export function MobileBottomNav({
   activeItem,
@@ -10,6 +10,7 @@ export function MobileBottomNav({
   onMore,
   canBook,
   canShop,
+  canAbout,
   viewport = 'mobile'
 }: {
   activeItem: MobileNavId;
@@ -17,13 +18,14 @@ export function MobileBottomNav({
   onMore: () => void;
   canBook: boolean;
   canShop: boolean;
+  canAbout: boolean;
   viewport?: 'mobile' | 'desktop';
 }) {
   const items = [
     { id: 'home' as const, label: 'Home', icon: House, enabled: true },
     { id: 'bookings' as const, label: 'Book', icon: CalendarDays, enabled: canBook },
     { id: 'products' as const, label: 'Shop', icon: ShoppingBag, enabled: canShop },
-    { id: 'contact' as const, label: 'Contact', icon: MessageCircle, enabled: true },
+    { id: 'about' as const, label: 'About', icon: User, enabled: canAbout },
     { id: 'more' as const, label: 'More', icon: Menu, enabled: true }
   ];
 

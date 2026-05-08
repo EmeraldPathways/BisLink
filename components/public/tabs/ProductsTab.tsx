@@ -29,7 +29,7 @@ export function ProductsTab({
   getQuantity: (productId: string) => number;
 }) {
   return (
-    <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-32 pt-4 md:pb-20">
+    <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-20 pt-4 md:pb-16">
       <div className="px-3">
         <h2 className="font-display text-3xl text-[var(--text-1)]">Shop</h2>
       </div>

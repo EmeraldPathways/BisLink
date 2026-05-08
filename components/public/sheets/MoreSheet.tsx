@@ -1,21 +1,21 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { BriefcaseBusiness, ChevronRight, Star, User, X } from 'lucide-react';
+import { BriefcaseBusiness, ChevronRight, MapPin, MessageCircle, Star, X } from 'lucide-react';
 
-type MoreItem = 'portfolio' | 'about' | 'reviews';
+type MoreItem = 'portfolio' | 'contact' | 'reviews';
 
 export function MoreSheet({
   open,
   showPortfolio,
-  showAbout,
+  showContact,
   showReviews,
   onClose,
   onSelect
 }: {
   open: boolean;
   showPortfolio: boolean;
-  showAbout: boolean;
+  showContact: boolean;
   showReviews: boolean;
   onClose: () => void;
   onSelect: (item: MoreItem) => void;
@@ -31,12 +31,12 @@ export function MoreSheet({
           icon: BriefcaseBusiness
         }
       : null,
-    showAbout
+    showContact
       ? {
-          id: 'about' as const,
-          title: 'About',
-          description: 'Story, credentials, and specialisms.',
-          icon: User
+          id: 'contact' as const,
+          title: 'Contact',
+          description: 'Location, details, and message form.',
+          icon: MessageCircle
         }
       : null,
     showReviews
@@ -51,7 +51,7 @@ export function MoreSheet({
     id: MoreItem;
     title: string;
     description: string;
-    icon: typeof User;
+    icon: typeof MapPin;
   }>;
 
   return (
