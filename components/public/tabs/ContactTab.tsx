@@ -215,21 +215,51 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                 href={mapHref}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-4 block overflow-hidden rounded-[16px] border border-[var(--border)] bg-[image:var(--media-gradient)]"
+                className="mt-4 block overflow-hidden rounded-[22px] border border-[var(--border)] bg-[var(--page-surface)]"
               >
-                <div className="relative flex min-h-[132px] items-center justify-center overflow-hidden px-5 text-center text-[var(--accent-strong)]">
-                  <div className="absolute inset-0 bg-[image:var(--grid-pattern)] opacity-40 [background-size:28px_28px]" />
-                  <div className="relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm" style={{ backgroundColor: 'color-mix(in srgb, var(--page-card-bg) 90%, transparent)' }}>
-                    <MapPin className="h-4 w-4" />
+                <div className="relative flex min-h-[172px] items-center justify-center overflow-hidden px-5 text-center text-[var(--accent-strong)]">
+                  <div className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--page-surface-muted)_75%,white)]" />
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 320 180"
+                    preserveAspectRatio="none"
+                    className="absolute inset-0 h-full w-full opacity-20"
+                    style={{ color: 'var(--accent-strong)' }}
+                  >
+                    <g fill="none" stroke="currentColor" strokeWidth="1.25">
+                      {Array.from({ length: 9 }).map((_, index) => (
+                        <line key={`h-${index}`} x1="0" y1={20 + index * 20} x2="320" y2={20 + index * 20} />
+                      ))}
+                      {Array.from({ length: 11 }).map((_, index) => (
+                        <line key={`v-${index}`} x1={20 + index * 28} y1="0" x2={20 + index * 28} y2="180" />
+                      ))}
+                    </g>
+                    <path
+                      d="M0 118 C44 104 72 136 116 122 C150 111 182 86 220 96 C256 105 284 132 320 118"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M0 74 C52 84 76 60 122 72 C164 82 210 118 248 110 C276 104 292 89 320 92"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="relative flex items-center gap-3 rounded-full border border-[var(--border)] px-6 py-3 text-base font-semibold shadow-[0_12px_30px_rgba(20,16,12,0.08)]" style={{ backgroundColor: 'color-mix(in srgb, var(--page-card-bg) 94%, white)' }}>
+                    <MapPin className="h-5 w-5" />
                     Open in Google Maps
                   </div>
                 </div>
               </a>
             ) : null}
-            <p className="mt-4 text-sm font-semibold text-[var(--text-1)]">{business.address ?? business.location}</p>
-            {business.parking_notes ? <p className="mt-2 text-sm leading-6 text-[var(--text-3)]">{business.parking_notes}</p> : null}
+            <p className="mt-5 text-[15px] font-semibold leading-7 text-[var(--text-1)]">{business.address ?? business.location}</p>
+            {business.parking_notes ? <p className="mt-3 text-[15px] leading-8 text-[var(--text-3)]">{business.parking_notes}</p> : null}
             {mapHref ? (
-              <a href={mapHref} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent-strong)]">
+              <a href={mapHref} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-[15px] font-semibold text-[var(--accent-strong)]">
                 Open in Maps
                 <ExternalLink className="h-4 w-4" />
               </a>

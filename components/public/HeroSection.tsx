@@ -73,12 +73,6 @@ export function HeroSection({
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[14px] text-[var(--text-2)]">
-            {hasLocation ? (
-              <span className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4 text-[var(--accent-strong)]" />
-                {business.location}
-              </span>
-            ) : null}
             {hasReviews ? (
               <span className="flex items-center gap-1.5">
                 <Star className="h-4 w-4 fill-[var(--accent)] text-[var(--accent)]" />
@@ -87,6 +81,17 @@ export function HeroSection({
               </span>
             ) : null}
           </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-4">
+            <SocialIconLinks business={business} variant="hero" />
+          </motion.div>
+
+          {hasLocation ? (
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-4 flex items-center gap-1.5 text-[14px] text-[var(--text-2)]">
+              <MapPin className="h-4 w-4 text-[var(--accent-strong)]" />
+              <span>{business.location}</span>
+            </motion.div>
+          ) : null}
 
           <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 text-[16px] leading-8 text-[var(--text-2)]">
             {heroBio}

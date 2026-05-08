@@ -47,6 +47,16 @@ type SectionDefinition = {
   icon: typeof CalendarDays;
 };
 
+function stackSections(items: Array<ReactNode | null | undefined>) {
+  const visibleItems = items.filter(Boolean) as ReactNode[];
+
+  return visibleItems.map((item, index) => (
+    <div key={index} className={index === 0 ? '' : 'mt-4 border-t border-[var(--page-border)] pt-4'}>
+      {item}
+    </div>
+  ));
+}
+
 export function PublicPage({
   mode = 'default',
   business,
@@ -289,16 +299,7 @@ export function PublicPage({
   const renderedThemeBody = wrapEditableRegion(
     'brand',
     'Brand styling',
-    <div>
-      {announcementSection}
-      {bookingsSection}
-      {trustSection}
-      {portfolioSection}
-      {productsSection}
-      {aboutSection}
-      {reviewsSection}
-      {contactSection}
-    </div>
+    <div>{stackSections([announcementSection, bookingsSection, trustSection, portfolioSection, productsSection, aboutSection, reviewsSection, contactSection])}</div>
   );
 
   const renderedLinkFooter = showOwnerPreview && ownerPreview?.mode === 'link'
@@ -339,15 +340,17 @@ export function PublicPage({
           </>
         ) : (
           <>
-            {renderedLinkAnnouncement}
-            {bookingsSection}
-            {renderedLinkAbout}
-            {renderedLinkPortfolio}
-            {productsSection}
-            {wrapEditableRegion('about', 'About & Trust', aboutSection)}
-            {reviewsSection}
-            {wrapEditableRegion('contact', 'Contact & Social', contactSection)}
-            {renderedLinkFooter}
+            {stackSections([
+              renderedLinkAnnouncement,
+              bookingsSection,
+              renderedLinkAbout,
+              renderedLinkPortfolio,
+              productsSection,
+              wrapEditableRegion('about', 'About & Trust', aboutSection),
+              reviewsSection,
+              wrapEditableRegion('contact', 'Contact & Social', contactSection),
+              renderedLinkFooter
+            ])}
           </>
         )}
 

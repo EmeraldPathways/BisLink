@@ -15,11 +15,11 @@ export function ServiceCard({
     <button
       type="button"
       onClick={onClick}
-      className="group flex h-full w-full flex-col rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] p-5 text-left transition duration-150 hover:-translate-y-0.5 hover:border-[var(--page-border-strong)] hover:shadow-[var(--card-hover-shadow)] active:scale-[0.98]"
+      className="group flex h-full w-full flex-col rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] p-4 text-left transition duration-150 hover:-translate-y-0.5 hover:border-[var(--page-border-strong)] hover:shadow-[var(--card-hover-shadow)] active:scale-[0.98]"
       style={{ boxShadow: 'var(--card-shadow)' }}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[var(--page-surface-muted)] text-[32px] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--page-surface-muted)] text-[18px] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
           <span aria-hidden="true">{iconLabel}</span>
         </div>
         {service.tag ? (
@@ -31,13 +31,13 @@ export function ServiceCard({
         )}
       </div>
 
-      <div className="mt-5 flex flex-1 flex-col">
-        <div className="min-h-[150px]">
-          <p className="text-[20px] font-semibold leading-[1.05] text-[var(--color-text-primary)]">{service.name}</p>
-          <p className="mt-3 text-[13px] leading-6 text-[var(--color-text-secondary)]">{service.description}</p>
+      <div className="mt-4 flex flex-1 flex-col">
+        <div className="min-h-[120px]">
+          <p className="text-[18px] font-semibold leading-[1.02] text-[var(--color-text-primary)]">{service.name}</p>
+          <p className="mt-2 text-[13px] leading-5 text-[var(--color-text-secondary)]">{service.description}</p>
         </div>
 
-        <div className="mt-5 border-t border-[var(--page-border)] pt-4">
+        <div className="mt-4 border-t border-[var(--page-border)] pt-3">
           <div className="flex items-center justify-between gap-3 text-[var(--color-text-secondary)]">
             <p className="flex items-center gap-1.5 text-[13px]">
               <Clock className="h-3.5 w-3.5" /> {service.duration_minutes} min
@@ -45,7 +45,7 @@ export function ServiceCard({
             <span className="text-[20px] font-bold text-[var(--color-text-primary)]">{formatPrice(service.price, service.currency)}</span>
           </div>
 
-          <div className="mt-4 inline-flex w-full items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-4 py-3 text-[15px] font-semibold text-white">
+          <div className="mt-3 inline-flex w-full items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-4 py-3 text-[15px] font-semibold text-white">
             {'Book ->'}
           </div>
         </div>

@@ -29,24 +29,10 @@ export function AboutTab({
   ].filter(Boolean) as Array<{ label: string; value: string }>;
 
   return (
-    <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-10 pt-6">
+    <section id={id} className="scroll-mt-20 space-y-3 px-2 pb-8 pt-4">
       <div className="px-3">
         <h2 className="font-display text-3xl text-[var(--text-1)]">About</h2>
       </div>
-
-      {stats.length ? (
-        <div className={`grid gap-3 ${stats.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] px-3 py-4 text-center shadow-[var(--card-shadow)]"
-            >
-              <p className="font-display text-[26px] font-semibold text-[var(--text-1)]">{stat.value}</p>
-              <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-[var(--text-5)]">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      ) : null}
 
       {hasBio ? (
         <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
@@ -62,6 +48,20 @@ export function AboutTab({
                 </p>
               ))}
           </div>
+        </div>
+      ) : null}
+
+      {stats.length ? (
+        <div className={`grid gap-3 ${stats.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-[18px] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] px-3 py-4 text-center shadow-[var(--card-shadow)]"
+            >
+              <p className="font-display text-[26px] font-semibold text-[var(--text-1)]">{stat.value}</p>
+              <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-[var(--text-5)]">{stat.label}</p>
+            </div>
+          ))}
         </div>
       ) : null}
 

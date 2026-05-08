@@ -50,38 +50,12 @@ export function SidebarNav({
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-60 flex-col justify-between border-r border-[var(--color-border)] bg-white p-5 md:flex">
-      <div>
+    <aside className="hidden w-60 border-r border-[var(--color-border)] bg-white p-5 md:flex">
+      <div className="w-full">
         <p className="font-display text-3xl tracking-tight">YBIAL</p>
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{business.name}</p>
-      </div>
 
-      <div className="space-y-4">
-        <nav className="space-y-1">
-          {navItems.map(({ label, href, icon: Icon, match }) => {
-            const isActive =
-              match === 'exact'
-                ? pathname === href
-                : pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
-            return (
-              <Link
-                key={label}
-                href={href}
-                aria-current={isActive ? 'page' : undefined}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
-                  isActive
-                    ? 'sidebar-link-active'
-                    : 'text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]'
-                }`}
-              >
-                <Icon className="h-4 w-4 shrink-0 opacity-70" />
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="space-y-3 border-t border-[var(--color-border)] pt-4">
+        <div className="mt-6 space-y-3">
           <Link
             href="/availability"
             className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-2)]"
@@ -115,6 +89,30 @@ export function SidebarNav({
             </div>
           </div>
         </div>
+
+        <nav className="mt-8 space-y-1">
+          {navItems.map(({ label, href, icon: Icon, match }) => {
+            const isActive =
+              match === 'exact'
+                ? pathname === href
+                : pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+            return (
+              <Link
+                key={label}
+                href={href}
+                aria-current={isActive ? 'page' : undefined}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
+                  isActive
+                    ? 'sidebar-link-active'
+                    : 'text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]'
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0 opacity-70" />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </aside>
   );
