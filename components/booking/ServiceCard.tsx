@@ -18,20 +18,23 @@ export function ServiceCard({
       className="group w-full overflow-hidden rounded-[28px] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] text-left shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)] active:scale-[0.98]"
     >
       <div className="p-5">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[image:var(--media-gradient)] text-[var(--accent-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
-          {iconLabel ? (
-            <span className="text-[34px] leading-none" aria-hidden="true">
-              {iconLabel}
-            </span>
-          ) : (
-            <UserRound className="h-9 w-9" strokeWidth={1.5} aria-hidden="true" />
-          )}
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[image:var(--media-gradient)] text-[var(--accent-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
+            {iconLabel ? (
+              <span className="text-[18px] leading-none" aria-hidden="true">
+                {iconLabel}
+              </span>
+            ) : (
+              <UserRound className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
+            )}
+          </div>
+
+          <p className="text-[17px] font-semibold leading-[1.05] text-[var(--text-1)] sm:text-[18px]">
+            {service.name}
+          </p>
         </div>
 
-        <p className="mt-5 max-w-[10ch] text-[17px] font-semibold leading-[1.05] text-[var(--text-1)] sm:text-[18px]">
-          {service.name}
-        </p>
-        <p className="mt-3 max-w-[18ch] text-[13px] leading-[1.45] text-[var(--text-3)] sm:text-[14px]" title={service.description} aria-label={service.description}>
+        <p className="mt-4 text-[13px] leading-[1.45] text-[var(--text-3)] sm:text-[14px]" title={service.description} aria-label={service.description}>
           {service.description}
         </p>
 
