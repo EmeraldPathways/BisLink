@@ -46,6 +46,26 @@ export type LinkEditorFormState = {
   stat_three_value: string;
 };
 
+export type LinkDesktopSection =
+  | 'settings'
+  | 'hero'
+  | 'announcement'
+  | 'portfolio'
+  | 'about'
+  | 'contact';
+
+export const LINK_DESKTOP_EDITOR_TABS: Array<{
+  id: LinkDesktopSection;
+  label: string;
+}> = [
+  { id: 'settings', label: 'Link Settings' },
+  { id: 'hero', label: 'Hero' },
+  { id: 'announcement', label: 'Announcement' },
+  { id: 'portfolio', label: 'Portfolio' },
+  { id: 'about', label: 'About & Trust' },
+  { id: 'contact', label: 'Contact & Social' }
+];
+
 const themeIcons: Record<BusinessThemeKey, typeof Sparkles> = {
   'classic-luxe': Sparkles,
   'wellness-studio': Flower2,
@@ -126,6 +146,7 @@ export function LinkEditor({
   message,
   error,
   section,
+  desktopSection,
   onFieldChange,
   onPortfolioItemsChange,
   onSave,
@@ -138,6 +159,7 @@ export function LinkEditor({
   message: string | null;
   error: string | null;
   section?: MobileEditSection;
+  desktopSection?: LinkDesktopSection;
   onFieldChange: <K extends keyof LinkEditorFormState>(
     key: K,
     value: LinkEditorFormState[K]
@@ -147,6 +169,7 @@ export function LinkEditor({
   onCopyLink: () => void;
 }) {
   const isSingleSection = Boolean(section);
+  const showInlineSaveAction = isSingleSection || Boolean(desktopSection);
   const saveLabel =
     mode === 'theme' ? 'Save Theme Settings' : 'Save Changes';
 
@@ -192,7 +215,7 @@ export function LinkEditor({
         value={form.primary_cta_label}
         onChange={(value) => onFieldChange('primary_cta_label', value)}
       />
-      {isSingleSection ? (
+      {showInlineSaveAction ? (
         <SaveActionButton onSave={onSave} isPending={isPending} label={saveLabel} />
       ) : null}
     </EditorSection>
@@ -215,7 +238,7 @@ export function LinkEditor({
         value={form.announcement_text}
         onChange={(value) => onFieldChange('announcement_text', value)}
       />
-      {isSingleSection ? (
+      {showInlineSaveAction ? (
         <SaveActionButton onSave={onSave} isPending={isPending} label={saveLabel} />
       ) : null}
     </EditorSection>
@@ -227,7 +250,7 @@ export function LinkEditor({
       description="Add up to 6 images, results, client work, Reels, TikToks or video links."
     >
       <PortfolioEditor items={portfolioItems} onChange={onPortfolioItemsChange} />
-      {isSingleSection ? (
+      {showInlineSaveAction ? (
         <SaveActionButton onSave={onSave} isPending={isPending} label={saveLabel} />
       ) : null}
     </EditorSection>
@@ -282,7 +305,7 @@ export function LinkEditor({
         value={form.google_review_url}
         onChange={(value) => onFieldChange('google_review_url', value)}
       />
-      {isSingleSection ? (
+      {showInlineSaveAction ? (
         <SaveActionButton onSave={onSave} isPending={isPending} label={saveLabel} />
       ) : null}
     </EditorSection>
@@ -335,7 +358,7 @@ export function LinkEditor({
         value={form.youtube_url}
         onChange={(value) => onFieldChange('youtube_url', value)}
       />
-      {isSingleSection ? (
+      {showInlineSaveAction ? (
         <SaveActionButton onSave={onSave} isPending={isPending} label={saveLabel} />
       ) : null}
     </EditorSection>
@@ -473,25 +496,36 @@ export function LinkEditor({
     </EditorSection>
   );
 
-  const singleSectionContent = section
-    ? {
-        hero: heroSection,
-        announcement: announcementSection,
-        portfolio: portfolioSection,
-        about: aboutSection,
-        contact: contactSection,
-        settings: settingsSection,
-        preset: presetSection,
-        brand: brandSection,
-        save: themeSaveSection
-      }[section]
-    : null;
+  const sectionContent = {
+    hero: heroSection,
+    announcement: announcementSection,
+    portfolio: portfolioSection,
+    about: aboutSection,
+    contact: contactSection,
+    settings: settingsSection,
+    preset: presetSection,
+    brand: brandSection,
+    save: themeSaveSection
+  } satisfies Record<MobileEditSection, ReactNode>;
+
+  const desktopLinkContent = {
+    settings: settingsSection,
+    hero: heroSection,
+    announcement: announcementSection,
+    portfolio: portfolioSection,
+    about: aboutSection,
+    contact: contactSection
+  } satisfies Record<LinkDesktopSection, ReactNode>;
+
+  const singleSectionContent = section ? sectionContent[section] : null;
 
   return (
     <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
       <div className="space-y-6">
         {isSingleSection ? (
           singleSectionContent
+        ) : mode === 'link' && desktopSection ? (
+          desktopLinkContent[desktopSection]
         ) : mode === 'theme' ? (
           <>
             {presetSection}

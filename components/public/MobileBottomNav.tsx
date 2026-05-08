@@ -26,7 +26,7 @@ export function MobileBottomNav({
   ];
 
   return (
-    <nav aria-label="Mobile page navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-[var(--page-card-bg)] px-3 py-2 md:hidden">
+    <nav aria-label="Mobile page navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--page-border)] bg-[color:color-mix(in_srgb,var(--page-card-bg)_94%,white)] px-3 pb-[calc(env(safe-area-inset-bottom)+0.55rem)] pt-2 shadow-[0_-12px_34px_rgba(43,24,7,0.08)] backdrop-blur md:hidden">
       <div className="grid grid-cols-5 gap-1">
         {items.map((item) => {
           const active = item.id === activeItem;
@@ -44,7 +44,7 @@ export function MobileBottomNav({
             >
               <Icon className="h-4 w-4" aria-hidden="true" />
               <span className="font-medium">{item.label}</span>
-              {active ? <span className="absolute inset-x-0 top-0 mx-auto h-0.5 w-6 rounded-b-sm bg-[var(--cta-bg)]" /> : null}
+              {active ? <span className="absolute inset-x-0 top-0 mx-auto h-1 w-10 rounded-b-full bg-[var(--accent)]" /> : null}
             </button>
           );
         })}

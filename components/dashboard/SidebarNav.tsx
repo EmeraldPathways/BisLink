@@ -54,8 +54,10 @@ export function SidebarNav({
       <div>
         <p className="font-display text-3xl tracking-tight">YBIAL</p>
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{business.name}</p>
+      </div>
 
-        <nav className="mt-8 space-y-1">
+      <div className="space-y-4">
+        <nav className="space-y-1">
           {navItems.map(({ label, href, icon: Icon, match }) => {
             const isActive =
               match === 'exact'
@@ -78,39 +80,39 @@ export function SidebarNav({
             );
           })}
         </nav>
-      </div>
 
-      <div className="space-y-3">
-        <Link
-          href="/availability"
-          className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-2)]"
-        >
-          <Settings className="h-4 w-4 shrink-0 opacity-70" />
-          Availability
-        </Link>
+        <div className="space-y-3 border-t border-[var(--color-border)] pt-4">
+          <Link
+            href="/availability"
+            className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-2)]"
+          >
+            <Settings className="h-4 w-4 shrink-0 opacity-70" />
+            Availability
+          </Link>
 
-        <SignOutButton
-          redirectTo="/login"
-          className="flex w-full items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-2)] disabled:cursor-not-allowed disabled:opacity-60"
-        />
+          <SignOutButton
+            redirectTo="/login"
+            className="flex w-full items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-2)] disabled:cursor-not-allowed disabled:opacity-60"
+          />
 
-        <Link
-          href={`/${business.slug}`}
-          className="btn-primary w-full text-sm"
-        >
-          View My Link
-          <ArrowUpRight className="h-4 w-4" />
-        </Link>
+          <Link
+            href={`/${business.slug}`}
+            className="btn-primary w-full text-sm"
+          >
+            View My Link
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
 
-        <div className="flex items-center gap-3 rounded-2xl bg-[var(--color-surface-2)] p-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-void)] text-xs font-semibold text-[var(--color-gold)]">
-            {getInitials(business.name)}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold truncate">Studio Owner</p>
-            <p className="mt-0.5 text-xs text-[var(--color-text-secondary)] truncate">
-              {userEmail ?? business.email ?? 'Owner account'}
-            </p>
+          <div className="flex items-center gap-3 rounded-2xl bg-[var(--color-surface-2)] p-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-void)] text-xs font-semibold text-[var(--color-gold)]">
+              {getInitials(business.name)}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate">Studio Owner</p>
+              <p className="mt-0.5 text-xs text-[var(--color-text-secondary)] truncate">
+                {userEmail ?? business.email ?? 'Owner account'}
+              </p>
+            </div>
           </div>
         </div>
       </div>

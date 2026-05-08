@@ -4,9 +4,11 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   LinkEditor,
+  LINK_DESKTOP_EDITOR_TABS,
   buildFormState,
   toPortfolioPayload,
   toPreviewBusiness,
+  type LinkDesktopSection,
   type LinkEditorFormState
 } from '@/components/dashboard/LinkEditor';
 import { LinkMobileSheet } from '@/components/dashboard/LinkMobileSheet';
@@ -50,6 +52,8 @@ export function LinkWorkspace({
   const [draftPortfolioItems, setDraftPortfolioItems] = useState(publicPage.portfolioItems);
   const [activeMobileSection, setActiveMobileSection] =
     useState<MobileEditSection | null>(null);
+  const [activeDesktopSection, setActiveDesktopSection] =
+    useState<LinkDesktopSection>('settings');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -60,6 +64,7 @@ export function LinkWorkspace({
   useEffect(() => {
     setForm(buildFormState(publicPage.business));
     setDraftPortfolioItems(publicPage.portfolioItems);
+    setActiveDesktopSection('settings');
     setMessage(null);
     setError(null);
   }, [publicPage]);
@@ -232,10 +237,33 @@ export function LinkWorkspace({
             </p>
           </div>
 
+          {mode === 'link' ? (
+            <div className="flex flex-wrap gap-2">
+              {LINK_DESKTOP_EDITOR_TABS.map((tab) => {
+                const active = activeDesktopSection === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveDesktopSection(tab.id)}
+                    className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                      active
+                        ? 'border-[var(--color-void)] bg-[var(--color-void)] text-white shadow-[0_12px_24px_rgba(17,13,10,0.12)]'
+                        : 'border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:border-[var(--color-border-dark)] hover:text-[var(--color-text-primary)]'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+
           <LinkEditor
             form={form}
             portfolioItems={draftPortfolioItems}
             mode={mode}
+            desktopSection={mode === 'link' ? activeDesktopSection : undefined}
             isPending={isPending}
             message={message}
             error={error}

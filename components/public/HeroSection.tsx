@@ -21,71 +21,86 @@ export function HeroSection({
   const seq = [0, 0.07, 0.13, 0.19];
   const hasReviews = reviewCount > 0;
   const hasLocation = Boolean(business.location);
-  const heroBio = business.tagline?.trim() || business.bio;
+  const heroBio = business.bio?.trim() || business.tagline?.trim() || 'Book your next session in a few taps.';
 
   return (
-    <header className="relative isolate overflow-hidden rounded-none text-[var(--hero-text)]">
-      <div className="relative h-[220px] w-full overflow-hidden bg-[image:var(--hero-gradient)]">
-        {business.cover_image_url ? (
-          <Image src={business.cover_image_url} alt={`${business.name} cover image`} fill className="object-cover" priority />
-        ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[var(--hero-glow-soft)] blur-3xl" />
-          <div className="absolute -right-10 top-8 h-40 w-40 rounded-full bg-[var(--hero-glow-soft)] blur-3xl" />
+    <header className="relative isolate px-4 pt-4 md:px-0 md:pt-0">
+      <div className="overflow-hidden rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] shadow-[0_24px_60px_rgba(43,25,8,0.08)]">
+        <div className="relative h-[240px] w-full overflow-hidden bg-[image:var(--hero-gradient)] md:h-[280px]">
+          {business.cover_image_url ? (
+            <Image src={business.cover_image_url} alt={`${business.name} cover image`} fill className="object-cover" priority />
+          ) : null}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[var(--hero-glow-soft)] blur-3xl" />
+            <div className="absolute -right-8 top-8 h-36 w-36 rounded-full bg-white/20 blur-3xl" />
+          </div>
         </div>
-      </div>
 
-      <div className="relative z-10 -mt-12 px-0 pb-6">
-        <div className="rounded-none border border-white/60 bg-[color:color-mix(in_srgb,var(--page-card-bg)_96%,white)] px-5 pb-6 pt-5 shadow-[0_22px_50px_rgba(19,14,10,0.12)] backdrop-blur">
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-end gap-4">
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-[var(--page-bg)] bg-[linear-gradient(135deg,var(--cta-accent-bg),var(--accent-strong))] font-display text-2xl font-semibold text-[var(--cta-accent-text)] shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
-            {business.photo_url ? (
-              <Image alt={business.name} className="h-full w-full object-cover" height={96} src={business.photo_url} width={96} />
-            ) : (
-              getInitials(business.name)
-            )}
-          </div>
-          <div className="pb-2">
-            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--hero-kicker)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--green)] animate-pulse-dot" />
-              <span>{business.category}</span>
+        <div className="px-5 pb-6 pt-5">
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--page-border)] bg-[linear-gradient(135deg,#f4deb0,var(--accent))] font-display text-[26px] font-semibold text-[var(--accent-contrast)] shadow-[0_14px_30px_rgba(62,35,8,0.12)]">
+                {business.photo_url ? (
+                  <Image alt={business.name} className="h-full w-full object-cover" height={80} src={business.photo_url} width={80} />
+                ) : (
+                  getInitials(business.name)
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+                  {business.category}
+                </div>
+                <h1 className="mt-1 font-display text-[30px] leading-[0.98] text-[var(--text-1)] md:text-[34px]">
+                  {business.name}
+                </h1>
+                <p className="mt-1 text-[15px] text-[var(--accent-strong)]">
+                  {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
+                </p>
+              </div>
             </div>
-            <h1 className="mt-1 font-display text-[32px] font-semibold leading-[1.02] text-[var(--text-1)]">{business.name}</h1>
-          </div>
-        </motion.div>
 
-        <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[1] }} className="mt-4 text-[15px] leading-[1.7] text-[var(--text-2)]">
-          {heroBio}
-        </motion.p>
+            <div className="hidden shrink-0 sm:block">
+              <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[1] }}>
+                <SocialIconLinks business={business} variant="hero" />
+              </motion.div>
+            </div>
+          </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-4 flex flex-wrap items-center gap-3 text-[13px] text-[var(--text-3)]">
-          {hasReviews ? (
-            <span className="flex items-center gap-1">
-              <Star className="h-3.5 w-3.5 fill-[var(--accent)] text-[var(--accent)]" />
-              <span className="font-medium text-[var(--text-1)]">{rating.toFixed(1)}</span>
-              <span>({reviewCount} reviews)</span>
-            </span>
-          ) : null}
-          {hasReviews && hasLocation ? <span className="h-[14px] w-px bg-[var(--hero-divider)]" /> : null}
-          {hasLocation ? (
-            <span className="flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5" />
-              {business.location}
-            </span>
-          ) : null}
-        </motion.div>
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[1] }} className="mt-4 sm:hidden">
+            <SocialIconLinks business={business} variant="hero" />
+          </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }}>
-          <SocialIconLinks business={business} variant="hero" />
-          <button
-            type="button"
-            onClick={onPrimaryAction}
-            className="mt-6 inline-flex w-full items-center justify-center rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-5 py-4 text-sm font-semibold text-[var(--cta-text)] shadow-[0_16px_32px_rgba(22,16,10,0.2)]"
-          >
-            {business.primary_cta_label?.trim() || 'Book a Session'}
-          </button>
-        </motion.div>
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[14px] text-[var(--text-2)]">
+            {hasLocation ? (
+              <span className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4 text-[var(--accent-strong)]" />
+                {business.location}
+              </span>
+            ) : null}
+            {hasReviews ? (
+              <span className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 fill-[var(--accent)] text-[var(--accent)]" />
+                <span className="font-medium text-[var(--text-1)]">{rating.toFixed(1)}</span>
+                <span>({reviewCount} reviews)</span>
+              </span>
+            ) : null}
+          </motion.div>
+
+          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 text-[16px] leading-8 text-[var(--text-2)]">
+            {heroBio}
+          </motion.p>
+
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }}>
+            <button
+              type="button"
+              onClick={onPrimaryAction}
+              className="mt-6 inline-flex w-full items-center justify-center rounded-[18px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 py-4 text-lg font-semibold text-white shadow-[0_18px_32px_rgba(139,104,37,0.22)]"
+            >
+              {business.primary_cta_label?.trim() || 'Book a Session'}
+            </button>
+          </motion.div>
         </div>
       </div>
     </header>

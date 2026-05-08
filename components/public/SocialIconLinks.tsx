@@ -44,7 +44,7 @@ export function SocialIconLinks({
   if (!links.length) return null;
 
   return (
-    <div className={`flex flex-wrap gap-2 ${variant === 'hero' ? 'mt-4' : 'mt-3'}`}>
+    <div className={`flex flex-wrap gap-2 ${variant === 'hero' ? 'mt-0' : 'mt-3'}`}>
       {links.map((link) => {
         const Icon = link.icon;
         return (
@@ -54,14 +54,14 @@ export function SocialIconLinks({
             target="_blank"
             rel="noreferrer"
             aria-label={`Open ${link.label}`}
-            className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition ${
+            className={`inline-flex items-center gap-2 rounded-full border text-sm font-medium transition ${
               variant === 'hero'
-                ? 'border-white/20 bg-white/10 text-[var(--hero-text)] hover:bg-white/16'
+                ? 'h-12 w-12 justify-center border-[var(--page-border)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-[0_12px_24px_rgba(62,35,8,0.08)] hover:border-[var(--page-border-strong)] hover:bg-[var(--page-surface)]'
                 : 'border-[var(--border)] bg-[var(--page-card-bg)] text-[var(--text-2)] hover:border-[var(--accent)]'
             }`}
           >
             <Icon className="h-4 w-4" aria-hidden="true" />
-            <span>{link.label}</span>
+            {variant === 'hero' ? <span className="sr-only">{link.label}</span> : <span>{link.label}</span>}
           </a>
         );
       })}

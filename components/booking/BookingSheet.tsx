@@ -75,8 +75,8 @@ export function BookingSheet({
     ? 'absolute inset-0 z-50'
     : 'fixed inset-0 z-50';
   const panelClassName = framed
-    ? 'hide-scrollbar absolute bottom-0 left-0 right-0 h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)]'
-    : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto h-[calc(100dvh-8px)] w-full max-w-[430px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)] xl:left-[calc(50%-640px)] xl:right-auto xl:h-auto xl:max-h-[calc(100dvh-24px)] xl:rounded-t-[26px] xl:px-4';
+    ? 'hide-scrollbar absolute bottom-0 left-0 right-0 h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[32px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)]'
+    : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto h-[calc(100dvh-8px)] w-full max-w-[430px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[32px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)] xl:left-[calc(50%-640px)] xl:right-auto xl:h-auto xl:max-h-[calc(100dvh-24px)] xl:rounded-t-[26px] xl:px-4';
 
   const sheet = (
     <AnimatePresence>
@@ -86,11 +86,7 @@ export function BookingSheet({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        <button
-          type="button"
-          className="absolute inset-0 bg-black/55 backdrop-blur-md"
-          onClick={onClose}
-        />
+        <button type="button" className="absolute inset-0 bg-[#201812]/40 backdrop-blur-md" onClick={onClose} />
         <motion.div
           drag="y"
           dragListener={false}
@@ -109,29 +105,24 @@ export function BookingSheet({
           className={panelClassName}
           style={{ touchAction: 'pan-y' }}
         >
-          <button
-            type="button"
-            aria-label="Drag to close"
-            onPointerDown={(event) => dragControls.start(event)}
-            className="mx-auto mb-4 block cursor-grab touch-none active:cursor-grabbing"
-          >
+          <button type="button" aria-label="Drag to close" onPointerDown={(event) => dragControls.start(event)} className="mx-auto mb-5 block cursor-grab touch-none active:cursor-grabbing">
             <span className="block h-1 w-[38px] rounded bg-[var(--sheet-handle)]" />
           </button>
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-5 flex items-start justify-between gap-3">
             {step > 1 ? (
               <button
                 type="button"
-                className="text-sm font-medium text-[var(--color-text-primary)]"
+                className="mt-3 text-sm font-medium text-[var(--color-text-primary)]"
                 onClick={() => setStep((current) => current - 1)}
               >
                 Back
               </button>
             ) : (
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
                   Booking
                 </p>
-                <p className="font-display text-[24px] text-[var(--color-text-primary)]">
+                <p className="mt-2 font-display text-[24px] leading-none text-[var(--color-text-primary)]">
                   {title}
                 </p>
               </div>
@@ -139,14 +130,14 @@ export function BookingSheet({
             <button
               type="button"
               aria-label="Close booking"
-              className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--color-surface-3)] text-[var(--color-text-primary)]"
+              className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-[var(--page-border)] bg-[var(--page-surface)] text-[var(--color-text-primary)]"
               onClick={onClose}
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
-          <fieldset className="mb-6 grid grid-cols-4 gap-2">
+          <fieldset className="mb-6 grid grid-cols-4 gap-3">
             <legend className="sr-only">Booking progress</legend>
             {progress.map((item) => (
               <div key={item.label} className="space-y-2">
@@ -160,9 +151,7 @@ export function BookingSheet({
                 >
                   {item.label}
                 </p>
-                <div
-                  className={`h-[3px] rounded ${item.complete ? 'bg-[var(--color-void)]' : 'bg-[var(--color-border)]'}`}
-                />
+                <div className={`h-[4px] rounded-full ${item.complete ? 'bg-[var(--accent)]' : 'bg-[var(--color-border)]'}`} />
               </div>
             ))}
           </fieldset>
