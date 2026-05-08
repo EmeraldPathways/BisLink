@@ -14,7 +14,7 @@ export function BookingsTab({
   onSelect: (service: ServiceRecord) => void;
 }) {
   return (
-    <section id={id} className="scroll-mt-20 px-4 pb-4 pt-6 md:px-2">
+    <section id={id} className="scroll-mt-20 px-2 pb-4 pt-6">
       <div className="pb-4">
         <h2 className="font-display text-[28px] leading-[1.02] text-[var(--text-1)]">Work With Me</h2>
       </div>

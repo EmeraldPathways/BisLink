@@ -26,7 +26,7 @@ export function HeroSection({
   const heroBio = business.bio?.trim() || business.tagline?.trim() || 'Book your next session in a few taps.';
 
   return (
-    <header className="relative isolate px-4 pt-4 md:px-0 md:pt-0">
+    <header className="relative isolate px-2 pt-4 md:px-0 md:pt-0">
       <div className="overflow-hidden rounded-b-[32px] border border-[var(--page-border)] border-t-0 bg-[var(--page-card-bg)] shadow-[0_24px_60px_rgba(43,25,8,0.08)]">
         <div className="relative h-[240px] w-full overflow-hidden bg-[image:var(--hero-gradient)] md:h-[280px]">
           {business.cover_image_url ? (
