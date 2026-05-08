@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { MapPin, Star } from 'lucide-react';
+import { ChevronRight, MapPin, Megaphone, Star } from 'lucide-react';
 import type { BusinessProfile } from '@/types';
 import { getInitials } from '@/lib/utils/formatting';
 import { SocialIconLinks } from './SocialIconLinks';
@@ -27,7 +27,7 @@ export function HeroSection({
 
   return (
     <header className="relative isolate px-4 pt-4 md:px-0 md:pt-0">
-      <div className="overflow-hidden rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] shadow-[0_24px_60px_rgba(43,25,8,0.08)]">
+      <div className="overflow-hidden rounded-b-[32px] border border-[var(--page-border)] border-t-0 bg-[var(--page-card-bg)] shadow-[0_24px_60px_rgba(43,25,8,0.08)]">
         <div className="relative h-[240px] w-full overflow-hidden bg-[image:var(--hero-gradient)] md:h-[280px]">
           {business.cover_image_url ? (
             <Image src={business.cover_image_url} alt={`${business.name} cover image`} fill className="object-cover" priority />
@@ -40,14 +40,18 @@ export function HeroSection({
         </div>
 
         {announcementText?.trim() ? (
-          <div className="border-t border-[var(--page-border)] px-5 py-3 text-sm font-medium text-[var(--text-2)]">
-            {announcementText}
+          <div className="border-y border-[color:color-mix(in_srgb,var(--accent)_18%,var(--page-border))] bg-[linear-gradient(90deg,color-mix(in_srgb,var(--accent-soft)_72%,white),color-mix(in_srgb,var(--page-surface)_90%,white))] px-5 py-3.5">
+            <div className="flex items-center gap-3 text-[15px] font-medium text-[var(--accent-strong)]">
+              <Megaphone className="h-4 w-4 shrink-0" />
+              <span className="min-w-0 flex-1 truncate sm:whitespace-normal">{announcementText}</span>
+              <ChevronRight className="h-4 w-4 shrink-0 text-[var(--text-3)]" />
+            </div>
           </div>
         ) : null}
 
         <div className="px-5 pb-6 pt-5">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-start justify-between gap-4">
-            <div className="flex min-w-0 items-center gap-4">
+            <div className="flex min-w-0 flex-1 items-center gap-4">
               <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--page-border)] bg-[linear-gradient(135deg,#f4deb0,var(--accent))] font-display text-[26px] font-semibold text-[var(--accent-contrast)] shadow-[0_14px_30px_rgba(62,35,8,0.12)]">
                 {business.photo_url ? (
                   <Image alt={business.name} className="h-full w-full object-cover" height={80} src={business.photo_url} width={80} />
@@ -66,32 +70,28 @@ export function HeroSection({
                 <p className="mt-1 text-[15px] text-[var(--accent-strong)]">
                   {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
                 </p>
+                {hasReviews ? (
+                  <div className="mt-2 flex items-center gap-1.5 text-[13px] text-[var(--text-2)]">
+                    <Star className="h-3.5 w-3.5 fill-[var(--accent)] text-[var(--accent)]" />
+                    <span className="font-medium text-[var(--text-1)]">{rating.toFixed(1)}</span>
+                    <span>({reviewCount} reviews)</span>
+                  </div>
+                ) : null}
               </div>
+            </div>
+
+            <div className="flex shrink-0 flex-col items-end gap-3 pt-1 text-right">
+              <SocialIconLinks business={business} variant="hero" />
+              {hasLocation ? (
+                <div className="flex items-center justify-end gap-1.5 text-[14px] text-[var(--text-2)]">
+                  <MapPin className="h-4 w-4 text-[var(--accent-strong)]" />
+                  <span>{business.location}</span>
+                </div>
+              ) : null}
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[14px] text-[var(--text-2)]">
-            {hasReviews ? (
-              <span className="flex items-center gap-1.5">
-                <Star className="h-4 w-4 fill-[var(--accent)] text-[var(--accent)]" />
-                <span className="font-medium text-[var(--text-1)]">{rating.toFixed(1)}</span>
-                <span>({reviewCount} reviews)</span>
-              </span>
-            ) : null}
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-4">
-            <SocialIconLinks business={business} variant="hero" />
-          </motion.div>
-
-          {hasLocation ? (
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-4 flex items-center gap-1.5 text-[14px] text-[var(--text-2)]">
-              <MapPin className="h-4 w-4 text-[var(--accent-strong)]" />
-              <span>{business.location}</span>
-            </motion.div>
-          ) : null}
-
-          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 text-[16px] leading-8 text-[var(--text-2)]">
+          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 border-t border-[var(--page-border)] pt-5 text-[16px] leading-8 text-[var(--text-2)]">
             {heroBio}
           </motion.p>
 

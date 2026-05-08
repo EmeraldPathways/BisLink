@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import { type RefObject, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useIsMobile } from '@/hooks/useBreakpoint';
+import { formatPrice } from '@/lib/utils/formatting';
 import type { BusinessProfile } from '@/types';
 import type { Service } from './BookingPage';
 import { StepConfirm } from './StepConfirm';
@@ -70,13 +71,14 @@ export function BookingSheet({
   if (!service) return null;
 
   const title = step === 1 ? service.name : 'Booking';
+  const dateStepSubtitle = `${service.duration_minutes} min - ${formatPrice(service.price, service.currency)}`;
   const framed = presentation === 'demo' && !isMobile && containerRef?.current;
   const shellClassName = framed
     ? 'absolute inset-0 z-50'
     : 'fixed inset-0 z-50';
   const panelClassName = framed
-    ? 'hide-scrollbar absolute bottom-0 left-0 right-0 h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[32px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)]'
-    : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto h-[calc(100dvh-8px)] w-full max-w-[430px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[32px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)] xl:left-[calc(50%-640px)] xl:right-auto xl:h-auto xl:max-h-[calc(100dvh-24px)] xl:rounded-t-[26px] xl:px-4';
+    ? 'hide-scrollbar absolute bottom-0 left-0 right-0 min-h-[78%] max-h-[calc(100%-8px)] w-full overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)]'
+    : 'hide-scrollbar absolute bottom-0 left-0 right-0 mx-auto min-h-[78dvh] max-h-[calc(100dvh-8px)] w-full max-w-[520px] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] rounded-t-[30px] bg-[var(--sheet-bg)] px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3 shadow-[var(--panel-shadow)] md:max-w-[430px] md:rounded-t-[26px] md:px-4';
 
   const sheet = (
     <AnimatePresence>
@@ -86,7 +88,7 @@ export function BookingSheet({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        <button type="button" className="absolute inset-0 bg-[#201812]/40 backdrop-blur-md" onClick={onClose} />
+        <button type="button" className="absolute inset-0 bg-black/55 backdrop-blur-md" onClick={onClose} />
         <motion.div
           drag="y"
           dragListener={false}
@@ -105,10 +107,10 @@ export function BookingSheet({
           className={panelClassName}
           style={{ touchAction: 'pan-y' }}
         >
-          <button type="button" aria-label="Drag to close" onPointerDown={(event) => dragControls.start(event)} className="mx-auto mb-5 block cursor-grab touch-none active:cursor-grabbing">
+          <button type="button" aria-label="Drag to close" onPointerDown={(event) => dragControls.start(event)} className="mx-auto mb-4 block cursor-grab touch-none active:cursor-grabbing">
             <span className="block h-1 w-[38px] rounded bg-[var(--sheet-handle)]" />
           </button>
-          <div className="mb-5 flex items-start justify-between gap-3">
+          <div className="mb-4 flex items-start justify-between gap-3">
             {step > 1 ? (
               <button
                 type="button"
@@ -125,15 +127,21 @@ export function BookingSheet({
                 <p className="mt-2 font-display text-[24px] leading-none text-[var(--color-text-primary)]">
                   {title}
                 </p>
+                {step === 1 ? (
+                  <>
+                    <p className="mt-3 font-display text-[18px] leading-none text-[var(--color-text-primary)]">Pick a date</p>
+                    <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{dateStepSubtitle}</p>
+                  </>
+                ) : null}
               </div>
             )}
             <button
               type="button"
               aria-label="Close booking"
-              className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-[var(--page-border)] bg-[var(--page-surface)] text-[var(--color-text-primary)]"
+              className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--page-surface-emphasis)] text-[var(--color-text-primary)]"
               onClick={onClose}
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 

@@ -44,7 +44,7 @@ export function SocialIconLinks({
   if (!links.length) return null;
 
   return (
-    <div className={`flex flex-wrap gap-2 ${variant === 'hero' ? 'mt-0' : 'mt-3'}`}>
+    <div className={`flex flex-wrap gap-2 ${variant === 'hero' ? 'mt-0 justify-end' : 'mt-3'}`}>
       {links.map((link) => {
         const Icon = link.icon;
         return (

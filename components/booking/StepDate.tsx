@@ -16,7 +16,6 @@ import {
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { BusinessProfile } from '@/types';
-import { formatPrice } from '@/lib/utils/formatting';
 import type { Service } from './BookingPage';
 
 export function StepDate({
@@ -42,11 +41,7 @@ export function StepDate({
 
   return (
     <div className="mx-auto w-full max-w-[360px]">
-      <h3 className="text-center font-display text-[22px]">Pick a date</h3>
-      <p className="mt-1 text-center text-[13px] text-[var(--color-text-secondary)]">
-        {service.duration_minutes} min - {formatPrice(service.price, service.currency)}
-      </p>
-      <div className="mt-5">
+      <div className="mt-2">
         <div className="grid grid-cols-[48px_1fr_48px] items-center gap-4">
           <button
             type="button"
@@ -66,7 +61,7 @@ export function StepDate({
           </button>
         </div>
 
-        <div className="mt-7 grid grid-cols-7 gap-x-3 gap-y-4">
+        <div className="mt-6 grid grid-cols-7 gap-x-2 gap-y-3">
           {weekdayOrder.map((day) => (
             <p key={day} className="text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-secondary)]">
               {day}
@@ -87,7 +82,7 @@ export function StepDate({
                 type="button"
                 disabled={disabled}
                 onClick={() => setSelected(iso)}
-                className={`min-h-[84px] rounded-[20px] px-2 py-3 text-center transition ${
+                className={`min-h-[76px] rounded-[18px] px-2 py-2.5 text-center transition ${
                   active
                     ? 'bg-[var(--color-void)] text-white shadow-[0_18px_24px_rgba(16,12,9,0.18)]'
                     : disabled
@@ -97,7 +92,7 @@ export function StepDate({
               >
                 <p className="text-[18px] font-semibold leading-none">{format(day, 'd')}</p>
                 <p
-                  className={`mt-3 text-[11px] uppercase tracking-[0.14em] ${
+                  className={`mt-2 text-[11px] uppercase tracking-[0.14em] ${
                     active ? 'text-[var(--color-gold)]' : 'text-[var(--color-text-secondary)]'
                   }`}
                 >

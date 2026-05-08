@@ -387,7 +387,7 @@ export function PublicPage({
               className={`z-40 flex items-center justify-between rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-4 py-4 text-[var(--cta-text)] shadow-[var(--panel-shadow)] ${
                 presentation === 'demo'
                   ? 'sticky bottom-4 mx-4 mt-4 w-[calc(100%-32px)]'
-                  : 'fixed bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] left-1/2 w-[calc(100%-32px)] max-w-[390px] -translate-x-1/2 md:bottom-[calc(env(safe-area-inset-bottom)+1rem)]'
+                  : 'fixed bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] inset-x-4 mx-auto w-auto max-w-[390px] md:bottom-[calc(env(safe-area-inset-bottom)+1rem)]'
               }`}
             >
               <span className="flex items-center gap-3">
