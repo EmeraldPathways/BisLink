@@ -9,13 +9,15 @@ export function MobileBottomNav({
   onNavigate,
   onMore,
   canBook,
-  canShop
+  canShop,
+  viewport = 'mobile'
 }: {
   activeItem: MobileNavId;
   onNavigate: (id: Exclude<MobileNavId, 'more'>) => void;
   onMore: () => void;
   canBook: boolean;
   canShop: boolean;
+  viewport?: 'mobile' | 'desktop';
 }) {
   const items = [
     { id: 'home' as const, label: 'Home', icon: House, enabled: true },
@@ -26,7 +28,14 @@ export function MobileBottomNav({
   ];
 
   return (
-    <nav aria-label="Mobile page navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--page-border)] bg-[color:color-mix(in_srgb,var(--page-card-bg)_94%,white)] px-3 pb-[calc(env(safe-area-inset-bottom)+0.55rem)] pt-2 shadow-[0_-12px_34px_rgba(43,24,7,0.08)] backdrop-blur md:hidden">
+    <nav
+      aria-label="Page navigation"
+      className={`fixed inset-x-0 bottom-0 z-40 border-t border-[var(--page-border)] bg-[color:color-mix(in_srgb,var(--page-card-bg)_94%,white)] px-3 shadow-[0_-12px_34px_rgba(43,24,7,0.08)] backdrop-blur ${
+        viewport === 'mobile'
+          ? 'pb-[calc(env(safe-area-inset-bottom)+0.55rem)] pt-2 md:hidden'
+          : 'hidden pb-4 pt-2 md:block'
+      }`}
+    >
       <div className="grid grid-cols-5 gap-1">
         {items.map((item) => {
           const active = item.id === activeItem;

@@ -11,11 +11,13 @@ export function HeroSection({
   business,
   rating,
   reviewCount,
+  announcementText,
   onPrimaryAction
 }: {
   business: BusinessProfile;
   rating: number;
   reviewCount: number;
+  announcementText?: string | null;
   onPrimaryAction: () => void;
 }) {
   const seq = [0, 0.07, 0.13, 0.19];
@@ -36,6 +38,12 @@ export function HeroSection({
             <div className="absolute -right-8 top-8 h-36 w-36 rounded-full bg-white/20 blur-3xl" />
           </div>
         </div>
+
+        {announcementText?.trim() ? (
+          <div className="border-t border-[var(--page-border)] px-5 py-3 text-sm font-medium text-[var(--text-2)]">
+            {announcementText}
+          </div>
+        ) : null}
 
         <div className="px-5 pb-6 pt-5">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-start justify-between gap-4">
@@ -60,16 +68,6 @@ export function HeroSection({
                 </p>
               </div>
             </div>
-
-            <div className="hidden shrink-0 sm:block">
-              <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[1] }}>
-                <SocialIconLinks business={business} variant="hero" />
-              </motion.div>
-            </div>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[1] }} className="mt-4 sm:hidden">
-            <SocialIconLinks business={business} variant="hero" />
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[2] }} className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[14px] text-[var(--text-2)]">

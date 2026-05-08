@@ -207,7 +207,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
       </div>
 
       <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
-        <h3 className="font-display text-[19px] text-[var(--text-1)]">Location</h3>
+        <h3 className="font-display text-[28px] text-[var(--text-1)]">Location</h3>
         {hasLocation ? (
           <>
             {mapHref ? (
@@ -217,13 +217,13 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                 rel="noreferrer"
                 className="mt-4 block overflow-hidden rounded-[22px] border border-[var(--border)] bg-[var(--page-surface)]"
               >
-                <div className="relative flex min-h-[172px] items-center justify-center overflow-hidden px-5 text-center text-[var(--accent-strong)]">
+                <div className="relative flex min-h-[170px] items-center justify-center overflow-hidden px-5 text-center text-[var(--accent-strong)]">
                   <div className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--page-surface-muted)_75%,white)]" />
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 320 180"
                     preserveAspectRatio="none"
-                    className="absolute inset-0 h-full w-full opacity-20"
+                    className="absolute inset-0 h-full w-full opacity-22"
                     style={{ color: 'var(--accent-strong)' }}
                   >
                     <g fill="none" stroke="currentColor" strokeWidth="1.25">
@@ -249,19 +249,23 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                       strokeLinecap="round"
                     />
                   </svg>
-                  <div className="relative flex items-center gap-3 rounded-full border border-[var(--border)] px-6 py-3 text-base font-semibold shadow-[0_12px_30px_rgba(20,16,12,0.08)]" style={{ backgroundColor: 'color-mix(in srgb, var(--page-card-bg) 94%, white)' }}>
+                  <div className="relative flex items-center gap-3 rounded-full border border-[var(--border)] px-6 py-3 text-base font-semibold shadow-[0_12px_30px_rgba(20,16,12,0.08)]" style={{ backgroundColor: 'color-mix(in srgb, var(--page-card-bg) 96%, white)' }}>
                     <MapPin className="h-5 w-5" />
                     Open in Google Maps
                   </div>
                 </div>
               </a>
             ) : null}
-            <p className="mt-5 text-[15px] font-semibold leading-7 text-[var(--text-1)]">{business.address ?? business.location}</p>
-            {business.parking_notes ? <p className="mt-3 text-[15px] leading-8 text-[var(--text-3)]">{business.parking_notes}</p> : null}
+            <p className="mt-5 text-[18px] font-semibold leading-8 text-[var(--text-1)]">
+              {business.address ?? business.location}
+            </p>
+            {business.parking_notes ? (
+              <p className="mt-3 text-[16px] leading-8 text-[var(--text-3)]">{business.parking_notes}</p>
+            ) : null}
             {mapHref ? (
-              <a href={mapHref} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-[15px] font-semibold text-[var(--accent-strong)]">
+              <a href={mapHref} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-[16px] font-semibold text-[var(--accent-strong)]">
                 Open in Maps
-                <ExternalLink className="h-4 w-4" />
+                <ExternalLink className="h-5 w-5" />
               </a>
             ) : null}
           </>

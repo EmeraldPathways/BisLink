@@ -28,10 +28,9 @@ import { getReviewBreakdownFromReviews, getReviewSummaryFromReviews } from '@/li
 import { formatPrice } from '@/lib/utils/formatting';
 import { HeroSection } from './HeroSection';
 import { MobileBottomNav } from './MobileBottomNav';
-import { AnnouncementBar } from './sections/AnnouncementBar';
 import { PortfolioSection } from './sections/PortfolioSection';
 import { TrustStrip } from './sections/TrustStrip';
-import { TabBar, type PublicSectionId } from './TabBar';
+import { type PublicSectionId } from './TabBar';
 import { CartSheet } from './sheets/CartSheet';
 import { MoreSheet } from './sheets/MoreSheet';
 import { ProductSheet } from './sheets/ProductSheet';
@@ -185,13 +184,10 @@ export function PublicPage({
       business={business}
       rating={reviewSummary.average}
       reviewCount={reviewSummary.publishedCount}
+      announcementText={business.announcement_enabled ? business.announcement_text : null}
       onPrimaryAction={() => scrollToSection('bookings')}
     />
   );
-  const announcementSection =
-    business.announcement_enabled && business.announcement_text?.trim() ? (
-      <AnnouncementBar business={business} />
-    ) : null;
   const bookingsSection = services.length ? (
     <BookingsTab id="bookings" services={services} onSelect={setSelectedService} />
   ) : null;
@@ -264,16 +260,6 @@ export function PublicPage({
     heroSection
   );
 
-  const renderedLinkAnnouncement = wrapEditableRegion(
-    'announcement',
-    'Announcement',
-    announcementSection,
-    <OwnerPreviewPlaceholder
-      title="Announcement"
-      description="Tap to add a message bar to the preview."
-    />
-  );
-
   const renderedLinkPortfolio = wrapEditableRegion(
     'portfolio',
     'Portfolio',
@@ -299,7 +285,7 @@ export function PublicPage({
   const renderedThemeBody = wrapEditableRegion(
     'brand',
     'Brand styling',
-    <div>{stackSections([announcementSection, bookingsSection, trustSection, portfolioSection, productsSection, aboutSection, reviewsSection, contactSection])}</div>
+    <div>{stackSections([bookingsSection, trustSection, portfolioSection, productsSection, aboutSection, reviewsSection, contactSection])}</div>
   );
 
   const renderedLinkFooter = showOwnerPreview && ownerPreview?.mode === 'link'
@@ -326,11 +312,7 @@ export function PublicPage({
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[var(--page-bg)]" data-theme={theme.key} style={themeStyle}>
-      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pb-24 pt-[env(safe-area-inset-top)] md:max-w-[520px] md:pb-0 md:pt-[max(env(safe-area-inset-top),1.5rem)] lg:max-w-[560px]">
-        <div className="sticky top-0 z-30 mb-4 hidden bg-[image:var(--nav-gradient)] shadow-[0_10px_30px_rgba(0,0,0,0.18)] md:block">
-          <TabBar sections={sections} activeSection={activeSection} onNavigate={scrollToSection} />
-        </div>
-
+      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pb-24 pt-[env(safe-area-inset-top)] md:max-w-[520px] md:pb-28 md:pt-[max(env(safe-area-inset-top),1.5rem)] lg:max-w-[560px]">
         {renderedHero}
 
         {ownerPreview?.mode === 'theme' ? (
@@ -341,7 +323,6 @@ export function PublicPage({
         ) : (
           <>
             {stackSections([
-              renderedLinkAnnouncement,
               bookingsSection,
               renderedLinkAbout,
               renderedLinkPortfolio,
@@ -420,20 +401,38 @@ export function PublicPage({
         </AnimatePresence>
       </div>
       {showOwnerPreview ? null : (
-        <MobileBottomNav
-          activeItem={mobileActiveItem}
-          onNavigate={(id) => {
-            if (id === 'home') {
-              scrollToHome();
-              return;
-            }
+        <>
+          <MobileBottomNav
+            activeItem={mobileActiveItem}
+            onNavigate={(id) => {
+              if (id === 'home') {
+                scrollToHome();
+                return;
+              }
 
-            scrollToSection(id);
-          }}
-          onMore={() => setMoreOpen(true)}
-          canBook={services.length > 0}
-          canShop={showProducts}
-        />
+              scrollToSection(id);
+            }}
+            onMore={() => setMoreOpen(true)}
+            canBook={services.length > 0}
+            canShop={showProducts}
+            viewport="mobile"
+          />
+          <MobileBottomNav
+            activeItem={mobileActiveItem}
+            onNavigate={(id) => {
+              if (id === 'home') {
+                scrollToHome();
+                return;
+              }
+
+              scrollToSection(id);
+            }}
+            onMore={() => setMoreOpen(true)}
+            canBook={services.length > 0}
+            canShop={showProducts}
+            viewport="desktop"
+          />
+        </>
       )}
     </main>
   );
