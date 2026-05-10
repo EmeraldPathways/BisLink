@@ -55,6 +55,18 @@ export type BusinessProfile = {
   full_bio?: string | null;
   photo_url?: string | null;
   cover_image_url?: string | null;
+  bookings_image_url?: string | null;
+  bookings_title?: string | null;
+  bookings_subtitle?: string | null;
+  products_image_url?: string | null;
+  products_title?: string | null;
+  products_subtitle?: string | null;
+  about_image_url?: string | null;
+  about_title?: string | null;
+  about_subtitle?: string | null;
+  contact_image_url?: string | null;
+  contact_title?: string | null;
+  contact_subtitle?: string | null;
   location?: string | null;
   address?: string | null;
   parking_notes?: string | null;

@@ -233,8 +233,12 @@ Default active tab: `bookings`.
 - Shared public-page sections now render with tighter spacing, smaller section titles, and centered dividers for a cleaner vertical rhythm.
 - Product and service uploads now enforce square `1:1` images, hero cover uploads enforce `16:9`, rotated photos are normalized before validation, and invalid non-image uploads are rejected server-side.
 - Shop and booking cards now use square top media areas so uploaded product and service imagery matches the public card layout.
-- The floating mobile cart tab now sits tighter against the bottom menu and stays centered over the Shop slot.
+- The floating mobile cart tab now sits tighter against the bottom menu, can be right-aligned over the mobile nav, and Home now gets the same active-footer highlight state as the other primary nav items when the page is at the top.
 - About now uses the same image-header treatment and content spacing pattern as bookings and shop instead of a separate overlapping hero style.
+- Contact now uses the same image-led section shell as bookings, shop, and about, with minimal one-line contact cards and a bundled location card in the same visual system.
+- Owner dashboard product and service list cards now render uploaded image thumbnails directly in the cards instead of hiding media until the public page preview.
+- `My Link` now supports separate editable hero image, title, and subtitle content for Bookings, Shop, About, and Contact via new business-level section hero fields added in `supabase/migrations/0016_section_hero_fields.sql`.
+- Desktop `My Link` section tabs now also drive the live preview position so Link Settings / Hero / Announcement jump to the top and Portfolio / About / Contact jump directly to the matching public section.
 - Contact form fields now use visible labels, inline validation, and a honeypot-backed submission payload.
 - Contact delivery now resolves the business via the admin-capable lookup path, falls back to `business.email` when `contact_email` is blank, and surfaces explicit Resend send failures from `/api/contact`.
 - Contact presentation now uses a reference-matched editorial two-column card layout, a compact top-aligned contact form, and a cleaner hierarchy for direct contact methods.

@@ -67,6 +67,8 @@ export function PublicPage({
   credentials,
   specialisms,
   portfolioItems,
+  previewTarget,
+  previewJumpToken,
   ownerPreview
 }: {
   mode?: 'default' | 'demo';
@@ -77,6 +79,8 @@ export function PublicPage({
   credentials: CredentialRecord[];
   specialisms: SpecialismRecord[];
   portfolioItems: PortfolioItemRecord[];
+  previewTarget?: 'home' | 'portfolio' | 'about' | 'contact';
+  previewJumpToken?: number;
   ownerPreview?: {
     mode: LinkEditorMode;
     onEditSection: (section: MobileEditSection) => void;
@@ -96,6 +100,7 @@ export function PublicPage({
   const [cartOpen, setCartOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<PublicSectionId>('bookings');
+  const [isHomeActive, setIsHomeActive] = useState(true);
   const frameRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { items, total, count, addItem, clear, hasItem, getQuantity } = useCart();
@@ -135,6 +140,18 @@ export function PublicPage({
   }, [activeSection, sections]);
 
   useEffect(() => {
+    const updateHomeState = () => {
+      const top = frameRef.current?.getBoundingClientRect().top ?? 0;
+      setIsHomeActive(top >= -80);
+    };
+
+    updateHomeState();
+    window.addEventListener('scroll', updateHomeState, { passive: true });
+
+    return () => window.removeEventListener('scroll', updateHomeState);
+  }, []);
+
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -159,8 +176,23 @@ export function PublicPage({
     return () => observer.disconnect();
   }, [sections]);
 
+  useEffect(() => {
+    if (!previewTarget || isMobile) return;
+
+    if (previewTarget === 'home') {
+      frameRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    document.getElementById(previewTarget)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }, [isMobile, previewJumpToken, previewTarget]);
+
   function scrollToSection(id: PublicSectionId) {
     setMoreOpen(false);
+    setIsHomeActive(false);
     setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({
       behavior: 'smooth',
@@ -170,6 +202,7 @@ export function PublicPage({
 
   function scrollToHome() {
     setMoreOpen(false);
+    setIsHomeActive(true);
     setActiveSection(sections[0]?.id ?? 'contact');
     frameRef.current?.scrollIntoView({
       behavior: 'smooth',
@@ -178,7 +211,9 @@ export function PublicPage({
   }
 
   const mobileActiveItem: 'home' | 'bookings' | 'products' | 'about' | 'more' =
-    activeSection === 'portfolio' || activeSection === 'contact' || activeSection === 'reviews'
+    isHomeActive
+      ? 'home'
+      : activeSection === 'portfolio' || activeSection === 'contact' || activeSection === 'reviews'
       ? 'more'
       : activeSection;
 

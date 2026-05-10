@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { ServiceCardActions } from '@/components/dashboard/ServiceCardActions';
 import { ServiceForm } from '@/components/dashboard/ServiceForm';
 import { getServicesData } from '@/lib/dashboard-data';
@@ -38,29 +39,36 @@ export default async function Page({
           services.map((service) => (
             <div
               key={service.id}
-              className="rounded-[24px] border border-[var(--color-border)] bg-white p-5"
+              className="overflow-hidden rounded-[24px] border border-[var(--color-border)] bg-white"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold">{service.name}</p>
-                  <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                    {service.description}
-                  </p>
+              {service.image_url ? (
+                <div className="relative aspect-square bg-[var(--color-surface-2)]">
+                  <Image src={service.image_url} alt={service.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 640px" />
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold">
-                    {formatPrice(service.price, service.currency)}
-                  </p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
-                    {service.tag ?? 'Active'}
-                  </p>
+              ) : null}
+              <div className="p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{service.name}</p>
+                    <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                      {service.description}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold">
+                      {formatPrice(service.price, service.currency)}
+                    </p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+                      {service.tag ?? 'Active'}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="mt-4 flex justify-end">
-                <ServiceCardActions
-                  serviceId={service.id}
-                  isActive={service.is_active}
-                />
+                <div className="mt-4 flex justify-end">
+                  <ServiceCardActions
+                    serviceId={service.id}
+                    isActive={service.is_active}
+                  />
+                </div>
               </div>
             </div>
           ))

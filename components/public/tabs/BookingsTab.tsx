@@ -21,9 +21,9 @@ export function BookingsTab({
     <section id={id} className="scroll-mt-20 px-2 pt-3">
       <div className="overflow-hidden rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] shadow-[var(--card-shadow)]">
         <SectionImageHeader
-          title="Bookings"
-          subtitle="Choose your session and lock in a time that fits your schedule."
-          imageUrl={business.cover_image_url}
+          title={business.bookings_title?.trim() || 'Bookings'}
+          subtitle={business.bookings_subtitle?.trim() || 'Choose your session and lock in a time that fits your schedule.'}
+          imageUrl={business.bookings_image_url ?? business.cover_image_url}
           compact
           attached
         />

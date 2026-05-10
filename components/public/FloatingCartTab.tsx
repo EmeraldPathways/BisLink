@@ -18,7 +18,7 @@ export function FloatingCartTab({
       exit={{ y: 24, opacity: 0 }}
       onClick={onOpen}
       aria-label={`Open cart with ${count} item${count === 1 ? '' : 's'}`}
-      className="fixed bottom-[calc(env(safe-area-inset-bottom)+3.65rem)] left-1/2 z-50 flex h-12 min-w-[72px] -translate-x-1/2 items-center justify-center gap-2 rounded-t-[18px] rounded-b-[10px] border border-[var(--page-border)] bg-[var(--cta-bg)] px-4 text-[var(--cta-text)] shadow-[0_-8px_24px_rgba(43,24,7,0.18)] md:bottom-[calc(env(safe-area-inset-bottom)+4.2rem)]"
+      className="fixed bottom-[calc(env(safe-area-inset-bottom)+4.15rem)] right-4 z-50 flex h-12 min-w-[72px] items-center justify-center gap-2 rounded-t-[18px] rounded-b-[10px] border border-[var(--page-border)] bg-[var(--cta-bg)] px-4 text-[var(--cta-text)] shadow-[0_-8px_24px_rgba(43,24,7,0.18)] md:bottom-[calc(env(safe-area-inset-bottom)+4.7rem)] md:right-6"
     >
       <ShoppingBag className="h-4 w-4" aria-hidden="true" />
       <span className="text-sm font-semibold">{count}</span>

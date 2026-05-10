@@ -34,9 +34,9 @@ export function ProductsTab({
     <section id={id} className="scroll-mt-20 px-2 pb-20 pt-3 md:pb-16">
       <div className="overflow-hidden rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] shadow-[var(--card-shadow)]">
         <SectionImageHeader
-          title="Shop"
-          subtitle="Studio essentials, recovery tools, and digital plans you can buy in seconds."
-          imageUrl={business.cover_image_url}
+          title={business.products_title?.trim() || 'Shop'}
+          subtitle={business.products_subtitle?.trim() || 'Studio essentials, recovery tools, and digital plans you can buy in seconds.'}
+          imageUrl={business.products_image_url ?? business.cover_image_url}
           compact
           attached
         />

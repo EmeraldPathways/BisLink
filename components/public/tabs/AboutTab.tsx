@@ -41,9 +41,9 @@ export function AboutTab({
     <section id={id} className="scroll-mt-20 px-2 pb-8 pt-3">
       <div className="overflow-hidden rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] shadow-[var(--card-shadow)]">
         <SectionImageHeader
-          title="About"
-          subtitle="Get to know me and my journey."
-          imageUrl={business.cover_image_url}
+          title={business.about_title?.trim() || 'About'}
+          subtitle={business.about_subtitle?.trim() || 'Get to know me and my journey.'}
+          imageUrl={business.about_image_url ?? business.cover_image_url}
           compact
           attached
         />

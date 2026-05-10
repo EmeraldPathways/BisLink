@@ -21,6 +21,8 @@ import { PublicPage } from '@/components/public/PublicPage';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import type { PortfolioItemRecord, PublicPageData } from '@/types';
 
+type PreviewTarget = 'home' | 'portfolio' | 'about' | 'contact';
+
 const workspaceCopy: Record<
   LinkEditorMode,
   { title: string; description: string; mobileHint: string }
@@ -54,6 +56,8 @@ export function LinkWorkspace({
     useState<MobileEditSection | null>(null);
   const [activeDesktopSection, setActiveDesktopSection] =
     useState<LinkDesktopSection>('settings');
+  const [previewTarget, setPreviewTarget] = useState<PreviewTarget>('home');
+  const [previewJumpToken, setPreviewJumpToken] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -65,6 +69,8 @@ export function LinkWorkspace({
     setForm(buildFormState(publicPage.business));
     setDraftPortfolioItems(publicPage.portfolioItems);
     setActiveDesktopSection('settings');
+    setPreviewTarget('home');
+    setPreviewJumpToken(0);
     setMessage(null);
     setError(null);
   }, [publicPage]);
@@ -204,6 +210,8 @@ export function LinkWorkspace({
         credentials={publicPage.credentials}
         specialisms={publicPage.specialisms}
         portfolioItems={draftPortfolioItems}
+        previewTarget={!isMobile ? previewTarget : undefined}
+        previewJumpToken={!isMobile ? previewJumpToken : undefined}
         ownerPreview={
           isMobile
             ? {
@@ -245,7 +253,11 @@ export function LinkWorkspace({
                   <button
                     key={tab.id}
                     type="button"
-                    onClick={() => setActiveDesktopSection(tab.id)}
+                    onClick={() => {
+                      setActiveDesktopSection(tab.id);
+                      setPreviewTarget(getPreviewTargetForDesktopSection(tab.id));
+                      setPreviewJumpToken((current) => current + 1);
+                    }}
                     className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                       active
                         ? 'border-[var(--color-void)] bg-[var(--color-void)] text-white shadow-[0_12px_24px_rgba(17,13,10,0.12)]'
@@ -309,4 +321,17 @@ export function LinkWorkspace({
       </LinkMobileSheet>
     </>
   );
+}
+
+function getPreviewTargetForDesktopSection(section: LinkDesktopSection): PreviewTarget {
+  switch (section) {
+    case 'portfolio':
+      return 'portfolio';
+    case 'about':
+      return 'about';
+    case 'contact':
+      return 'contact';
+    default:
+      return 'home';
+  }
 }

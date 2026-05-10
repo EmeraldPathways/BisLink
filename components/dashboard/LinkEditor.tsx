@@ -24,6 +24,18 @@ export type LinkEditorFormState = {
   slug: string;
   photo_url: string;
   cover_image_url: string;
+  bookings_image_url: string;
+  bookings_title: string;
+  bookings_subtitle: string;
+  products_image_url: string;
+  products_title: string;
+  products_subtitle: string;
+  about_image_url: string;
+  about_title: string;
+  about_subtitle: string;
+  contact_image_url: string;
+  contact_title: string;
+  contact_subtitle: string;
   primary_cta_label: string;
   announcement_enabled: boolean;
   announcement_text: string;
@@ -90,6 +102,18 @@ export function buildFormState(business: BusinessProfile): LinkEditorFormState {
     slug: business.slug,
     photo_url: business.photo_url ?? '',
     cover_image_url: business.cover_image_url ?? '',
+    bookings_image_url: business.bookings_image_url ?? '',
+    bookings_title: business.bookings_title ?? '',
+    bookings_subtitle: business.bookings_subtitle ?? '',
+    products_image_url: business.products_image_url ?? '',
+    products_title: business.products_title ?? '',
+    products_subtitle: business.products_subtitle ?? '',
+    about_image_url: business.about_image_url ?? '',
+    about_title: business.about_title ?? '',
+    about_subtitle: business.about_subtitle ?? '',
+    contact_image_url: business.contact_image_url ?? '',
+    contact_title: business.contact_title ?? '',
+    contact_subtitle: business.contact_subtitle ?? '',
     primary_cta_label: business.primary_cta_label ?? '',
     announcement_enabled: Boolean(business.announcement_enabled),
     announcement_text: business.announcement_text ?? '',
@@ -215,6 +239,22 @@ export function LinkEditor({
         value={form.primary_cta_label}
         onChange={(value) => onFieldChange('primary_cta_label', value)}
       />
+      <SectionHeroFields
+        prefix="bookings"
+        title="Bookings hero"
+        imageValue={form.bookings_image_url}
+        titleValue={form.bookings_title}
+        subtitleValue={form.bookings_subtitle}
+        onFieldChange={onFieldChange}
+      />
+      <SectionHeroFields
+        prefix="products"
+        title="Shop hero"
+        imageValue={form.products_image_url}
+        titleValue={form.products_title}
+        subtitleValue={form.products_subtitle}
+        onFieldChange={onFieldChange}
+      />
       {showInlineSaveAction ? (
         <SaveActionButton onSave={onSave} isPending={isPending} label={saveLabel} />
       ) : null}
@@ -258,6 +298,14 @@ export function LinkEditor({
 
   const aboutSection = (
     <EditorSection title="About & Trust" description="Example: Clients Helped / 200+">
+      <SectionHeroFields
+        prefix="about"
+        title="About hero"
+        imageValue={form.about_image_url}
+        titleValue={form.about_title}
+        subtitleValue={form.about_subtitle}
+        onFieldChange={onFieldChange}
+      />
       <FormTextArea
         label="Full bio"
         value={form.full_bio}
@@ -313,6 +361,14 @@ export function LinkEditor({
 
   const contactSection = (
     <EditorSection title="Contact & Social Links">
+      <SectionHeroFields
+        prefix="contact"
+        title="Contact hero"
+        imageValue={form.contact_image_url}
+        titleValue={form.contact_title}
+        subtitleValue={form.contact_subtitle}
+        onFieldChange={onFieldChange}
+      />
       <FormInput
         label="Location"
         value={form.location}
@@ -612,6 +668,51 @@ function FormTextArea({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="min-h-[100px] w-full rounded-xl border border-[var(--color-border)] px-4 py-3"
+      />
+    </div>
+  );
+}
+
+function SectionHeroFields({
+  prefix,
+  title,
+  imageValue,
+  titleValue,
+  subtitleValue,
+  onFieldChange
+}: {
+  prefix: 'bookings' | 'products' | 'about' | 'contact';
+  title: string;
+  imageValue: string;
+  titleValue: string;
+  subtitleValue: string;
+  onFieldChange: <K extends keyof LinkEditorFormState>(
+    key: K,
+    value: LinkEditorFormState[K]
+  ) => void;
+}) {
+  return (
+    <div className="space-y-3 rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-4">
+      <div>
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</h3>
+        <p className="mt-1 text-xs text-[var(--color-text-secondary)]">16:9 image, custom title, and custom subtitle for this public-page section.</p>
+      </div>
+      <ImageUploadField
+        label={`${title} image`}
+        value={imageValue}
+        kind="cover"
+        aspectHint="16:9 image required."
+        onChange={(url) => onFieldChange(`${prefix}_image_url` as keyof LinkEditorFormState, url as LinkEditorFormState[keyof LinkEditorFormState])}
+      />
+      <FormInput
+        label={`${title} title`}
+        value={titleValue}
+        onChange={(value) => onFieldChange(`${prefix}_title` as keyof LinkEditorFormState, value as LinkEditorFormState[keyof LinkEditorFormState])}
+      />
+      <FormTextArea
+        label={`${title} subtitle`}
+        value={subtitleValue}
+        onChange={(value) => onFieldChange(`${prefix}_subtitle` as keyof LinkEditorFormState, value as LinkEditorFormState[keyof LinkEditorFormState])}
       />
     </div>
   );

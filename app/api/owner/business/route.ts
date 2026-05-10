@@ -11,6 +11,18 @@ const schema = z.object({
   bio: z.string().trim().max(1000).default(''),
   photo_url: z.string().url().optional().or(z.literal('')),
   cover_image_url: z.string().url().optional().or(z.literal('')),
+  bookings_image_url: z.string().url().optional().or(z.literal('')),
+  bookings_title: z.string().trim().max(80).optional().or(z.literal('')),
+  bookings_subtitle: z.string().trim().max(180).optional().or(z.literal('')),
+  products_image_url: z.string().url().optional().or(z.literal('')),
+  products_title: z.string().trim().max(80).optional().or(z.literal('')),
+  products_subtitle: z.string().trim().max(180).optional().or(z.literal('')),
+  about_image_url: z.string().url().optional().or(z.literal('')),
+  about_title: z.string().trim().max(80).optional().or(z.literal('')),
+  about_subtitle: z.string().trim().max(180).optional().or(z.literal('')),
+  contact_image_url: z.string().url().optional().or(z.literal('')),
+  contact_title: z.string().trim().max(80).optional().or(z.literal('')),
+  contact_subtitle: z.string().trim().max(180).optional().or(z.literal('')),
   tagline: z.string().trim().max(140).optional().or(z.literal('')),
   full_bio: z.string().trim().max(4000).optional().or(z.literal('')),
   primary_cta_label: z.string().trim().max(40).optional().or(z.literal('')),
@@ -87,7 +99,11 @@ export async function PATCH(req: NextRequest) {
     .select('*')
     .single();
   if (error) {
-    if (isMissingColumnError(error, 'businesses', 'announcement_enabled') || isMissingColumnError(error, 'businesses', 'cover_image_url')) {
+    if (
+      isMissingColumnError(error, 'businesses', 'announcement_enabled') ||
+      isMissingColumnError(error, 'businesses', 'cover_image_url') ||
+      isMissingColumnError(error, 'businesses', 'bookings_title')
+    ) {
       return NextResponse.json({ error: getPublicPageMigrationMessage() }, { status: 500 });
     }
 

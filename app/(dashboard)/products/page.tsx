@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { ProductCardActions } from '@/components/dashboard/ProductCardActions';
 import { ProductForm } from '@/components/dashboard/ProductForm';
 import { ProductLimitBar } from '@/components/dashboard/ProductLimitBar';
@@ -41,30 +42,37 @@ export default async function Page({
             {products.map((product) => (
               <div
                 key={product.id}
-                className="rounded-[24px] border border-[var(--color-border)] bg-white p-5"
+                className="overflow-hidden rounded-[24px] border border-[var(--color-border)] bg-white"
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold">{product.name}</p>
-                    <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                      {product.category}
-                    </p>
+                {product.image_url ? (
+                  <div className="relative aspect-square bg-[var(--color-surface-2)]">
+                    <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 320px" />
                   </div>
-                  <span className="rounded-full bg-[var(--color-surface-2)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
-                    {product.in_stock ? 'In stock' : 'Sold out'}
-                  </span>
-                </div>
-                <p className="mt-3 text-sm text-[var(--color-text-secondary)]">
-                  {product.description}
-                </p>
-                <div className="mt-4 flex items-center justify-between">
-                  <p className="text-sm font-semibold">
-                    {formatPrice(product.price)}
+                ) : null}
+                <div className="p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold">{product.name}</p>
+                      <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                        {product.category}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-[var(--color-surface-2)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+                      {product.in_stock ? 'In stock' : 'Sold out'}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm text-[var(--color-text-secondary)]">
+                    {product.description}
                   </p>
-                  <ProductCardActions
-                    productId={product.id}
-                    isActive={product.is_active}
-                  />
+                  <div className="mt-4 flex items-center justify-between">
+                    <p className="text-sm font-semibold">
+                      {formatPrice(product.price)}
+                    </p>
+                    <ProductCardActions
+                      productId={product.id}
+                      isActive={product.is_active}
+                    />
+                  </div>
                 </div>
               </div>
             ))}
