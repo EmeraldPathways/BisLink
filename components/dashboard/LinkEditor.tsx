@@ -61,6 +61,8 @@ export type LinkEditorFormState = {
 export type LinkDesktopSection =
   | 'settings'
   | 'hero'
+  | 'bookings'
+  | 'products'
   | 'announcement'
   | 'portfolio'
   | 'about'
@@ -72,6 +74,8 @@ export const LINK_DESKTOP_EDITOR_TABS: Array<{
 }> = [
   { id: 'settings', label: 'Link Settings' },
   { id: 'hero', label: 'Hero' },
+  { id: 'bookings', label: 'Bookings' },
+  { id: 'products', label: 'Shop' },
   { id: 'announcement', label: 'Announcement' },
   { id: 'portfolio', label: 'Portfolio' },
   { id: 'about', label: 'About & Trust' },
@@ -239,6 +243,14 @@ export function LinkEditor({
         value={form.primary_cta_label}
         onChange={(value) => onFieldChange('primary_cta_label', value)}
       />
+      {showInlineSaveAction ? (
+        <SaveActionButton onSave={onSave} isPending={isPending} label={saveLabel} />
+      ) : null}
+    </EditorSection>
+  );
+
+  const bookingsHeroSection = (
+    <EditorSection title="Bookings Hero" description="Section image, title, and subtitle for the bookings area.">
       <SectionHeroFields
         prefix="bookings"
         title="Bookings hero"
@@ -247,6 +259,14 @@ export function LinkEditor({
         subtitleValue={form.bookings_subtitle}
         onFieldChange={onFieldChange}
       />
+      {showInlineSaveAction ? (
+        <SaveActionButton onSave={onSave} isPending={isPending} label={saveLabel} />
+      ) : null}
+    </EditorSection>
+  );
+
+  const productsHeroSection = (
+    <EditorSection title="Shop Hero" description="Section image, title, and subtitle for the shop area.">
       <SectionHeroFields
         prefix="products"
         title="Shop hero"
@@ -567,6 +587,8 @@ export function LinkEditor({
   const desktopLinkContent = {
     settings: settingsSection,
     hero: heroSection,
+    bookings: bookingsHeroSection,
+    products: productsHeroSection,
     announcement: announcementSection,
     portfolio: portfolioSection,
     about: aboutSection,
@@ -591,6 +613,8 @@ export function LinkEditor({
         ) : (
           <>
             {heroSection}
+            {bookingsHeroSection}
+            {productsHeroSection}
             {announcementSection}
             {portfolioSection}
             {aboutSection}
@@ -615,11 +639,11 @@ function EditorSection({
   children: ReactNode;
 }) {
   return (
-    <section className="space-y-3 rounded-[24px] border border-[var(--color-border)] p-4">
+    <section className="space-y-2 rounded-[22px] border border-[var(--color-border)] p-3">
       <div>
         <h2 className="text-base font-semibold text-[var(--color-text-primary)]">{title}</h2>
         {description ? (
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{description}</p>
+          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{description}</p>
         ) : null}
       </div>
       {children}
@@ -692,10 +716,10 @@ function SectionHeroFields({
   ) => void;
 }) {
   return (
-    <div className="space-y-3 rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-4">
+    <div className="space-y-2 rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-3">
       <div>
         <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</h3>
-        <p className="mt-1 text-xs text-[var(--color-text-secondary)]">16:9 image, custom title, and custom subtitle for this public-page section.</p>
+        <p className="mt-1 text-[11px] text-[var(--color-text-secondary)]">16:9 image with custom title and subtitle.</p>
       </div>
       <ImageUploadField
         label={`${title} image`}

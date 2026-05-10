@@ -21,7 +21,7 @@ import { PublicPage } from '@/components/public/PublicPage';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import type { PortfolioItemRecord, PublicPageData } from '@/types';
 
-type PreviewTarget = 'home' | 'portfolio' | 'about' | 'contact';
+type PreviewTarget = 'home' | 'bookings' | 'products' | 'portfolio' | 'about' | 'contact';
 
 const workspaceCopy: Record<
   LinkEditorMode,
@@ -327,6 +327,10 @@ function getPreviewTargetForDesktopSection(section: LinkDesktopSection): Preview
   switch (section) {
     case 'portfolio':
       return 'portfolio';
+    case 'bookings':
+      return 'bookings';
+    case 'products':
+      return 'products';
     case 'about':
       return 'about';
     case 'contact':

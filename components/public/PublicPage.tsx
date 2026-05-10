@@ -79,7 +79,7 @@ export function PublicPage({
   credentials: CredentialRecord[];
   specialisms: SpecialismRecord[];
   portfolioItems: PortfolioItemRecord[];
-  previewTarget?: 'home' | 'portfolio' | 'about' | 'contact';
+  previewTarget?: 'home' | 'bookings' | 'products' | 'portfolio' | 'about' | 'contact';
   previewJumpToken?: number;
   ownerPreview?: {
     mode: LinkEditorMode;
