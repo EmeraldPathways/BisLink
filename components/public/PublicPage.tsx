@@ -308,7 +308,7 @@ export function PublicPage({
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[var(--page-bg)]" data-theme={theme.key} style={themeStyle}>
-      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pb-24 pt-[env(safe-area-inset-top)] md:max-w-[520px] md:pb-28 md:pt-[max(env(safe-area-inset-top),1.5rem)] lg:max-w-[560px]">
+      <div ref={frameRef} className="relative mx-auto w-full bg-[var(--page-bg)] pb-24 pt-0 md:max-w-[520px] md:pb-28 md:pt-0 lg:max-w-[560px]">
         {renderedHero}
 
         {ownerPreview?.mode === 'theme' ? (

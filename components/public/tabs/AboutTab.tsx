@@ -44,8 +44,8 @@ export function AboutTab({
           title="About"
           subtitle="Get to know me and my journey."
           imageUrl={business.cover_image_url}
+          compact
           attached
-          variant="about"
         />
 
         <div className="relative -mt-8 space-y-5 rounded-t-[34px] bg-[var(--page-card-bg)] px-3 pb-5 pt-6">
@@ -56,7 +56,7 @@ export function AboutTab({
                   <UserRound className="h-8 w-8 stroke-[1.7]" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-display text-[34px] leading-none tracking-[-0.02em] text-[var(--text-1)]">Story</h3>
+                  <h3 className="font-display text-[28px] leading-none tracking-[-0.02em] text-[var(--text-1)]">Story</h3>
                   <p className="mt-5 text-[16px] leading-[1.62] text-[var(--text-2)]">{storyPreview}</p>
                 </div>
               </div>
@@ -85,8 +85,8 @@ export function AboutTab({
                     <div className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)]">
                       <stat.icon className="h-8 w-8 stroke-[1.7]" aria-hidden="true" />
                     </div>
-                    <div>
-                      <p className="font-display text-[36px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
+                    <div className="min-w-0">
+                      <p className="font-display text-[28px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
                       <p className="mt-3 text-[11px] uppercase tracking-[0.12em] text-[var(--accent-strong)]">{stat.label}</p>
                     </div>
                   </div>
@@ -127,8 +127,8 @@ export function AboutTab({
                     <div className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)]">
                       <stat.icon className="h-8 w-8 stroke-[1.7]" aria-hidden="true" />
                     </div>
-                    <div>
-                      <p className="font-display text-[36px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
+                    <div className="min-w-0">
+                      <p className="font-display text-[28px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
                       <p className="mt-3 text-[11px] uppercase tracking-[0.12em] text-[var(--accent-strong)]">{stat.label}</p>
                     </div>
                   </div>
