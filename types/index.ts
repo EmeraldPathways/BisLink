@@ -117,6 +117,7 @@ export type ServiceRecord = {
   sort_order: number;
   tag: string | null;
   emoji: string;
+  image_url?: string | null;
 };
 
 export type ProductRecord = {

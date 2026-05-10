@@ -7,7 +7,7 @@ type ImageUploadFieldProps = {
   label: string;
   description?: string;
   value: string;
-  kind: 'profile' | 'cover' | 'portfolio';
+  kind: 'profile' | 'cover' | 'portfolio' | 'product' | 'service';
   aspectHint?: string;
   onChange: (url: string) => void;
 };

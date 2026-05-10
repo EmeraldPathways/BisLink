@@ -1,4 +1,5 @@
-import { ArrowRight, Clock, UserRound } from 'lucide-react';
+import Image from 'next/image';
+import { CalendarDays, Clock, Eye, UserRound } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
 import type { Service } from './BookingPage';
 
@@ -15,44 +16,54 @@ export function ServiceCard({
     <button
       type="button"
       onClick={onClick}
-      className="group w-full overflow-hidden rounded-[28px] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] text-left shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)] active:scale-[0.98]"
+      className="group w-full overflow-hidden rounded-[20px] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] text-left shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)] active:scale-[0.98]"
     >
-      <div className="p-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[image:var(--media-gradient)] text-[var(--accent-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
+      <div className="relative h-28 overflow-hidden bg-[image:var(--media-gradient)]">
+        {service.image_url ? (
+          <Image
+            src={service.image_url}
+            alt={service.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 50vw, 220px"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
             {iconLabel ? (
-              <span className="text-[18px] leading-none" aria-hidden="true">
+              <span className="text-[42px] leading-none text-[var(--accent-strong)]" aria-hidden="true">
                 {iconLabel}
               </span>
             ) : (
-              <UserRound className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
+              <UserRound className="h-10 w-10 text-[var(--accent-strong)]" strokeWidth={1.5} aria-hidden="true" />
             )}
           </div>
-
-          <p className="text-[17px] font-semibold leading-[1.05] text-[var(--text-1)] sm:text-[18px]">
-            {service.name}
-          </p>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-white/10" />
+        {service.tag ? (
+          <span className="absolute left-2 top-2 rounded-full bg-[var(--badge-bg)] px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--badge-text)]">
+            {service.tag}
+          </span>
+        ) : null}
+        <div className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-[9px] bg-white/85 text-[var(--accent-strong)] shadow-sm">
+          <Eye className="h-3.5 w-3.5" aria-hidden="true" />
         </div>
+      </div>
 
-        <p className="mt-4 text-[13px] leading-[1.45] text-[var(--text-3)] sm:text-[14px]" title={service.description} aria-label={service.description}>
+      <div className="p-3">
+        <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--accent-strong)]">Bookings</p>
+        <p className="mt-1 text-[13px] font-semibold text-[var(--text-1)]">{service.name}</p>
+        <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--text-4)]" title={service.description} aria-label={service.description}>
           {service.description}
         </p>
-
-        <div className="mt-5 h-px bg-[var(--border)]" />
-
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <span className="flex items-center gap-2 text-[15px] text-[var(--text-3)]">
-            <Clock className="h-4 w-4" strokeWidth={1.75} /> {service.duration_minutes} min
-          </span>
-          <span className="text-[18px] font-bold text-[var(--text-1)]">
-            {formatPrice(service.price, service.currency)}
-          </span>
-        </div>
-
-        <div className="mt-5 rounded-[16px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 py-3.5 text-center text-[18px] font-semibold text-white shadow-[0_14px_30px_rgba(139,104,37,0.18)] transition group-hover:brightness-[1.03]">
-          <span className="inline-flex items-center gap-2">
-            Book
-            <ArrowRight className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+        <div className="mt-3 flex items-center justify-between">
+          <div>
+            <span className="text-[15px] font-bold text-[var(--text-1)]">{formatPrice(service.price, service.currency)}</span>
+            <span className="ml-2 inline-flex items-center gap-1 text-[11px] text-[var(--text-4)]">
+              <Clock className="h-3.5 w-3.5" strokeWidth={1.75} /> {service.duration_minutes} min
+            </span>
+          </div>
+          <span className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[var(--page-surface-emphasis)] text-[var(--text-2)]">
+            <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
         </div>
       </div>

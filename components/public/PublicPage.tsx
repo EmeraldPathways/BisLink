@@ -190,7 +190,7 @@ export function PublicPage({
     />
   );
   const bookingsSection = services.length ? (
-    <BookingsTab id="bookings" services={services} onSelect={setSelectedService} />
+    <BookingsTab id="bookings" business={business} services={services} onSelect={setSelectedService} />
   ) : null;
   const trustSection = showTrust ? (
     <TrustStrip business={business} reviews={publishedReviews} reviewSummary={reviewSummary} />
@@ -219,6 +219,7 @@ export function PublicPage({
       credentials={credentials}
       specialisms={specialisms}
       reviews={reviews}
+      onBook={services.length ? () => scrollToSection('bookings') : undefined}
     />
   ) : null;
   const reviewsSection = showReviews ? (

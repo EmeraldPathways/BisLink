@@ -25,7 +25,7 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
   const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, portfolioResult] = await Promise.all([
     supabase
       .from('services')
-      .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji')
+      .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji,image_url')
       .eq('business_id', business.id)
       .eq('is_active', true)
       .order('sort_order', { ascending: true }),

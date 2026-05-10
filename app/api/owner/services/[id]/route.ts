@@ -10,6 +10,7 @@ const schema = z.object({
   duration_minutes: z.coerce.number().int().min(5).max(480).optional(),
   price: z.coerce.number().int().min(0).max(10000000).optional(),
   tag: z.string().trim().max(40).optional().or(z.literal('')),
+  image_url: z.string().url().optional().or(z.literal('')),
   is_active: z.boolean().optional(),
 });
 
@@ -32,7 +33,7 @@ export async function PATCH(
 
   const updates: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(parsed.data)) {
-    updates[key] = key === 'tag' && value === '' ? null : value;
+    updates[key] = (key === 'tag' || key === 'image_url') && value === '' ? null : value;
   }
 
   const { supabase, business } = owner;

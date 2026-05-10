@@ -1,6 +1,7 @@
 'use client';
 
 import { type RefObject } from 'react';
+import Image from 'next/image';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUpRight, Check, Package, Star, X } from 'lucide-react';
@@ -53,8 +54,19 @@ export function ProductSheet({
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="mt-4 flex h-[140px] items-center justify-center rounded-[18px] bg-[image:var(--media-gradient)]">
-            <Package className="h-12 w-12 text-[var(--text-3)]" strokeWidth={1.25} />
+          <div className="relative mt-4 flex h-[140px] items-center justify-center overflow-hidden rounded-[18px] bg-[image:var(--media-gradient)]">
+            {product.image_url ? (
+              <Image
+                src={product.image_url}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 430px"
+              />
+            ) : (
+              <Package className="h-12 w-12 text-[var(--text-3)]" strokeWidth={1.25} />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/10" />
           </div>
           <div className="mt-4 flex items-center justify-between">
             <div>

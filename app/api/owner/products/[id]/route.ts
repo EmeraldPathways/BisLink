@@ -17,6 +17,7 @@ const schema = z.object({
     .optional()
     .nullable(),
   badge: z.string().trim().max(40).optional().or(z.literal('')),
+  image_url: z.string().url().optional().or(z.literal('')),
   is_active: z.boolean().optional(),
   in_stock: z.boolean().optional(),
 });
@@ -64,7 +65,7 @@ export async function PATCH(
 
   const updates: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(parsed.data)) {
-    if ((key === 'badge' || key === 'category') && value === '') {
+    if ((key === 'badge' || key === 'category' || key === 'image_url') && value === '') {
       updates[key] = null;
     } else {
       updates[key] = value;

@@ -11,6 +11,7 @@ const schema = z.object({
   price: z.coerce.number().int().min(0).max(10000000),
   original_price: z.coerce.number().int().min(0).max(10000000).optional(),
   badge: z.string().trim().max(40).optional().or(z.literal('')),
+  image_url: z.string().url().optional().or(z.literal('')),
 });
 
 export async function POST(req: NextRequest) {
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
       price: parsed.data.price,
       original_price: parsed.data.original_price ?? null,
       badge: parsed.data.badge || null,
+      image_url: parsed.data.image_url || null,
       is_active: true,
       in_stock: true,
       is_digital: false,

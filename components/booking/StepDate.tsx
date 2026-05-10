@@ -5,14 +5,12 @@ import {
   addMonths,
   eachDayOfInterval,
   endOfMonth,
-  endOfWeek,
   format,
+  getDay,
   isBefore,
   isSameDay,
-  isSameMonth,
   startOfMonth,
   startOfToday,
-  startOfWeek
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { BusinessProfile } from '@/types';
@@ -33,10 +31,8 @@ export function StepDate({
   const today = startOfToday();
   const monthStart = startOfMonth(month);
   const monthEnd = endOfMonth(month);
-  const calendarDays = eachDayOfInterval({
-    start: startOfWeek(monthStart, { weekStartsOn: 0 }),
-    end: endOfWeek(monthEnd, { weekStartsOn: 0 })
-  });
+  const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const leadingEmptyDays = Array.from({ length: getDay(monthStart) });
   void business;
 
   return (
@@ -68,13 +64,16 @@ export function StepDate({
             </p>
           ))}
 
+          {leadingEmptyDays.map((_, index) => (
+            <div key={`empty-${index}`} aria-hidden="true" className="min-h-[76px]" />
+          ))}
+
           {calendarDays.map((day) => {
             const iso = format(day, 'yyyy-MM-dd');
-            const inCurrentMonth = isSameMonth(day, month);
             const weekend = [0, 6].includes(day.getDay());
             const past = isBefore(day, today);
             const active = selected === iso;
-            const disabled = !inCurrentMonth || weekend || past;
+            const disabled = weekend || past;
 
             return (
               <button

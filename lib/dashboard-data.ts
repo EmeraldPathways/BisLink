@@ -97,7 +97,7 @@ export async function getServicesData() {
   const supabase = createAdminClient() ?? (await createClient());
   const { data } = await supabase
     .from('services')
-    .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji')
+    .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji,image_url')
     .eq('business_id', business.id)
     .order('sort_order', { ascending: true });
 
@@ -164,7 +164,7 @@ export async function getLinkData() {
   const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, portfolioResult] = await Promise.all([
     supabase
       .from('services')
-      .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji')
+      .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji,image_url')
       .eq('business_id', business.id)
       .order('sort_order', { ascending: true }),
     supabase
@@ -391,7 +391,7 @@ async function getServiceMap(businessId: string) {
   const supabase = createAdminClient() ?? (await createClient());
   const { data } = await supabase
     .from('services')
-    .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji')
+    .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji,image_url')
     .eq('business_id', businessId);
 
   return new Map(((data ?? []) as ServiceRecord[]).map((service) => [service.id, normalizeService(service)]));

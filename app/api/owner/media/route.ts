@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'File is required' }, { status: 400 });
   }
 
-  if (kind !== 'profile' && kind !== 'cover' && kind !== 'portfolio') {
+  if (kind !== 'profile' && kind !== 'cover' && kind !== 'portfolio' && kind !== 'product' && kind !== 'service') {
     return NextResponse.json({ error: 'Invalid upload kind' }, { status: 400 });
   }
 

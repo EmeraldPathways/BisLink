@@ -10,6 +10,7 @@ const schema = z.object({
   duration_minutes: z.coerce.number().int().min(5).max(480),
   price: z.coerce.number().int().min(0).max(10000000),
   tag: z.string().trim().max(40).optional().or(z.literal('')),
+  image_url: z.string().url().optional().or(z.literal('')),
 });
 
 export async function POST(req: NextRequest) {
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
       is_active: true,
       sort_order: count ?? 0,
       tag: parsed.data.tag || null,
+      image_url: parsed.data.image_url || null,
     })
     .select('*')
     .single();

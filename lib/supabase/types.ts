@@ -429,6 +429,7 @@ export type Database = {
           duration_minutes: number;
           emoji: string | null;
           id: string;
+          image_url: string | null;
           is_active: boolean | null;
           max_concurrent: number | null;
           name: string;
@@ -445,6 +446,7 @@ export type Database = {
           duration_minutes?: number;
           emoji?: string | null;
           id?: string;
+          image_url?: string | null;
           is_active?: boolean | null;
           max_concurrent?: number | null;
           name: string;

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { ImageUploadField } from '@/components/dashboard/ImageUploadField';
 import { productEmojiChoices } from '@/lib/product-options';
 import type { ProductRecord } from '@/types';
 
@@ -13,6 +14,7 @@ type ProductFormState = {
   price: string;
   original_price: string;
   badge: string;
+  image_url: string;
 };
 
 export function ProductForm({ product }: { product?: ProductRecord }) {
@@ -44,7 +46,8 @@ export function ProductForm({ product }: { product?: ProductRecord }) {
       category: form.category,
       price: Math.round(Number(form.price || '0') * 100),
       original_price: form.original_price ? Math.round(Number(form.original_price) * 100) : undefined,
-      badge: form.badge
+      badge: form.badge,
+      image_url: form.image_url
     };
 
     const res = await fetch(product ? `/api/owner/products/${product.id}` : '/api/owner/products', {
@@ -95,6 +98,14 @@ export function ProductForm({ product }: { product?: ProductRecord }) {
         </div>
         <input value={form.name} onChange={(event) => updateField('name', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Product name" />
         <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} className="min-h-[100px] w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Description" />
+        <ImageUploadField
+          label="Product image"
+          description="Shown on the public shop cards and product detail view."
+          value={form.image_url}
+          kind="product"
+          aspectHint="Square image recommended."
+          onChange={(url) => updateField('image_url', url)}
+        />
         <input value={form.category} onChange={(event) => updateField('category', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Category" />
         <div className="grid grid-cols-2 gap-3">
           <input value={form.price} onChange={(event) => updateField('price', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Price" type="number" min="0" step="0.01" />
@@ -124,6 +135,7 @@ function buildFormState(product?: ProductRecord): ProductFormState {
     category: product?.category ?? '',
     price: product ? String(product.price / 100) : '',
     original_price: product?.original_price ? String(product.original_price / 100) : '',
-    badge: product?.badge ?? ''
+    badge: product?.badge ?? '',
+    image_url: product?.image_url ?? ''
   };
 }

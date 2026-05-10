@@ -1,9 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Check, Eye, Package, Plus } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
-import type { ProductRecord } from '@/types';
+import type { BusinessProfile, ProductRecord } from '@/types';
+import { SectionImageHeader } from '@/components/public/SectionImageHeader';
 
 export function ProductsTab({
   id = 'products',
@@ -18,7 +20,7 @@ export function ProductsTab({
   getQuantity
 }: {
   id?: string;
-  business: { name: string };
+  business: BusinessProfile;
   products: ProductRecord[];
   categories: string[];
   activeCategory: string;
@@ -30,9 +32,12 @@ export function ProductsTab({
 }) {
   return (
     <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-20 pt-4 md:pb-16">
-      <div className="px-3">
-        <h2 className="font-display text-[28px] leading-[1.02] text-[var(--text-1)]">Shop</h2>
-      </div>
+      <SectionImageHeader
+        title="Shop"
+        subtitle="Studio essentials, recovery tools, and digital plans you can buy in seconds."
+        imageUrl={business.cover_image_url}
+        compact
+      />
       <div className="flex gap-2 overflow-x-auto pb-1">
         {categories.map((category) => {
           const active = category === activeCategory;
@@ -72,8 +77,21 @@ export function ProductsTab({
                 }}
                 className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-inset"
               >
-                <div className="relative flex h-24 items-center justify-center bg-[image:var(--media-gradient)]">
-                  <Package className="h-10 w-10" style={{ color: 'color-mix(in srgb, var(--accent-strong) 45%, transparent)' }} strokeWidth={1.25} />
+                <div className="relative h-28 overflow-hidden bg-[image:var(--media-gradient)]">
+                  {product.image_url ? (
+                    <Image
+                      src={product.image_url}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, 220px"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <Package className="h-10 w-10" style={{ color: 'color-mix(in srgb, var(--accent-strong) 45%, transparent)' }} strokeWidth={1.25} />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-white/10" />
                   {product.badge ? (
                     <span className="absolute left-2 top-2 rounded-full bg-[var(--badge-bg)] px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--badge-text)]">
                       {product.badge}
