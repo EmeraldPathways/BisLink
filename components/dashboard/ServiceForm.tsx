@@ -6,12 +6,10 @@ import { ImageUploadField } from '@/components/dashboard/ImageUploadField';
 import type { ServiceRecord } from '@/types';
 
 type ServiceFormState = {
-  emoji: string;
   name: string;
   description: string;
   duration_minutes: string;
   price: string;
-  tag: string;
   image_url: string;
 };
 
@@ -37,13 +35,11 @@ export function ServiceForm({ service }: { service?: ServiceRecord }) {
     setError(null);
     setMessage(null);
     const payload = {
-      emoji: form.emoji,
       name: form.name,
       description: form.description,
       duration_minutes: Number(form.duration_minutes),
       price: Math.round(Number(form.price || '0') * 100),
-      tag: form.tag,
-      image_url: form.image_url
+      image_url: form.image_url,
     };
 
     const res = await fetch(service ? `/api/owner/services/${service.id}` : '/api/owner/services', {
@@ -80,7 +76,6 @@ export function ServiceForm({ service }: { service?: ServiceRecord }) {
         ) : null}
       </div>
       <div className="mt-5 grid gap-3">
-        <input value={form.emoji} onChange={(event) => updateField('emoji', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Emoji" />
         <input value={form.name} onChange={(event) => updateField('name', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Name" />
         <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} className="min-h-[120px] w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Description" />
         <ImageUploadField
@@ -95,7 +90,6 @@ export function ServiceForm({ service }: { service?: ServiceRecord }) {
           <input value={form.duration_minutes} onChange={(event) => updateField('duration_minutes', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Duration" type="number" min="5" step="5" />
           <input value={form.price} onChange={(event) => updateField('price', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Price" type="number" min="0" step="0.01" />
         </div>
-        <input value={form.tag} onChange={(event) => updateField('tag', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Tag (optional)" />
         <button onClick={submit} disabled={isPending} className="rounded-2xl bg-[var(--color-void)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60">
           {service ? 'Save changes' : 'Create service'}
         </button>
@@ -108,12 +102,10 @@ export function ServiceForm({ service }: { service?: ServiceRecord }) {
 
 function buildFormState(service?: ServiceRecord): ServiceFormState {
   return {
-    emoji: service?.emoji ?? '✨',
     name: service?.name ?? '',
     description: service?.description ?? '',
     duration_minutes: service ? String(service.duration_minutes) : '60',
     price: service ? String(service.price / 100) : '',
-    tag: service?.tag ?? '',
     image_url: service?.image_url ?? ''
   };
 }

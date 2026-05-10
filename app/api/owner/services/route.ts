@@ -5,7 +5,7 @@ import { requireOwnerBusiness } from '@/lib/owner-api';
 import { isMissingColumnError } from '@/lib/supabase/schema-compat';
 
 const schema = z.object({
-  emoji: z.string().trim().min(1).max(8),
+  emoji: z.string().trim().min(1).max(8).optional().default('✨'),
   name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(1000).default(''),
   duration_minutes: z.coerce.number().int().min(5).max(480),

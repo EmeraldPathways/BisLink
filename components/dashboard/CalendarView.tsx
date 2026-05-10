@@ -1,8 +1,11 @@
 'use client';
 
 import { useIsMobile } from '@/hooks/useBreakpoint';
-import { formatTimeLabel } from '@/lib/utils/formatting';
-import type { BusinessProfile, DashboardBookingRecord } from '@/types';
+import type {
+  AvailabilityRecord,
+  BusinessProfile,
+  DashboardBookingRecord,
+} from '@/types';
 import {
   formatDayKey,
   getBusinessTodayKey,
@@ -11,10 +14,10 @@ import {
   isSameBusinessDay,
   shiftDayKey,
 } from './calendar-date';
+import { deriveCalendarHours, formatCalendarHourLabel } from './calendar-hours';
 import { MobileCalendar } from './MobileCalendar';
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const hours = Array.from({ length: 14 }, (_, index) => 7 + index);
 
 function colorForStatus(status: DashboardBookingRecord['status']) {
   if (status === 'completed') return 'border-l-green-500 bg-green-50/50';
@@ -25,24 +28,32 @@ function colorForStatus(status: DashboardBookingRecord['status']) {
 export function CalendarView({
   business,
   bookings,
+  availability,
 }: {
   business: BusinessProfile;
   bookings: DashboardBookingRecord[];
+  availability: AvailabilityRecord[];
 }) {
   const isMobile = useIsMobile();
   const todayKey = getBusinessTodayKey(business.timezone);
   const weekStartKey = getStartOfWeekKey(todayKey);
   const weekDays = Array.from({ length: 7 }, (_, index) => shiftDayKey(weekStartKey, index));
   const weekEndKey = weekDays[6]!;
-  const weekRange = `${formatDayKey(weekStartKey, { month: 'short', day: 'numeric' })} — ${formatDayKey(weekEndKey, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  const weekRange = `${formatDayKey(weekStartKey, { month: 'short', day: 'numeric' })} â€” ${formatDayKey(weekEndKey, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  const hours = deriveCalendarHours(availability);
 
   if (isMobile) {
-    return <MobileCalendar business={business} bookings={bookings} />;
+    return (
+      <MobileCalendar
+        business={business}
+        bookings={bookings}
+        availability={availability}
+      />
+    );
   }
 
   return (
     <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
-      {/* Header */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-4xl">Weekly calendar</h2>
@@ -75,7 +86,6 @@ export function CalendarView({
         </div>
       </div>
 
-      {/* Grid */}
       <div className="grid grid-cols-[80px_repeat(7,minmax(0,1fr))] gap-2">
         <div />
         {days.map((day, index) => {
@@ -121,10 +131,7 @@ function FragmentRow({
   return (
     <>
       <div className="pt-4 text-right text-xs text-[var(--color-text-secondary)]">
-        {formatTimeLabel(
-          new Date(`2024-01-01T${String(hour).padStart(2, '0')}:00:00`),
-          business.timezone,
-        )}
+        {formatCalendarHourLabel(hour)}
       </div>
       {weekDays.map((day) => {
         const booking = bookings.find(

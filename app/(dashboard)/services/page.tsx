@@ -8,11 +8,12 @@ export const dynamic = 'force-dynamic';
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { edit?: string };
+  searchParams?: Promise<{ edit?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const { services } = await getServicesData();
   const selectedService =
-    services.find((service) => service.id === searchParams?.edit) ?? undefined;
+    services.find((service) => service.id === resolvedSearchParams?.edit) ?? undefined;
 
   return (
     <div className="grid gap-6 md:grid-cols-[1fr_360px]">

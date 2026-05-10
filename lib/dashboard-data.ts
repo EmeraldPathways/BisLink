@@ -69,16 +69,27 @@ export async function getCalendarData() {
   const supabase = createAdminClient() ?? (await createClient());
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 7);
-  const { data: bookings } = await supabase
-    .from('bookings')
-    .select('id,business_id,service_id,customer_name,customer_email,customer_phone,start_time,end_time,status,payment_status,payment_intent_id,amount_paid,currency,review_token,notes,confirmation_sent,google_event_id')
-    .eq('business_id', business.id)
-    .gte('start_time', weekStart.toISOString())
-    .lt('start_time', weekEnd.toISOString())
-    .order('start_time', { ascending: true });
+  const [{ data: bookings }, { data: availability }] = await Promise.all([
+    supabase
+      .from('bookings')
+      .select('id,business_id,service_id,customer_name,customer_email,customer_phone,start_time,end_time,status,payment_status,payment_intent_id,amount_paid,currency,review_token,notes,confirmation_sent,google_event_id')
+      .eq('business_id', business.id)
+      .gte('start_time', weekStart.toISOString())
+      .lt('start_time', weekEnd.toISOString())
+      .order('start_time', { ascending: true }),
+    supabase
+      .from('availability')
+      .select('id,business_id,day_of_week,start_time,end_time,is_active')
+      .eq('business_id', business.id)
+      .order('day_of_week', { ascending: true }),
+  ]);
 
   const serviceMap = await getServiceMap(business.id);
-  return { business, bookings: enrichBookings((bookings ?? []) as BookingRecord[], serviceMap) };
+  return {
+    business,
+    bookings: enrichBookings((bookings ?? []) as BookingRecord[], serviceMap),
+    availability: ((availability ?? []) as AvailabilityRecord[]).map(normalizeAvailability),
+  };
 }
 
 export async function getCustomersData() {

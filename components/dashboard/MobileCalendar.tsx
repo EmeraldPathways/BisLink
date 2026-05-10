@@ -2,8 +2,11 @@
 
 import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { useState } from 'react';
-import { formatTimeLabel } from '@/lib/utils/formatting';
-import type { BusinessProfile, DashboardBookingRecord } from '@/types';
+import type {
+  AvailabilityRecord,
+  BusinessProfile,
+  DashboardBookingRecord,
+} from '@/types';
 import {
   formatDayKey,
   getBusinessTodayKey,
@@ -11,8 +14,7 @@ import {
   isSameBusinessDay,
   shiftDayKey,
 } from './calendar-date';
-
-const HOURS = Array.from({ length: 14 }, (_, index) => 7 + index);
+import { deriveCalendarHours, formatCalendarHourLabel } from './calendar-hours';
 
 function colorForStatus(status: DashboardBookingRecord['status']) {
   if (status === 'completed') return 'border-l-green-500 bg-green-50/50';
@@ -22,10 +24,12 @@ function colorForStatus(status: DashboardBookingRecord['status']) {
 
 export function MobileCalendar({
   business,
-  bookings
+  bookings,
+  availability,
 }: {
   business: BusinessProfile;
   bookings: DashboardBookingRecord[];
+  availability: AvailabilityRecord[];
 }) {
   const [selectedDayKey, setSelectedDayKey] = useState(() => getBusinessTodayKey(business.timezone));
   const todayKey = getBusinessTodayKey(business.timezone);
@@ -34,10 +38,10 @@ export function MobileCalendar({
   const dayBookings = bookings.filter((booking) =>
     isSameBusinessDay(booking.start_time, selectedDayKey, business.timezone)
   );
+  const hours = deriveCalendarHours(availability);
 
   return (
     <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-4 md:p-5">
-      {/* Day Selector */}
       <div className="mb-5 flex items-center justify-between gap-3">
         <button
           type="button"
@@ -67,9 +71,8 @@ export function MobileCalendar({
         </button>
       </div>
 
-      {/* Time Slots */}
       <div className="space-y-1.5">
-        {HOURS.map((hour) => {
+        {hours.map((hour) => {
           const booking = dayBookings.find(
             (item) => getHourInTimezone(item.start_time, business.timezone) === hour
           );
@@ -77,10 +80,7 @@ export function MobileCalendar({
           return (
             <div key={hour} className="grid grid-cols-[52px_1fr] gap-2 md:grid-cols-[60px_1fr]">
               <span className="pt-3 text-right text-xs text-[var(--color-text-secondary)]">
-                {formatTimeLabel(
-                  new Date(`2024-01-01T${String(hour).padStart(2, '0')}:00:00`),
-                  business.timezone
-                )}
+                {formatCalendarHourLabel(hour)}
               </span>
               <div
                 className={`min-h-[56px] rounded-[14px] p-2 ${
