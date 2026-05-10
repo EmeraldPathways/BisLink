@@ -6,15 +6,17 @@ export function SectionImageHeader({
   title,
   subtitle,
   imageUrl,
-  compact = false
+  compact = false,
+  attached = false
 }: {
   title: string;
   subtitle: string;
   imageUrl?: string | null;
   compact?: boolean;
+  attached?: boolean;
 }) {
   return (
-    <div className={`relative overflow-hidden rounded-[28px] ${compact ? 'min-h-[210px]' : 'min-h-[250px]'}`}>
+    <div className={`relative overflow-hidden ${attached ? 'rounded-none' : 'rounded-[28px]'} ${compact ? 'min-h-[210px]' : 'min-h-[250px]'}`}>
       {imageUrl ? (
         <Image
           src={imageUrl}

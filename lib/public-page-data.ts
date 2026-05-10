@@ -1,5 +1,6 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { isMissingRelationError } from '@/lib/supabase/schema-compat';
+import { listServices } from '@/lib/service-schema';
 import { normalizeBusiness } from '@/lib/owner';
 import {
   normalizeCredential,
@@ -22,13 +23,8 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
 
   if (!business) return null;
 
-  const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, portfolioResult] = await Promise.all([
-    supabase
-      .from('services')
-      .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji,image_url')
-      .eq('business_id', business.id)
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true }),
+  const [servicesResult, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, portfolioResult] = await Promise.all([
+    listServices(supabase, String(business.id), { onlyActive: true }),
     supabase
       .from('products')
       .select('id,business_id,name,description,price,original_price,category,badge,emoji,image_url,is_active,in_stock,is_digital,digital_url,sort_order,rating,review_count')
@@ -56,10 +52,13 @@ export async function getPublicBusinessPageBySlug(slug: string): Promise<PublicP
   if (portfolioResult.error && !isMissingRelationError(portfolioResult.error, 'portfolio_items')) {
     throw portfolioResult.error;
   }
+  if (servicesResult.error) {
+    throw servicesResult.error;
+  }
 
   return {
     business: normalizeBusiness(business as Record<string, unknown>),
-    services: (services ?? []).map(normalizeService),
+    services: (servicesResult.data ?? []).map(normalizeService),
     products: (products ?? []).map(normalizeProduct),
     reviews: (reviews ?? []).map(normalizeReview),
     credentials: (credentials ?? []).map(normalizeCredential),

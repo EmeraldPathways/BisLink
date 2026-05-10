@@ -50,8 +50,7 @@ function stackSections(items: Array<ReactNode | null | undefined>) {
   const visibleItems = items.filter(Boolean) as ReactNode[];
 
   return visibleItems.map((item, index) => (
-    <div key={index} className={index === 0 ? '' : 'mt-6 pt-6'}>
-      {index > 0 ? <div className="mx-auto mb-6 h-px w-[calc(100%-3rem)] max-w-[420px] bg-[var(--page-border)]" /> : null}
+    <div key={index} className={index === 0 ? '' : 'mt-3'}>
       {item}
     </div>
   ));

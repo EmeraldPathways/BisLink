@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requireOwnerBusiness } from '@/lib/owner-api';
+import { isMissingColumnError } from '@/lib/supabase/schema-compat';
 
 const schema = z.object({
   emoji: z.string().trim().min(1).max(8).optional(),
@@ -37,13 +38,18 @@ export async function PATCH(
   }
 
   const { supabase, business } = owner;
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('services')
     .update(updates)
     .eq('id', id)
     .eq('business_id', business.id)
     .select('*')
     .single();
+
+  if (error && 'image_url' in updates && isMissingColumnError(error, 'services', 'image_url')) {
+    const { image_url: _imageUrl, ...legacyUpdates } = updates;
+    ({ data, error } = await supabase.from('services').update(legacyUpdates).eq('id', id).eq('business_id', business.id).select('*').single());
+  }
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

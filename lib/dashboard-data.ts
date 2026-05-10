@@ -1,6 +1,7 @@
 import { addDays, format, startOfWeek, subDays } from 'date-fns';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { isMissingRelationError } from '@/lib/supabase/schema-compat';
+import { listServices } from '@/lib/service-schema';
 import { getStripe } from '@/lib/stripe/client';
 import { getCurrentOwnerBusiness } from '@/lib/owner';
 import type {
@@ -95,11 +96,8 @@ export async function getCustomersData() {
 export async function getServicesData() {
   const { business } = await getCurrentOwnerBusiness();
   const supabase = createAdminClient() ?? (await createClient());
-  const { data } = await supabase
-    .from('services')
-    .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji,image_url')
-    .eq('business_id', business.id)
-    .order('sort_order', { ascending: true });
+  const { data, error } = await listServices(supabase, business.id);
+  if (error) throw error;
 
   return { business, services: ((data ?? []) as ServiceRecord[]).map(normalizeService) };
 }
@@ -161,12 +159,8 @@ export async function getAvailabilityData() {
 export async function getLinkData() {
   const { business } = await getCurrentOwnerBusiness();
   const supabase = createAdminClient() ?? (await createClient());
-  const [{ data: services }, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, portfolioResult] = await Promise.all([
-    supabase
-      .from('services')
-      .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji,image_url')
-      .eq('business_id', business.id)
-      .order('sort_order', { ascending: true }),
+  const [servicesResult, { data: products }, { data: reviews }, { data: credentials }, { data: specialisms }, portfolioResult] = await Promise.all([
+    listServices(supabase, business.id),
     supabase
       .from('products')
       .select('id,business_id,name,description,price,original_price,category,badge,emoji,image_url,is_active,in_stock,is_digital,digital_url,sort_order,rating,review_count')
@@ -189,12 +183,15 @@ export async function getLinkData() {
   if (portfolioResult.error && !isMissingRelationError(portfolioResult.error, 'portfolio_items')) {
     throw portfolioResult.error;
   }
+  if (servicesResult.error) {
+    throw servicesResult.error;
+  }
 
   return {
     business,
     publicPage: {
       business,
-      services: ((services ?? []) as ServiceRecord[]).map(normalizeService),
+      services: ((servicesResult.data ?? []) as ServiceRecord[]).map(normalizeService),
       products: ((products ?? []) as ProductRecord[]).map(normalizeProduct),
       reviews: ((reviews ?? []) as ReviewRecord[]).map(normalizeReview),
       credentials: ((credentials ?? []) as CredentialRecord[]).map(normalizeCredential),
@@ -389,10 +386,8 @@ function getContactDeliveryStatus({
 
 async function getServiceMap(businessId: string) {
   const supabase = createAdminClient() ?? (await createClient());
-  const { data } = await supabase
-    .from('services')
-    .select('id,business_id,name,description,duration_minutes,price,currency,max_concurrent,buffer_after,is_active,sort_order,tag,emoji,image_url')
-    .eq('business_id', businessId);
+  const { data, error } = await listServices(supabase, businessId);
+  if (error) throw error;
 
   return new Map(((data ?? []) as ServiceRecord[]).map((service) => [service.id, normalizeService(service)]));
 }

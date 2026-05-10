@@ -36,103 +36,105 @@ export function AboutTab({
   const ctaLabel = business.primary_cta_label?.trim() || 'Book Session';
 
   return (
-    <section id={id} className="scroll-mt-20 space-y-5 px-2 pb-8 pt-4">
-      <SectionImageHeader
-        title="About"
-        subtitle="Get to know me and my journey."
-        imageUrl={business.cover_image_url}
-      />
+    <section id={id} className="scroll-mt-20 px-2 pb-8 pt-3">
+      <div className="overflow-hidden rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] shadow-[var(--card-shadow)]">
+        <SectionImageHeader
+          title="About"
+          subtitle="Get to know me and my journey."
+          imageUrl={business.cover_image_url}
+          attached
+        />
 
-      {hasBio ? (
-        <div className="rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-6 py-7 shadow-[var(--card-shadow)]">
-          <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)]">
-              <UserRound className="h-7 w-7" aria-hidden="true" />
+        <div className="space-y-5 px-4 py-5 sm:px-5 sm:py-6">
+          {hasBio ? (
+            <div className="rounded-[28px] bg-[var(--page-surface-muted)] px-5 py-5">
+              <div className="flex items-start gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)]">
+                  <UserRound className="h-7 w-7" aria-hidden="true" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-display text-[28px] leading-none text-[var(--text-1)]">Story</h3>
+                  <p className="mt-4 text-[16px] leading-8 text-[var(--text-2)]">{storyPreview}</p>
+                </div>
+              </div>
+              {storyParagraphs.length > 1 ? (
+                <div className="mt-4 space-y-4 pt-4">
+                  {storyParagraphs.slice(1).map((paragraph, index) => (
+                    <p key={index} className="text-[14px] leading-[1.8] text-[var(--text-2)]">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              ) : null}
             </div>
-            <div className="min-w-0">
-              <h3 className="font-display text-[28px] leading-none text-[var(--text-1)]">Story</h3>
-              <p className="mt-5 text-[16px] leading-9 text-[var(--text-2)]">{storyPreview}</p>
-            </div>
-          </div>
-          {storyParagraphs.length > 1 ? (
-            <div className="mt-5 space-y-4 border-t border-[var(--page-border)] pt-5">
-              {storyParagraphs.slice(1).map((paragraph, index) => (
-                <p key={index} className="text-[14px] leading-[1.8] text-[var(--text-2)]">
-                  {paragraph}
-                </p>
+          ) : null}
+
+          {stats.length ? (
+            <div className={`grid gap-3 ${stats.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+              {stats.map((stat) => (
+                <div key={stat.label} className="rounded-[24px] bg-[var(--page-surface-muted)] px-5 py-5">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)]">
+                      <stat.icon className="h-7 w-7" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="font-display text-[34px] font-semibold leading-none text-[var(--text-1)]">{stat.value}</p>
+                      <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-[var(--accent-strong)]">{stat.label}</p>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           ) : null}
-        </div>
-      ) : null}
 
-      {stats.length ? (
-        <div className={`grid gap-4 ${stats.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-[26px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-6 py-6 shadow-[var(--card-shadow)]"
-            >
+          {onBook ? (
+            <div className="flex items-center justify-between gap-4 rounded-[28px] bg-[linear-gradient(135deg,var(--page-surface-muted),var(--page-card-bg))] px-5 py-5">
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)]">
-                  <stat.icon className="h-7 w-7" aria-hidden="true" />
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/60 bg-[var(--accent-soft)] text-[var(--accent-strong)]">
+                  <Calendar className="h-7 w-7" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="font-display text-[34px] font-semibold leading-none text-[var(--text-1)]">{stat.value}</p>
-                  <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-[var(--accent-strong)]">{stat.label}</p>
+                  <p className="text-[14px] font-semibold text-[var(--text-1)]">Ready to start your journey?</p>
+                  <p className="mt-1 text-[14px] text-[var(--text-2)]">Book a session and let&apos;s work together.</p>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={onBook}
+                className="shrink-0 rounded-[18px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_32px_rgba(139,104,37,0.18)]"
+              >
+                {ctaLabel}
+              </button>
             </div>
-          ))}
-        </div>
-      ) : null}
+          ) : null}
 
-      {onBook ? (
-        <div className="flex items-center justify-between gap-4 rounded-[30px] border border-[var(--page-border)] bg-[linear-gradient(135deg,var(--page-surface-muted),var(--page-card-bg))] px-5 py-5 shadow-[var(--card-shadow)]">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/60 bg-[var(--accent-soft)] text-[var(--accent-strong)]">
-              <Calendar className="h-7 w-7" aria-hidden="true" />
+          {hasCredentials ? (
+            <div className="rounded-[24px] bg-[var(--page-surface-muted)] p-5">
+              <h3 className="font-display text-[19px] text-[var(--text-1)]">Credentials</h3>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {credentials.map((credential) => (
+                  <span key={credential.id} className="flex items-center gap-1 rounded-full bg-[var(--badge-soft-bg)] px-3 py-1.5 text-[11px] font-semibold text-[var(--badge-soft-text)]">
+                    <Check className="h-3 w-3" aria-hidden="true" /> {credential.label}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div>
-              <p className="text-[14px] font-semibold text-[var(--text-1)]">Ready to start your journey?</p>
-              <p className="mt-1 text-[14px] text-[var(--text-2)]">Book a session and let&apos;s work together.</p>
+          ) : null}
+
+          {hasSpecialisms ? (
+            <div className="rounded-[24px] bg-[var(--page-surface-muted)] p-5">
+              <h3 className="font-display text-[19px] text-[var(--text-1)]">Specialisms</h3>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {specialisms.map((specialism) => (
+                  <span key={specialism.id} className="rounded-full bg-[var(--page-card-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--text-2)]">
+                    {specialism.label}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-          <button
-            type="button"
-            onClick={onBook}
-            className="shrink-0 rounded-[18px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_32px_rgba(139,104,37,0.18)]"
-          >
-            {ctaLabel}
-          </button>
+          ) : null}
         </div>
-      ) : null}
-
-      {hasCredentials ? (
-        <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
-          <h3 className="font-display text-[19px] text-[var(--text-1)]">Credentials</h3>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {credentials.map((credential) => (
-              <span key={credential.id} className="flex items-center gap-1 rounded-full bg-[var(--badge-soft-bg)] px-3 py-1.5 text-[11px] font-semibold text-[var(--badge-soft-text)]">
-                <Check className="h-3 w-3" aria-hidden="true" /> {credential.label}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      {hasSpecialisms ? (
-        <div className="rounded-[var(--card-radius)] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
-          <h3 className="font-display text-[19px] text-[var(--text-1)]">Specialisms</h3>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {specialisms.map((specialism) => (
-              <span key={specialism.id} className="rounded-full bg-[var(--page-card-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--text-2)]">
-                {specialism.label}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
+      </div>
     </section>
   );
 }
