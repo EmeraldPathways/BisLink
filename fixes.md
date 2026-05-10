@@ -2,6 +2,17 @@ Project Audit and Stabilization Plan
 Summary
 Static review and non-mutating checks found a mix of confirmed defects and launch-blocking gaps.
 
+Recent fixes and shipped behavior
+
+- Owner dashboard calendar now derives visible hours from active availability instead of a hard-coded range, and slot labels render as local business hours instead of timezone-shifted synthetic dates.
+- Owner dashboard service edit flow was repaired for Next 16 async `searchParams`; service cards now support delete and no longer show emoji in the list UI.
+- Owner dashboard product edit flow was repaired with the same async `searchParams` handling; product cards now support delete and no longer show emoji in the list UI.
+- Owner service form no longer exposes `emoji` or `tag`; owner product form no longer exposes the emoji picker. Both rely on server-side defaults where needed.
+- Shared helper added for dashboard edit query parsing so product and service dashboard pages remain aligned under Next 16 route prop behavior.
+- Product image uploads were verified against the live project and work correctly.
+- Service image uploads were traced to remote schema drift: the linked Supabase project had the `business-media` bucket, but the live `services` table was missing `image_url`.
+- Live repair was applied directly to Supabase with `ALTER TABLE services ADD COLUMN IF NOT EXISTS image_url TEXT;`, and the new column was verified afterward.
+
 Checks already run:
 
 Root npm run typecheck: fails because tsconfig.json hard-includes stale .next/types/**/*.ts.

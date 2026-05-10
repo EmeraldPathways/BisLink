@@ -80,7 +80,7 @@ The public business page now supports three curated per-business presets driven 
 
 Theme presets are resolved through `lib/business-themes.ts` and applied at the `PublicPage` container level so layout stays shared while colors, fonts, gradients, and surfaces change by business.
 
-This feature depends on the `businesses.theme_key` column and check constraint defined in `supabase/migrations/0010_business_theme_presets.sql`. Any new or drifted environment must have that schema change applied for owner theme saves to work.
+This feature depends on the `businesses.theme_key` column and its follow-up constraint expansion in `supabase/migrations/0010_business_theme_presets.sql` and `supabase/migrations/0014_expand_business_theme_constraint.sql`. Any new or drifted environment must have those schema changes applied for owner theme saves to work across all six presets.
 
 ### Hero Section
 Dark gradient: `linear-gradient(165deg, #0C0B09 0%, #1C1610 55%, #0F0D0B 100%)` with radial gold glow accents and staggered motion on load.
@@ -132,15 +132,16 @@ components/
     SignupForm.tsx              Client sign-up form
   public/
     PublicPage.tsx              Shared live/demo public page shell with frame-aware overlays
-    HeroSection.tsx             Public hero card with cover image, inline announcement, avatar, social row, rating, location, and CTA
-    MobileBottomNav.tsx         Shared bottom navigation used on both mobile and desktop public pages
+    HeroSection.tsx             Public hero card with cover image, stronger announcement bar, compact profile row, social row, location, and CTA
+    SectionImageHeader.tsx      Reusable image-led section header used by bookings, shop, and about
+    MobileBottomNav.tsx         Shared fixed bottom navigation with stable Home / Book / Shop / About / More primary actions
     TabBar.tsx                  Legacy semantic section nav component retained in the repo but no longer mounted on the live public page
     tabs/
-      BookingsTab.tsx           Compact service-card grid
-      ProductsTab.tsx           Product grid + filters + accessible product detail entry
+      BookingsTab.tsx           Editorial booking section with image header and service cards styled to match product cards
+      ProductsTab.tsx           Product grid + filters + real product-image support + accessible product detail entry without an extra outer wrapper card
       ReviewsTab.tsx            Rating summary + review cards using shared review counts
-      AboutTab.tsx              Story, stats, credentials, specialisms
-      ContactTab.tsx            Contact rows, validated form, and theme-colored SVG map-style location card
+      AboutTab.tsx              Image-led about section with story, stats, credentials, specialisms, and booking CTA
+      ContactTab.tsx            Compact top-aligned contact form, editorial contact cards, and city-map style location card
     sheets/
       CartSheet.tsx             Product cart + checkout, demo-frame aware
       ProductSheet.tsx          Product detail sheet, demo-frame aware
@@ -158,7 +159,8 @@ components/
     StatsBar.tsx                Mobile 2x2 stat layout
     LinkEditor.tsx              Split owner editor for My Link content or Theme Settings controls
     LinkWorkspace.tsx           Shared owner editor + live public preview wrapper for `/link` and `/link/theme`
-    ProductForm.tsx             Owner product create/edit form
+    ProductForm.tsx             Owner product create/edit form with product image upload and no owner emoji picker
+    ServiceForm.tsx             Owner service create/edit form with service image upload and simplified fields
     ReviewsManager.tsx          Owner review moderation UI
   payments/
     EmbeddedPaymentForm.tsx     Shared Stripe Payment Element wrapper
@@ -227,14 +229,25 @@ Default active tab: `bookings`.
 - About tab sections now hide empty content, avoid fake stats for new businesses, and present new profiles with cleaner fallback labels.
 - Hero metadata no longer shows noisy "New profile" copy, and zero-review profiles no longer render an orphaned divider before the location.
 - Hero presentation was rebuilt into a lighter editorial card with a cover image, avatar, single social-icon row, inline announcement bar directly below the hero image, review metadata, location row, and full-width CTA.
-- Public navigation now reuses the same fixed bottom-menu component across mobile and desktop instead of using a separate desktop top tab bar.
-- Shared public-page sections now render with tighter spacing and divider lines between sections for a more compact vertical rhythm.
+- Public navigation now reuses the same fixed bottom-menu component across mobile and desktop and keeps a stable Home / Book / Shop / About / More primary nav instead of switching section labels by state.
+- Shared public-page sections now render with tighter spacing, smaller section titles, and centered dividers for a cleaner vertical rhythm.
 - Contact form fields now use visible labels, inline validation, and a honeypot-backed submission payload.
 - Contact delivery now resolves the business via the admin-capable lookup path, falls back to `business.email` when `contact_email` is blank, and surfaces explicit Resend send failures from `/api/contact`.
-- Location presentation is now a theme-aware linked map card using an inline SVG background, centered Google Maps CTA, clearer address hierarchy, and parking-note support instead of duplicated placeholder address text.
+- Contact presentation now uses a reference-matched editorial two-column card layout, a compact top-aligned contact form, and a cleaner hierarchy for direct contact methods.
+- Location presentation is now a theme-aware linked map card using a denser city-map style inline SVG background, centered Google Maps CTA, clearer address hierarchy, and parking-note support instead of duplicated placeholder address text.
 - Booking sheet scrolling was hardened on mobile by switching the sheet panel to an explicit viewport-tied height so the date step remains scrollable inside the bottom sheet.
-- Booking service cards were compacted to match the density and layout language of product cards.
-- Booking date selection was redesigned into a centered 7-column mobile calendar with adjacent-month filler days, tighter month controls, and a more reference-matched visual layout.
+- Booking service cards were redesigned into taller editorial cards with icon treatment, larger title hierarchy, a time/price divider row, and a dedicated full-width booking CTA.
+- Booking date selection was redesigned into a centered 7-column mobile calendar with month-only dates, tighter month controls, and a more reference-matched visual layout.
+- Bookings, shop, and about sections now use reusable image-led section headers for stronger visual hierarchy on the public page.
+- Product cards and product detail sheets now render uploaded product imagery, and service cards now mirror the product-card layout with a booking icon action.
+- Owner dashboard service and product forms now support direct image uploads, with service images backed by `supabase/migrations/0015_service_images.sql`.
+- Owner dashboard calendar hours now derive from live availability instead of a fixed 7 AM to 8 PM range, and the hour labels no longer shift incorrectly across timezones.
+- Owner dashboard service editing now works with Next 16 async `searchParams`, services now support delete in the dashboard, and service create/edit no longer exposes emoji or tag fields.
+- Owner dashboard product editing now uses the same async `searchParams` fix, products now support delete in the dashboard, and owner product/service cards no longer render emoji in the list view.
+- Owner dashboard product creation/editing no longer exposes the emoji picker; products now fall back to a server-side default emoji instead.
+- The live Supabase `services.image_url` column was applied directly to the linked project after drift was detected, restoring service-image persistence for owner uploads.
+- Product cards now sit directly in the shop section grid without an extra outer container card.
+- Empty portfolio placeholder cards no longer appear in the owner mobile preview when no active portfolio items exist.
 - Public slug pages now render dynamically rather than serving a short-lived cached not-found state, so newly created businesses appear immediately after setup.
 - Public styling is now theme-driven through `business.theme_key`, with six curated presets: `classic-luxe`, `wellness-studio`, `bright-performance`, `editorial-minimal`, `warm-studio`, and `dark-athletic`.
 - Owner dashboard editing is now split across `/link` and `/link/theme`, with live public-page preview on both screens.
@@ -302,8 +315,11 @@ GET    /admin/settings                   Internal environment / integration visi
 PATCH  /api/owner/business               Update owner business/profile settings
 POST   /api/owner/services               Create owner service
 PATCH  /api/owner/services/[id]          Update/toggle owner service
+DELETE /api/owner/services/[id]          Delete owner service
 POST   /api/owner/products               Create owner product
 PATCH  /api/owner/products/[id]          Update/toggle owner product
+DELETE /api/owner/products/[id]          Delete owner product
+POST   /api/owner/media                  Upload owner business/profile/product/service media
 POST   /api/owner/availability           Upsert owner weekly availability day
 POST   /api/owner/blocked-times          Create blocked time
 DELETE /api/owner/blocked-times/[id]     Remove blocked time
@@ -363,8 +379,14 @@ GET|POST /api/calendar/sync              Sync booking to Google Calendar
 - Sentry is wired for runtime error capture via `instrumentation.ts`, `instrumentation-client.ts`, and the global error boundary.
 - Owner and admin surfaces now include explicit sign-out actions instead of relying on manual route switching back to login pages.
 - Owner mutation routes now use the admin-capable Supabase path after server-side ownership has already been verified, avoiding RLS-related write failures on products and similar owner writes.
+- Owner product and service media uploads now share the `/api/owner/media` flow, with `kind` expanded to support both `product` and `service` assets.
 - Owner dashboard read routes now also use the admin-capable Supabase path after owner/business resolution, preventing false empty states where public pages have data but dashboard lists appear blank.
 - Owner service form error handling now converts structured validation payloads into readable text instead of crashing the dashboard when a Zod error object is returned.
+- Owner dashboard list cards for products and services are now text-first and no longer prepend emoji labels in the owner UI.
+- Owner dashboard product and service actions now include edit/delete flows directly on the list cards, alongside the active toggle.
+- Owner dashboard product and service editors now share a small async-search-param helper to stay compatible with Next 16 route prop semantics.
+- Owner dashboard calendar hour rendering now uses availability-derived bounds and local slot labels instead of timezone-shifted synthetic dates.
+- Service-image persistence on the linked Supabase project required a live `ALTER TABLE services ADD COLUMN image_url TEXT` repair because the remote migration history had drifted.
 - Middleware now explicitly protects all owner dashboard route-group pages (`/calendar`, `/services`, `/products`, `/customers`, `/reviews`, `/link`, `/link/theme`, `/payouts`, `/availability`) instead of relying only on layout-level redirects.
 
 ---
@@ -459,14 +481,23 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - public contact form submission
 - public review submission with duplicate protection
 - shared public `/demo` and `/[slug]` experience with sticky semantic tabs, frame-aware sheets in demo mode, and consistent review totals
+- public-page navigation and section polish:
+  - stable Home / Book / Shop / About / More bottom navigation
+  - centered section dividers and smaller section-title scale
+  - compact hero profile row and stronger announcement bar
+  - editorial service cards and flatter shop grid treatment
+  - simplified contact cards and location presentation
 - split owner editing across `/link` and `/link/theme`, with live preview on both pages
-- live Supabase schema alignment for `businesses.theme_key`, fixing owner dashboard theme persistence in the current BisLink project
+- live Supabase schema alignment for `businesses.theme_key`, including the follow-up constraint expansion required for the later `editorial-minimal`, `warm-studio`, and `dark-athletic` presets
 - dynamic public slug rendering so new business links are available immediately after setup
 - owner dashboard reads across bookings, customers, services, products, reviews, availability, link settings, and payouts
 - owner mutations for services, products, availability, blocked times, review visibility, and business profile updates
 - owner mutation reliability improvements:
   - admin-capable Supabase write path after ownership verification
   - readable service-form validation errors instead of React render crashes
+  - working product/service edit selection under Next 16 async `searchParams`
+  - delete actions for both product and service cards
+  - simplified owner-side product/service forms without exposed emoji controls
 - owner dashboard mobile remediation:
   - bottom navigation with More drawer
   - single-day mobile calendar
@@ -475,6 +506,7 @@ The app is now mostly live across owner, public, and payment-critical flows.
   - labeled My Link fields and stronger focus treatment
   - separate Theme Settings route for presets and brand styling
   - live preview on both owner editor pages
+  - weekly calendar hours now follow configured availability and render correct local labels
 - owner dashboard auth/session UX:
   - desktop sidebar sign-out action
   - mobile More drawer sign-out action
@@ -517,6 +549,12 @@ The app is now mostly live across owner, public, and payment-critical flows.
 - public review links now expire after 30 days instead of remaining valid indefinitely
 - middleware protection now covers the full owner route-group surface, closing the previous defense-in-depth gap outside `/dashboard`
 - current public-page UI/UX polish pass is complete across bookings, products, reviews, about, contact, and shared shell/footer behavior
+- public-page editorial refresh:
+  - image-led headers on bookings, shop, and about
+  - product and service card parity with real uploaded imagery
+  - compact contact form moved above contact cards
+  - city-map style location card treatment
+  - month-only booking calendar without adjacent-month filler dates
 
 ### Still incomplete / highest remaining risk
 
@@ -605,4 +643,4 @@ Acceptance:
 
 ## Explicitly Out of Scope for V1
 
-Multiple staff, group bookings, packages/bundles/discount codes, TikTok/Meta native booking, marketplace/discovery, loyalty points, SMS (email only), product photo upload (emoji thumbnail only), Google Maps iframe embed, tab state in URL hash, customer accounts (guest checkout only), waitlist, FAQ tab.
+Multiple staff, group bookings, packages/bundles/discount codes, TikTok/Meta native booking, marketplace/discovery, loyalty points, SMS (email only), Google Maps iframe embed, tab state in URL hash, customer accounts (guest checkout only), waitlist, FAQ tab.
