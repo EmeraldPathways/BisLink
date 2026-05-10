@@ -27,7 +27,9 @@ import { resolveBusinessTheme } from '@/lib/business-themes';
 import { getReviewBreakdownFromReviews, getReviewSummaryFromReviews } from '@/lib/reviews';
 import { formatPrice } from '@/lib/utils/formatting';
 import { HeroSection } from './HeroSection';
+import { FloatingCartTab } from './FloatingCartTab';
 import { MobileBottomNav } from './MobileBottomNav';
+import { shouldShowCartTab } from './cart-tab-state';
 import { PortfolioSection } from './sections/PortfolioSection';
 import { TrustStrip } from './sections/TrustStrip';
 import { type PublicSectionId } from './TabBar';
@@ -112,6 +114,7 @@ export function PublicPage({
   const showPortfolio = visiblePortfolioItems.length > 0;
   const showTrust = reviewSummary.publishedCount > 0 && publishedReviews.length > 0;
   const showReviews = reviewSummary.publishedCount > 2;
+  const showCartTab = shouldShowCartTab({ showProducts, count });
   const sections = useMemo(
     () =>
       [
@@ -373,31 +376,14 @@ export function PublicPage({
           onSelect={scrollToSection}
         />
 
-        <AnimatePresence>
-          {showProducts && count > 0 ? (
-            <motion.button
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
-              onClick={() => setCartOpen(true)}
-              className={`z-40 flex items-center justify-between rounded-[var(--button-radius)] bg-[var(--cta-bg)] px-4 py-4 text-[var(--cta-text)] shadow-[var(--panel-shadow)] ${
-                presentation === 'demo'
-                  ? 'sticky bottom-4 mx-4 mt-4 w-[calc(100%-32px)]'
-                  : 'fixed bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] inset-x-4 mx-auto w-auto max-w-[390px] md:bottom-[calc(env(safe-area-inset-bottom)+1rem)]'
-              }`}
-            >
-              <span className="flex items-center gap-3">
-                <span className="rounded-full bg-[var(--cta-accent-bg)] px-2 py-1 text-xs font-semibold text-[var(--cta-accent-text)]">{count}</span>
-                <span className="text-sm font-medium">{count} items</span>
-              </span>
-              <span className="text-sm font-semibold">{formatPrice(total)}</span>
-              <span className="rounded-full bg-[var(--cta-accent-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--cta-accent-text)]">Pay</span>
-            </motion.button>
-          ) : null}
-        </AnimatePresence>
       </div>
       {showOwnerPreview ? null : (
         <>
+          <AnimatePresence>
+            {presentation !== 'demo' && showCartTab ? (
+              <FloatingCartTab count={count} onOpen={() => setCartOpen(true)} />
+            ) : null}
+          </AnimatePresence>
           <MobileBottomNav
             activeItem={mobileActiveItem}
             onNavigate={(id) => {

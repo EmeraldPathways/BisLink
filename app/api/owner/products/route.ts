@@ -2,9 +2,10 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requireOwnerBusiness } from '@/lib/owner-api';
+import { getDefaultProductEmoji } from '@/lib/product-emoji';
 
 const schema = z.object({
-  emoji: z.string().trim().min(1).max(8),
+  emoji: z.string().trim().min(1).max(8).optional().default(getDefaultProductEmoji()),
   name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(1000).default(''),
   category: z.string().trim().max(80).optional().or(z.literal('')),

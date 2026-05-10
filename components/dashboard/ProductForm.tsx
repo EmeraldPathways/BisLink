@@ -3,11 +3,10 @@
 import { useEffect, useState, useTransition } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ImageUploadField } from '@/components/dashboard/ImageUploadField';
-import { productEmojiChoices } from '@/lib/product-options';
+import { getDefaultProductEmoji } from '@/lib/product-emoji';
 import type { ProductRecord } from '@/types';
 
 type ProductFormState = {
-  emoji: string;
   name: string;
   description: string;
   category: string;
@@ -40,7 +39,6 @@ export function ProductForm({ product }: { product?: ProductRecord }) {
     setMessage(null);
 
     const payload = {
-      emoji: form.emoji,
       name: form.name,
       description: form.description,
       category: form.category,
@@ -84,18 +82,6 @@ export function ProductForm({ product }: { product?: ProductRecord }) {
         ) : null}
       </div>
       <div className="mt-5 grid gap-3">
-        <div className="grid grid-cols-5 gap-2">
-          {productEmojiChoices.map((emoji) => (
-            <button
-              key={emoji}
-              type="button"
-              onClick={() => updateField('emoji', emoji)}
-              className={`rounded-xl border px-3 py-3 text-xl ${form.emoji === emoji ? 'border-[var(--color-void)] bg-[var(--color-surface-2)]' : 'border-[var(--color-border)]'}`}
-            >
-              {emoji}
-            </button>
-          ))}
-        </div>
         <input value={form.name} onChange={(event) => updateField('name', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Product name" />
         <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} className="min-h-[100px] w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Description" />
         <ImageUploadField
@@ -129,7 +115,6 @@ export function ProductForm({ product }: { product?: ProductRecord }) {
 
 function buildFormState(product?: ProductRecord): ProductFormState {
   return {
-    emoji: product?.emoji ?? productEmojiChoices[0] ?? '',
     name: product?.name ?? '',
     description: product?.description ?? '',
     category: product?.category ?? '',

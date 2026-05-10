@@ -202,8 +202,8 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
               className="rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)]"
             >
               <div className="flex flex-col items-center text-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),var(--page-surface-muted))] text-[var(--accent-strong)]">
-                  <row.icon className="h-4 w-4" strokeWidth={1.5} />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),var(--page-surface-muted))] text-[var(--accent-strong)]">
+                  <row.icon className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </div>
                 <p className="mt-6 text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-strong)]">{row.label}</p>
               </div>
