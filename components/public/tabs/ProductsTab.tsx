@@ -80,7 +80,7 @@ export function ProductsTab({
                     }}
                     className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-inset"
                   >
-                    <div className="relative h-28 overflow-hidden bg-[image:var(--media-gradient)]">
+                    <div className="relative aspect-square overflow-hidden bg-[image:var(--media-gradient)]">
                       {product.image_url ? (
                         <Image
                           src={product.image_url}

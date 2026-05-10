@@ -89,7 +89,7 @@ export function ProductForm({ product }: { product?: ProductRecord }) {
           description="Shown on the public shop cards and product detail view."
           value={form.image_url}
           kind="product"
-          aspectHint="Square image recommended."
+          aspectHint="Square image required."
           onChange={(url) => updateField('image_url', url)}
         />
         <input value={form.category} onChange={(event) => updateField('category', event.target.value)} className="w-full rounded-xl border border-[var(--color-border)] px-4 py-3" placeholder="Category" />

@@ -18,7 +18,7 @@ export function ServiceCard({
       onClick={onClick}
       className="group w-full overflow-hidden rounded-[20px] border-[1.5px] border-[var(--border)] bg-[var(--page-card-bg)] text-left shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)] active:scale-[0.98]"
     >
-      <div className="relative h-28 overflow-hidden bg-[image:var(--media-gradient)]">
+      <div className="relative aspect-square overflow-hidden bg-[image:var(--media-gradient)]">
         {service.image_url ? (
           <Image
             src={service.image_url}

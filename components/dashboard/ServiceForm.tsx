@@ -83,7 +83,7 @@ export function ServiceForm({ service }: { service?: ServiceRecord }) {
           description="Shown on the public booking cards."
           value={form.image_url}
           kind="service"
-          aspectHint="Square image recommended."
+          aspectHint="Square image required."
           onChange={(url) => updateField('image_url', url)}
         />
         <div className="grid grid-cols-2 gap-3">

@@ -48,7 +48,7 @@ export function AboutTab({
           attached
         />
 
-        <div className="relative -mt-8 space-y-5 rounded-t-[34px] bg-[var(--page-card-bg)] px-3 pb-5 pt-6">
+        <div className="space-y-5 px-4 py-4 sm:px-5 sm:py-5">
           {hasBio ? (
             <div className="rounded-[28px] border border-[rgba(214,194,164,0.38)] bg-[var(--page-card-bg)] px-6 py-7 shadow-[0_10px_26px_rgba(139,104,37,0.05)]">
               <div className="flex items-start gap-5">

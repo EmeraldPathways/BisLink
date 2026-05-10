@@ -1,10 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import sharp from 'sharp';
 import { requireOwnerBusiness } from '@/lib/owner-api';
 import { getBusinessMediaBucketMessage, isBucketNotFoundError } from '@/lib/supabase/schema-compat';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 const BUSINESS_MEDIA_BUCKET = 'business-media';
+const RATIO_TOLERANCE = 0.02;
 
 function getExtension(type: string) {
   switch (type) {
@@ -17,6 +19,26 @@ function getExtension(type: string) {
     default:
       return null;
   }
+}
+
+function getUploadRule(kind: string) {
+  if (kind === 'product' || kind === 'service') {
+    return { label: 'square (1:1)', ratio: 1 };
+  }
+
+  if (kind === 'cover') {
+    return { label: '16:9', ratio: 16 / 9 };
+  }
+
+  return null;
+}
+
+function getOrientedDimensions(width: number, height: number, orientation?: number) {
+  if (orientation && [5, 6, 7, 8].includes(orientation)) {
+    return { width: height, height: width };
+  }
+
+  return { width, height };
 }
 
 export async function POST(req: NextRequest) {
@@ -52,7 +74,32 @@ export async function POST(req: NextRequest) {
 
   const path = `businesses/${owner.business.id}/${kind}-${Date.now()}.${extension}`;
   const arrayBuffer = await file.arrayBuffer();
-  const { error: uploadError } = await owner.supabase.storage.from(BUSINESS_MEDIA_BUCKET).upload(path, arrayBuffer, {
+  const buffer = Buffer.from(arrayBuffer);
+
+  let uploadBuffer: Buffer;
+
+  try {
+    const image = sharp(buffer, { failOn: 'error' }).rotate();
+    const metadata = await image.metadata();
+
+    if (!metadata.width || !metadata.height) {
+      return NextResponse.json({ error: 'Could not read image dimensions' }, { status: 400 });
+    }
+
+    const dimensions = getOrientedDimensions(metadata.width, metadata.height, metadata.orientation);
+    const ratio = dimensions.width / dimensions.height;
+    const rule = getUploadRule(kind);
+
+    if (rule && Math.abs(ratio - rule.ratio) > RATIO_TOLERANCE) {
+      return NextResponse.json({ error: `${kind === 'cover' ? 'Hero images' : 'Product and service images'} must be ${rule.label}` }, { status: 400 });
+    }
+
+    uploadBuffer = await image.toBuffer();
+  } catch {
+    return NextResponse.json({ error: 'Only valid image files are allowed' }, { status: 400 });
+  }
+
+  const { error: uploadError } = await owner.supabase.storage.from(BUSINESS_MEDIA_BUCKET).upload(path, uploadBuffer, {
     contentType: file.type,
     upsert: true
   });

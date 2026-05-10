@@ -12,6 +12,48 @@ type ImageUploadFieldProps = {
   onChange: (url: string) => void;
 };
 
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const RATIO_TOLERANCE = 0.02;
+
+function getUploadRule(kind: ImageUploadFieldProps['kind']) {
+  if (kind === 'product' || kind === 'service') {
+    return { label: 'square (1:1)', ratio: 1 };
+  }
+
+  if (kind === 'cover') {
+    return { label: '16:9', ratio: 16 / 9 };
+  }
+
+  return null;
+}
+
+async function getImageDimensions(file: File) {
+  if (typeof createImageBitmap === 'function') {
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+
+    try {
+      return { width: bitmap.width, height: bitmap.height };
+    } finally {
+      bitmap.close();
+    }
+  }
+
+  const imageUrl = URL.createObjectURL(file);
+
+  try {
+    const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
+      const image = new window.Image();
+      image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+      image.onerror = () => reject(new Error('Could not load image'));
+      image.src = imageUrl;
+    });
+
+    return dimensions;
+  } finally {
+    URL.revokeObjectURL(imageUrl);
+  }
+}
+
 export function ImageUploadField({ label, description, value, kind, aspectHint, onChange }: ImageUploadFieldProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +63,21 @@ export function ImageUploadField({ label, description, value, kind, aspectHint, 
     setError(null);
 
     try {
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        throw new Error('Only JPG, PNG, and WebP files are allowed');
+      }
+
+      const rule = getUploadRule(kind);
+
+      if (rule) {
+        const { width, height } = await getImageDimensions(file);
+        const ratio = width / height;
+
+        if (Math.abs(ratio - rule.ratio) > RATIO_TOLERANCE) {
+          throw new Error(`${label} must be ${rule.label}`);
+        }
+      }
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('kind', kind);
@@ -60,7 +117,7 @@ export function ImageUploadField({ label, description, value, kind, aspectHint, 
           {loading ? 'Uploading...' : 'Upload image'}
           <input
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept={ACCEPTED_TYPES.join(',')}
             className="hidden"
             disabled={loading}
             onChange={(event) => {

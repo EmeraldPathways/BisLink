@@ -187,7 +187,7 @@ export function LinkEditor({
         description="Shown behind the hero content."
         value={form.cover_image_url}
         kind="cover"
-        aspectHint="CTA fallback: Book a Session. Cover fallback: selected theme background."
+        aspectHint="16:9 image required. CTA fallback: Book a Session. Cover fallback: selected theme background."
         onChange={(url) => onFieldChange('cover_image_url', url)}
       />
       <FormInput

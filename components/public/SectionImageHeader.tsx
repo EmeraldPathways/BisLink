@@ -54,10 +54,10 @@ export function SectionImageHeader({
         >
           {title}
         </h2>
-        <p className={`text-white/82 ${isAbout ? 'mt-6 text-[27px] leading-[1.45]' : 'mt-4 text-[16px] leading-8'}`}>
+        <p className={`text-white/82 ${isAbout ? 'mt-4 text-[27px] leading-[1.22]' : 'mt-2 text-[16px] leading-[1.35]'}`}>
           {subtitle}
         </p>
-        <div className={`rounded-full bg-[var(--accent)] ${isAbout ? 'mt-7 h-[5px] w-[70px]' : 'mt-5 h-1 w-12'}`} />
+        <div className={`rounded-full bg-[var(--accent)] ${isAbout ? 'mt-5 h-[5px] w-[70px]' : 'mt-3 h-1 w-12'}`} />
       </div>
     </div>
   );

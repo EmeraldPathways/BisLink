@@ -231,6 +231,10 @@ Default active tab: `bookings`.
 - Hero presentation was rebuilt into a lighter editorial card with a cover image, avatar, single social-icon row, inline announcement bar directly below the hero image, review metadata, location row, and full-width CTA.
 - Public navigation now reuses the same fixed bottom-menu component across mobile and desktop and keeps a stable Home / Book / Shop / About / More primary nav instead of switching section labels by state.
 - Shared public-page sections now render with tighter spacing, smaller section titles, and centered dividers for a cleaner vertical rhythm.
+- Product and service uploads now enforce square `1:1` images, hero cover uploads enforce `16:9`, rotated photos are normalized before validation, and invalid non-image uploads are rejected server-side.
+- Shop and booking cards now use square top media areas so uploaded product and service imagery matches the public card layout.
+- The floating mobile cart tab now sits tighter against the bottom menu and stays centered over the Shop slot.
+- About now uses the same image-header treatment and content spacing pattern as bookings and shop instead of a separate overlapping hero style.
 - Contact form fields now use visible labels, inline validation, and a honeypot-backed submission payload.
 - Contact delivery now resolves the business via the admin-capable lookup path, falls back to `business.email` when `contact_email` is blank, and surfaces explicit Resend send failures from `/api/contact`.
 - Contact presentation now uses a reference-matched editorial two-column card layout, a compact top-aligned contact form, and a cleaner hierarchy for direct contact methods.
