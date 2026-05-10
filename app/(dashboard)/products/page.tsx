@@ -2,6 +2,7 @@ import { ProductCardActions } from '@/components/dashboard/ProductCardActions';
 import { ProductForm } from '@/components/dashboard/ProductForm';
 import { ProductLimitBar } from '@/components/dashboard/ProductLimitBar';
 import { getProductsData } from '@/lib/dashboard-data';
+import { resolveEditSearchParam } from '@/lib/dashboard-page-search';
 import { formatPrice } from '@/lib/utils/formatting';
 
 export const dynamic = 'force-dynamic';
@@ -9,11 +10,12 @@ export const dynamic = 'force-dynamic';
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { edit?: string };
+  searchParams?: Promise<{ edit?: string }>;
 }) {
+  const editId = await resolveEditSearchParam(searchParams);
   const { products, activeProductCount } = await getProductsData();
   const selectedProduct =
-    products.find((product) => product.id === searchParams?.edit) ?? undefined;
+    products.find((product) => product.id === editId) ?? undefined;
 
   return (
     <div className="grid gap-6 md:grid-cols-[1fr_360px]">
@@ -43,9 +45,7 @@ export default async function Page({
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-semibold">
-                      {product.emoji} {product.name}
-                    </p>
+                    <p className="text-sm font-semibold">{product.name}</p>
                     <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
                       {product.category}
                     </p>

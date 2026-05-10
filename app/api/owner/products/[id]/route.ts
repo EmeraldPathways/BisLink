@@ -89,3 +89,29 @@ export async function PATCH(
 
   return NextResponse.json({ product: data });
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const owner = await requireOwnerBusiness();
+  if (!owner)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { supabase, business } = owner;
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id)
+    .eq('business_id', business.id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  revalidatePath('/products');
+  revalidatePath(`/${business.slug}`);
+
+  return NextResponse.json({ success: true });
+}

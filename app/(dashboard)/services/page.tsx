@@ -1,6 +1,7 @@
 import { ServiceCardActions } from '@/components/dashboard/ServiceCardActions';
 import { ServiceForm } from '@/components/dashboard/ServiceForm';
 import { getServicesData } from '@/lib/dashboard-data';
+import { resolveEditSearchParam } from '@/lib/dashboard-page-search';
 import { formatPrice } from '@/lib/utils/formatting';
 
 export const dynamic = 'force-dynamic';
@@ -10,10 +11,10 @@ export default async function Page({
 }: {
   searchParams?: Promise<{ edit?: string }>;
 }) {
-  const resolvedSearchParams = await searchParams;
+  const editId = await resolveEditSearchParam(searchParams);
   const { services } = await getServicesData();
   const selectedService =
-    services.find((service) => service.id === resolvedSearchParams?.edit) ?? undefined;
+    services.find((service) => service.id === editId) ?? undefined;
 
   return (
     <div className="grid gap-6 md:grid-cols-[1fr_360px]">
@@ -41,9 +42,7 @@ export default async function Page({
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold">
-                    {service.emoji} {service.name}
-                  </p>
+                  <p className="text-sm font-semibold">{service.name}</p>
                   <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
                     {service.description}
                   </p>
