@@ -86,8 +86,8 @@ export function AboutTab({
                       <stat.icon className="h-8 w-8 stroke-[1.7]" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-display text-[28px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
-                      <p className="mt-3 text-[11px] uppercase tracking-[0.12em] text-[var(--accent-strong)]">{stat.label}</p>
+                      <p className="font-display text-[22px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
+                      <p className="mt-2 text-[10px] uppercase tracking-[0.1em] text-[var(--accent-strong)]">{stat.label}</p>
                     </div>
                   </div>
                 </div>
@@ -128,8 +128,8 @@ export function AboutTab({
                       <stat.icon className="h-8 w-8 stroke-[1.7]" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-display text-[28px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
-                      <p className="mt-3 text-[11px] uppercase tracking-[0.12em] text-[var(--accent-strong)]">{stat.label}</p>
+                      <p className="font-display text-[22px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
+                      <p className="mt-2 text-[10px] uppercase tracking-[0.1em] text-[var(--accent-strong)]">{stat.label}</p>
                     </div>
                   </div>
                 </div>

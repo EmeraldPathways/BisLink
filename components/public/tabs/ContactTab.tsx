@@ -202,7 +202,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
               className="rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)]"
             >
               <div className="flex flex-col items-center text-center">
-                <div className="flex h-28 w-28 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),var(--page-surface-muted))] text-[var(--accent-strong)]">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),var(--page-surface-muted))] text-[var(--accent-strong)]">
                   <row.icon className="h-4 w-4" strokeWidth={1.5} />
                 </div>
                 <p className="mt-6 text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-strong)]">{row.label}</p>
@@ -212,7 +212,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                 <p className="min-w-0 flex-1 break-words text-[15px] font-semibold leading-6 text-[var(--text-1)]">
                   {formatContactValue(row.label, row.value)}
                 </p>
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
                   <ArrowUpRight className="h-4 w-4" />
                 </span>
               </div>
