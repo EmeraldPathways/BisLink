@@ -58,6 +58,10 @@ function stackSections(items: Array<ReactNode | null | undefined>) {
   ));
 }
 
+function findPreviewSection(root: HTMLDivElement | null, id: string) {
+  return root?.querySelector<HTMLElement>(`#${id}`) ?? null;
+}
+
 export function PublicPage({
   mode = 'default',
   business,
@@ -184,7 +188,7 @@ export function PublicPage({
       return;
     }
 
-    document.getElementById(previewTarget)?.scrollIntoView({
+    findPreviewSection(frameRef.current, previewTarget)?.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
     });
@@ -194,7 +198,7 @@ export function PublicPage({
     setMoreOpen(false);
     setIsHomeActive(false);
     setActiveSection(id);
-    document.getElementById(id)?.scrollIntoView({
+    findPreviewSection(frameRef.current, id)?.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
     });

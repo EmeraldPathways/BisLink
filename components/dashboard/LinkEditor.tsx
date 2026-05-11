@@ -72,14 +72,14 @@ export const LINK_DESKTOP_EDITOR_TABS: Array<{
   id: LinkDesktopSection;
   label: string;
 }> = [
-  { id: 'settings', label: 'Link Settings' },
   { id: 'hero', label: 'Hero' },
+  { id: 'announcement', label: 'Announcement' },
   { id: 'bookings', label: 'Bookings' },
   { id: 'products', label: 'Shop' },
-  { id: 'announcement', label: 'Announcement' },
   { id: 'portfolio', label: 'Portfolio' },
   { id: 'about', label: 'About & Trust' },
-  { id: 'contact', label: 'Contact & Social' }
+  { id: 'contact', label: 'Contact & Social' },
+  { id: 'settings', label: 'Link Settings' }
 ];
 
 const themeIcons: Record<BusinessThemeKey, typeof Sparkles> = {
@@ -208,6 +208,7 @@ export function LinkEditor({
         description="Shown as the main circular photo."
         value={form.photo_url}
         kind="profile"
+        chrome="plain"
         onChange={(url) => onFieldChange('photo_url', url)}
       />
       <ImageUploadField
@@ -215,6 +216,7 @@ export function LinkEditor({
         description="Shown behind the hero content."
         value={form.cover_image_url}
         kind="cover"
+        chrome="plain"
         aspectHint="16:9 image required. CTA fallback: Book a Session. Cover fallback: selected theme background."
         onChange={(url) => onFieldChange('cover_image_url', url)}
       />
@@ -575,6 +577,8 @@ export function LinkEditor({
   const sectionContent = {
     hero: heroSection,
     announcement: announcementSection,
+    bookings: bookingsHeroSection,
+    products: productsHeroSection,
     portfolio: portfolioSection,
     about: aboutSection,
     contact: contactSection,
@@ -585,14 +589,14 @@ export function LinkEditor({
   } satisfies Record<MobileEditSection, ReactNode>;
 
   const desktopLinkContent = {
-    settings: settingsSection,
     hero: heroSection,
+    announcement: announcementSection,
     bookings: bookingsHeroSection,
     products: productsHeroSection,
-    announcement: announcementSection,
     portfolio: portfolioSection,
     about: aboutSection,
-    contact: contactSection
+    contact: contactSection,
+    settings: settingsSection
   } satisfies Record<LinkDesktopSection, ReactNode>;
 
   const singleSectionContent = section ? sectionContent[section] : null;
@@ -613,9 +617,9 @@ export function LinkEditor({
         ) : (
           <>
             {heroSection}
+            {announcementSection}
             {bookingsHeroSection}
             {productsHeroSection}
-            {announcementSection}
             {portfolioSection}
             {aboutSection}
             {contactSection}
@@ -716,15 +720,20 @@ function SectionHeroFields({
   ) => void;
 }) {
   return (
-    <div className="space-y-2 rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-3">
+    <div className="space-y-3">
       <div>
-        <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</h3>
-        <p className="mt-1 text-[11px] text-[var(--color-text-secondary)]">16:9 image with custom title and subtitle.</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+          {title}
+        </p>
+        <p className="mt-1 text-[11px] text-[var(--color-text-secondary)]">
+          16:9 image with custom title and subtitle.
+        </p>
       </div>
       <ImageUploadField
         label={`${title} image`}
         value={imageValue}
         kind="cover"
+        chrome="plain"
         aspectHint="16:9 image required."
         onChange={(url) => onFieldChange(`${prefix}_image_url` as keyof LinkEditorFormState, url as LinkEditorFormState[keyof LinkEditorFormState])}
       />

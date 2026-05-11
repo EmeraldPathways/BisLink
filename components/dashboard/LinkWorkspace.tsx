@@ -55,7 +55,7 @@ export function LinkWorkspace({
   const [activeMobileSection, setActiveMobileSection] =
     useState<MobileEditSection | null>(null);
   const [activeDesktopSection, setActiveDesktopSection] =
-    useState<LinkDesktopSection>('settings');
+    useState<LinkDesktopSection>('hero');
   const [previewTarget, setPreviewTarget] = useState<PreviewTarget>('home');
   const [previewJumpToken, setPreviewJumpToken] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
@@ -68,7 +68,7 @@ export function LinkWorkspace({
   useEffect(() => {
     setForm(buildFormState(publicPage.business));
     setDraftPortfolioItems(publicPage.portfolioItems);
-    setActiveDesktopSection('settings');
+    setActiveDesktopSection('hero');
     setPreviewTarget('home');
     setPreviewJumpToken(0);
     setMessage(null);

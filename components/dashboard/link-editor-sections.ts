@@ -3,6 +3,8 @@ export type LinkEditorMode = 'link' | 'theme';
 export type LinkMobileSection =
   | 'hero'
   | 'announcement'
+  | 'bookings'
+  | 'products'
   | 'portfolio'
   | 'about'
   | 'contact'
@@ -23,6 +25,14 @@ const sectionMeta: Record<
   announcement: {
     title: 'Announcement',
     description: 'Show or hide the announcement bar and edit its message.'
+  },
+  bookings: {
+    title: 'Bookings',
+    description: 'Section image, title, and subtitle for the bookings area.'
+  },
+  products: {
+    title: 'Shop',
+    description: 'Section image, title, and subtitle for the shop area.'
   },
   portfolio: {
     title: 'Portfolio',
@@ -57,6 +67,8 @@ const sectionMeta: Record<
 export const linkMobileSections: LinkMobileSection[] = [
   'hero',
   'announcement',
+  'bookings',
+  'products',
   'portfolio',
   'about',
   'contact',

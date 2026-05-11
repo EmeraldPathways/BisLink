@@ -44,6 +44,7 @@ Pricing model: flat subscription, no per-booking fees.
 - Theme-specific additions:
   - `wellness-studio`: Fraunces display with DM Sans UI
   - `bright-performance`: Space Grotesk display with Manrope UI
+  - Custom public-page font pairings now support distinct `editorial`, `modern`, `friendly`, and `premium` overrides, applied through `lib/business-brand-overrides.ts`
 
 ### CSS Variables (`app/globals.css`)
 All canonical variables use the `--color-*` prefix. Shorthand aliases are also defined for compatibility.
@@ -242,6 +243,10 @@ Default active tab: `bookings`.
 - Owner dashboard product and service list cards now render uploaded image thumbnails directly in the cards instead of hiding media until the public page preview.
 - `My Link` now supports separate editable hero image, title, and subtitle content for Bookings, Shop, About, and Contact via new business-level section hero fields added in `supabase/migrations/0016_section_hero_fields.sql`.
 - Desktop `My Link` section tabs now also drive the live preview position so Link Settings / Hero / Announcement jump to the top and Portfolio / About / Contact jump directly to the matching public section.
+- `My Link` section order now matches the public editing workflow directly: Hero, Announcement, Bookings, Shop, Portfolio, About & Trust, Contact & Social, then Link Settings.
+- `My Link` and mobile link editing now expose Bookings and Shop as first-class sections, and desktop preview jumps target the matching section inside the live preview frame more reliably.
+- Link editor image controls now avoid extra nested card chrome, and the profile image uploader uses a denser left-preview/right-actions layout with inline `Upload Image` and `Remove Image` actions.
+- Theme font pairing overrides now visibly affect public service cards, product cards, and About CTA styling, and dark athletic accent contrast has been raised to avoid unreadable text on dark surfaces.
 - Contact form fields now use visible labels, inline validation, and a honeypot-backed submission payload.
 - Contact delivery now resolves the business via the admin-capable lookup path, falls back to `business.email` when `contact_email` is blank, and surfaces explicit Resend send failures from `/api/contact`.
 - Contact presentation now uses a reference-matched editorial two-column card layout, a compact top-aligned contact form, and a cleaner hierarchy for direct contact methods.

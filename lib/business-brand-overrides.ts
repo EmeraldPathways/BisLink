@@ -6,7 +6,7 @@ export const FONT_PAIRINGS = {
   editorial: {
     label: 'Editorial',
     display: "'Instrument Serif', serif",
-    ui: "'DM Sans', sans-serif"
+    ui: "'Sora', sans-serif"
   },
   modern: {
     label: 'Modern',
@@ -16,12 +16,12 @@ export const FONT_PAIRINGS = {
   friendly: {
     label: 'Friendly',
     display: "'Fraunces', serif",
-    ui: "'DM Sans', sans-serif"
+    ui: "'Manrope', sans-serif"
   },
   premium: {
     label: 'Premium',
     display: "'Cormorant Garamond', serif",
-    ui: "'DM Sans', sans-serif"
+    ui: "'Space Grotesk', sans-serif"
   }
 } as const;
 

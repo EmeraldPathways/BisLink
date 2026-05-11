@@ -48,13 +48,17 @@ export function ServiceCard({
 
       <div className="p-3">
         <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--accent-strong)]">Bookings</p>
-        <p className="mt-1 text-[13px] font-semibold text-[var(--text-1)]">{service.name}</p>
+        <p className="mt-1 font-display text-[13px] font-semibold tracking-[-0.02em] text-[var(--text-1)]">
+          {service.name}
+        </p>
         <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--text-4)]" title={service.description} aria-label={service.description}>
           {service.description}
         </p>
         <div className="mt-3 flex items-center justify-between">
           <div>
-            <span className="text-[15px] font-bold text-[var(--text-1)]">{formatPrice(service.price, service.currency)}</span>
+            <span className="font-display text-[15px] font-bold tracking-[-0.02em] text-[var(--text-1)]">
+              {formatPrice(service.price, service.currency)}
+            </span>
             <span className="ml-2 inline-flex items-center gap-1 text-[11px] text-[var(--text-4)]">
               <Clock className="h-3.5 w-3.5" strokeWidth={1.75} /> {service.duration_minutes} min
             </span>

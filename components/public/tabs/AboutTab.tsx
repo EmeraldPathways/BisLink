@@ -50,9 +50,9 @@ export function AboutTab({
 
         <div className="space-y-5 px-4 py-4 sm:px-5 sm:py-5">
           {hasBio ? (
-            <div className="rounded-[28px] border border-[rgba(214,194,164,0.38)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[0_10px_26px_rgba(139,104,37,0.05)] sm:px-6 sm:py-7">
+            <div className="rounded-[28px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)] sm:px-6 sm:py-7">
               <div className="flex items-start gap-4 sm:gap-5">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)] sm:h-[68px] sm:w-[68px]">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)] sm:h-[68px] sm:w-[68px]">
                   <UserRound className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
@@ -77,12 +77,12 @@ export function AboutTab({
               {visibleStats.map((stat, index) => (
                 <div
                   key={stat.label}
-                  className={`rounded-[26px] border border-[rgba(214,194,164,0.36)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[0_8px_22px_rgba(139,104,37,0.04)] ${
+                  className={`rounded-[26px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)] ${
                     index === 2 ? 'col-span-1' : ''
                   }`}
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
                       <stat.icon className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
@@ -96,10 +96,10 @@ export function AboutTab({
           ) : null}
 
           {onBook ? (
-            <div className="flex flex-col gap-4 rounded-[28px] bg-[linear-gradient(135deg,#f4efe6_0%,#f8f4ec_100%)] px-5 py-5 shadow-[0_10px_28px_rgba(139,104,37,0.06)] sm:flex-row sm:items-center sm:justify-between sm:py-6">
+            <div className="flex flex-col gap-4 rounded-[28px] border border-[var(--page-border)] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--page-surface-muted)_82%,var(--accent-soft))_0%,color-mix(in_srgb,var(--page-card-bg)_88%,var(--accent-soft))_100%)] px-5 py-5 shadow-[var(--card-shadow)] sm:flex-row sm:items-center sm:justify-between sm:py-6">
               <div className="flex min-w-0 items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/80 bg-[rgba(255,255,255,0.32)] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.28)] sm:h-[64px] sm:w-[64px]">
-                  <Calendar className="h-6 w-6 stroke-[1.7] text-[var(--accent)] sm:h-8 sm:w-8" aria-hidden="true" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[var(--page-border-strong)] bg-[color-mix(in_srgb,var(--page-card-bg)_74%,var(--accent-soft))] text-[var(--accent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--page-border)_72%,transparent)] sm:h-[64px] sm:w-[64px]">
+                  <Calendar className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[15px] font-semibold text-[var(--text-1)] sm:text-[16px]">Ready to start your journey?</p>
@@ -109,7 +109,7 @@ export function AboutTab({
               <button
                 type="button"
                 onClick={onBook}
-                className="inline-flex h-11 w-full items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,#c99734_0%,#c7922f_100%)] px-5 text-[13px] font-medium text-white shadow-[0_16px_28px_rgba(139,104,37,0.18)] sm:h-auto sm:w-auto sm:shrink-0 sm:rounded-[18px] sm:px-7 sm:py-4 sm:text-[15px]"
+                className="inline-flex h-11 w-full items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,var(--cta-bg)_0%,color-mix(in_srgb,var(--cta-bg)_70%,var(--accent))_100%)] px-5 text-[13px] font-medium text-[var(--cta-text)] shadow-[var(--card-hover-shadow)] sm:h-auto sm:w-auto sm:shrink-0 sm:rounded-[18px] sm:px-7 sm:py-4 sm:text-[15px]"
               >
                 {ctaLabel}
               </button>
@@ -121,10 +121,10 @@ export function AboutTab({
               {extraStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-[26px] border border-[rgba(214,194,164,0.36)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[0_8px_22px_rgba(139,104,37,0.04)]"
+                  className="rounded-[26px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)]"
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
                       <stat.icon className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
