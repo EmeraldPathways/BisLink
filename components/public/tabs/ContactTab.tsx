@@ -198,29 +198,27 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
           </div>
 
           {rows.length ? (
-            <div className="space-y-4">
+            <div className="overflow-hidden rounded-[24px] border border-[var(--page-border)] bg-[var(--page-card-bg)]">
               {rows.map((row) => (
                 <a
                   key={row.label}
                   href={row.href}
                   target={row.href.startsWith('http') ? '_blank' : undefined}
                   rel={row.href.startsWith('http') ? 'noreferrer' : undefined}
-                  className="block rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-5 shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)]"
+                  className="flex items-start gap-4 border-b border-[var(--page-border)] px-5 py-4 last:border-b-0"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),var(--page-surface-muted))] text-[var(--accent-strong)]">
-                      <row.icon className="h-3.5 w-3.5" strokeWidth={1.5} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-strong)]">{row.label}</p>
-                      <p className="mt-2 break-words text-[14px] font-semibold leading-5 text-[var(--text-1)] sm:text-[15px] sm:leading-6">
-                        {formatContactValue(row.label, row.value)}
-                      </p>
-                    </div>
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </span>
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),var(--page-surface-muted))] text-[var(--accent-strong)]">
+                    <row.icon className="h-3.5 w-3.5" strokeWidth={1.5} />
                   </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-strong)]">{row.label}</p>
+                    <p className="mt-1.5 break-words text-[14px] font-semibold leading-5 text-[var(--text-1)] sm:text-[15px] sm:leading-6">
+                      {formatContactValue(row.label, row.value)}
+                    </p>
+                  </div>
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
+                    <ArrowUpRight className="h-4 w-4" />
+                  </span>
                 </a>
               ))}
             </div>
@@ -235,7 +233,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                 rel="noreferrer"
                 className={`mt-4 block overflow-hidden rounded-[24px] border border-[var(--page-border)] bg-[#ebefe6] ${mapHref ? '' : 'pointer-events-none'}`}
               >
-                <div className="relative min-h-[210px] overflow-hidden">
+                <div className="relative aspect-video overflow-hidden">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.75),transparent_28%),linear-gradient(180deg,#eef2e8_0%,#dde6d7_100%)]" />
                   <svg
                     aria-hidden="true"

@@ -32,7 +32,7 @@ export function StepDetails({
   }> = [
     { label: 'Full Name', value: name, setValue: setName, type: 'text' },
     { label: 'Email Address', value: email, setValue: setEmail, type: 'email' },
-    { label: 'Phone', value: phone, setValue: setPhone, type: 'tel' },
+    { label: 'Phone (optional)', value: phone, setValue: setPhone, type: 'tel' },
   ];
 
   return (

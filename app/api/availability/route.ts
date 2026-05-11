@@ -61,5 +61,14 @@ export async function GET(req: Request) {
     business.timezone ?? 'America/New_York'
   );
 
-  return NextResponse.json({ available, timezone: business.timezone ?? 'America/New_York' });
+  return NextResponse.json({
+    available,
+    timezone: business.timezone ?? 'America/New_York',
+    openingHours: availability
+      ? {
+          start: availability.start_time.slice(0, 5),
+          end: availability.end_time.slice(0, 5)
+        }
+      : null
+  });
 }

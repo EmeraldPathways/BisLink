@@ -26,7 +26,7 @@ export function HeroSection({
   const heroBio = business.bio?.trim() || business.tagline?.trim() || 'Book your next session in a few taps.';
 
   return (
-    <header className="relative isolate px-2 pt-4 md:px-0 md:pt-0">
+    <header className="relative isolate px-2 pt-0 md:px-0">
       <div className="overflow-hidden rounded-b-[32px] border border-[var(--page-border)] border-t-0 bg-[var(--page-card-bg)] shadow-[0_24px_60px_rgba(43,25,8,0.08)]">
         <div className="relative h-[240px] w-full overflow-hidden bg-[image:var(--hero-gradient)] md:h-[280px]">
           {business.cover_image_url ? (
@@ -74,6 +74,12 @@ export function HeroSection({
               <p className="mt-1 text-[12px] leading-5 text-[var(--accent-strong)] md:text-[13px]">
                 {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
               </p>
+              {hasLocation ? (
+                <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[var(--text-2)] md:text-[13px]">
+                  <MapPin className="h-3.5 w-3.5 text-[var(--accent-strong)]" />
+                  <span className="whitespace-nowrap">{business.location}</span>
+                </div>
+              ) : null}
               {hasReviews ? (
                 <div className="mt-1.5 flex items-center gap-1.5 text-[12px] text-[var(--text-2)]">
                   <Star className="h-3 w-3 fill-[var(--accent)] text-[var(--accent)]" />
@@ -85,16 +91,10 @@ export function HeroSection({
 
             <div className="flex w-[78px] shrink-0 flex-col items-end gap-2 pt-1 text-right sm:w-auto">
               <SocialIconLinks business={business} variant="hero" />
-              {hasLocation ? (
-                <div className="flex items-center gap-1 text-[11px] text-[var(--text-2)] md:text-[13px] sm:justify-end">
-                  <MapPin className="h-3.5 w-3.5 text-[var(--accent-strong)]" />
-                  <span className="whitespace-nowrap">{business.location}</span>
-                </div>
-              ) : null}
             </div>
           </motion.div>
 
-          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 border-t border-[var(--page-border)] pt-5 text-[14px] leading-7 text-[var(--text-2)] sm:text-[15px] sm:leading-[1.9]">
+          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 border-t border-[var(--page-border)] pt-5 text-[14px] leading-5 text-[var(--text-2)] sm:text-[15px] sm:leading-6">
             {heroBio}
           </motion.p>
 

@@ -21,6 +21,7 @@ export function StepTime({
   const [selected, setSelected] = useState<string | null>(null);
   const [slots, setSlots] = useState<string[]>([]);
   const [timezone, setTimezone] = useState(business.timezone);
+  const [openingHours, setOpeningHours] = useState<{ start: string; end: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +45,7 @@ export function StepTime({
         const payload = (await response.json()) as {
           available?: string[];
           timezone?: string;
+          openingHours?: { start: string; end: string } | null;
           error?: string;
         };
 
@@ -53,11 +55,13 @@ export function StepTime({
 
         setSlots((payload.available ?? []).slice(0, 8));
         setTimezone(payload.timezone ?? business.timezone);
+        setOpeningHours(payload.openingHours ?? null);
       } catch (fetchError) {
         if (controller.signal.aborted) return;
 
         setSlots([]);
         setTimezone(business.timezone);
+        setOpeningHours(null);
         setError(
           fetchError instanceof Error
             ? fetchError.message
@@ -79,8 +83,14 @@ export function StepTime({
     if (loading) return 'Checking live availability...';
     if (error) return error;
     if (!slots.length) return 'No available slots for this date.';
-    return `${format(new Date(`${date}T00:00:00`), 'EEE, d MMM')} - ${service.duration_minutes} min`;
-  }, [date, error, loading, service.duration_minutes, slots.length]);
+    const openingLabel =
+      openingHours
+        ? `${formatTimeLabel(new Date(`${date}T${openingHours.start}:00`), timezone)} - ${formatTimeLabel(new Date(`${date}T${openingHours.end}:00`), timezone)}`
+        : null;
+    return openingLabel
+      ? `${format(new Date(`${date}T00:00:00`), 'EEE, d MMM')} - Open ${openingLabel}`
+      : `${format(new Date(`${date}T00:00:00`), 'EEE, d MMM')} - ${service.duration_minutes} min`;
+  }, [date, error, loading, openingHours, service.duration_minutes, slots.length, timezone]);
 
   return (
     <div>

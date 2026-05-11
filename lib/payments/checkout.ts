@@ -78,7 +78,7 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
   const productIds = items.map((item) => item.productId);
   const { data: products, error: prodError } = await supabase
     .from('products')
-    .select('id, name, price, in_stock, is_active, emoji')
+    .select('id, name, price, in_stock, is_active, is_digital, emoji')
     .eq('business_id', businessId)
     .eq('is_active', true)
     .in('id', productIds);
@@ -95,6 +95,24 @@ export async function createCheckoutSession(input: CheckoutInput): Promise<Check
 
     if (!product.in_stock) {
       return { ok: false, status: 409, error: `${product.name} is out of stock` };
+    }
+  }
+
+  const hasPhysicalItems = products.some((product) => !product.is_digital);
+  if (hasPhysicalItems) {
+    const hasPhone = Boolean(customerPhone?.trim());
+    const hasShipping =
+      Boolean(shippingAddress?.line1?.trim()) &&
+      Boolean(shippingAddress?.city?.trim()) &&
+      Boolean(shippingAddress?.postalCode?.trim()) &&
+      Boolean(shippingAddress?.country?.trim());
+
+    if (!hasPhone || !hasShipping) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'Phone and shipping address are required for physical products'
+      };
     }
   }
 

@@ -73,12 +73,12 @@ export function AboutTab({
           ) : null}
 
           {visibleStats.length ? (
-            <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4">
               {visibleStats.map((stat, index) => (
                 <div
                   key={stat.label}
                   className={`rounded-[26px] border border-[rgba(214,194,164,0.36)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[0_8px_22px_rgba(139,104,37,0.04)] ${
-                    index === 2 ? 'min-[360px]:col-span-1' : ''
+                    index === 2 ? 'col-span-1' : ''
                   }`}
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -117,7 +117,7 @@ export function AboutTab({
           ) : null}
 
           {extraStats.length ? (
-            <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4">
               {extraStats.map((stat) => (
                 <div
                   key={stat.label}

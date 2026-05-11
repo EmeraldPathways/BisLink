@@ -4,7 +4,7 @@ import { type RefObject, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Elements } from '@stripe/react-stripe-js';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { Minus, X } from 'lucide-react';
 import type { Stripe, StripeElements } from '@stripe/stripe-js';
 import { EmbeddedPaymentForm } from '@/components/payments/EmbeddedPaymentForm';
 import { useIsMobile } from '@/hooks/useBreakpoint';
@@ -19,6 +19,7 @@ export function CartSheet({
   items,
   total,
   onClose,
+  onRemoveItem,
   onCheckout,
   presentation = 'default',
   containerRef
@@ -28,6 +29,7 @@ export function CartSheet({
   items: CartLine[];
   total: number;
   onClose: () => void;
+  onRemoveItem: (productId: string) => void;
   onCheckout: () => void;
   presentation?: 'default' | 'demo';
   containerRef?: RefObject<HTMLDivElement>;
@@ -46,10 +48,17 @@ export function CartSheet({
   const [loadingIntent, setLoadingIntent] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasPhysicalItems = items.some((item) => !item.product.is_digital);
+  const hasShippingAddress =
+    shippingLine1.trim() && shippingCity.trim() && shippingPostalCode.trim() && shippingCountry.trim();
 
   if (!open) return null;
 
-  const canCreateIntent = items.length > 0 && customerName.trim() && customerEmail.trim();
+  const canCreateIntent =
+    items.length > 0 &&
+    customerName.trim() &&
+    customerEmail.trim() &&
+    (!hasPhysicalItems || (customerPhone.trim() && hasShippingAddress));
   const framed = presentation === 'demo' && !isMobile && containerRef?.current;
   const shellClassName = framed ? 'absolute inset-0 z-50' : 'fixed inset-0 z-50';
   const panelClassName = framed
@@ -137,7 +146,17 @@ export function CartSheet({
                     {item.qty} x {formatPrice(item.product.price)}
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-[var(--text-1)]">{formatPrice(item.product.price * item.qty)}</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm font-semibold text-[var(--text-1)]">{formatPrice(item.product.price * item.qty)}</p>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${item.product.name} from cart`}
+                    onClick={() => onRemoveItem(item.product.id)}
+                    className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--page-card-bg)] text-[var(--text-2)]"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -156,15 +175,28 @@ export function CartSheet({
               <>
                 <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Customer name" />
                 <input value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Email" type="email" />
-                <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Phone (optional)" />
-                <input value={shippingLine1} onChange={(event) => setShippingLine1(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Shipping address (optional)" />
-                {shippingLine1 ? (
+                <input
+                  value={customerPhone}
+                  onChange={(event) => setCustomerPhone(event.target.value)}
+                  className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3"
+                  placeholder={hasPhysicalItems ? 'Phone' : 'Phone (optional)'}
+                />
+                <input
+                  value={shippingLine1}
+                  onChange={(event) => setShippingLine1(event.target.value)}
+                  className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3"
+                  placeholder={hasPhysicalItems ? 'Shipping address' : 'Shipping address (optional)'}
+                />
+                {shippingLine1 || hasPhysicalItems ? (
                   <div className="grid grid-cols-2 gap-3">
                     <input value={shippingCity} onChange={(event) => setShippingCity(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="City" />
-                    <input value={shippingRegion} onChange={(event) => setShippingRegion(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Region" />
+                    <input value={shippingRegion} onChange={(event) => setShippingRegion(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder={hasPhysicalItems ? 'County / State' : 'County / State (optional)'} />
                     <input value={shippingPostalCode} onChange={(event) => setShippingPostalCode(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Postal code" />
                     <input value={shippingCountry} onChange={(event) => setShippingCountry(event.target.value)} className="w-full rounded-[13px] border-[1.5px] border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-3" placeholder="Country" />
                   </div>
+                ) : null}
+                {hasPhysicalItems ? (
+                  <p className="text-sm text-[var(--text-3)]">Phone and shipping details are required for physical products.</p>
                 ) : null}
               </>
             )}

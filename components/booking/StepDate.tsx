@@ -2,14 +2,8 @@
 
 import { useState } from 'react';
 import {
-  addMonths,
-  eachDayOfInterval,
-  endOfMonth,
+  addDays,
   format,
-  getDay,
-  isBefore,
-  isSameDay,
-  startOfMonth,
   startOfToday,
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -25,71 +19,76 @@ export function StepDate({
   service: Service;
   onNext: (date: string) => void;
 }) {
-  const weekdayOrder = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const [selected, setSelected] = useState<string | null>(null);
-  const [month, setMonth] = useState(startOfMonth(new Date()));
+  const [page, setPage] = useState(0);
   const today = startOfToday();
-  const monthStart = startOfMonth(month);
-  const monthEnd = endOfMonth(month);
-  const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-  const leadingEmptyDays = Array.from({ length: getDay(monthStart) });
+  const availableDates = Array.from({ length: 60 })
+    .map((_, index) => addDays(today, index))
+    .filter((day) => ![0, 6].includes(day.getDay()));
+  const pageSize = 8;
+  const maxPage = Math.max(Math.ceil(availableDates.length / pageSize) - 1, 0);
+  const visibleDates = availableDates.slice(page * pageSize, (page + 1) * pageSize);
+  const firstVisibleDate = visibleDates[0];
+  const lastVisibleDate = visibleDates[visibleDates.length - 1];
+  const pageLabel =
+    firstVisibleDate && lastVisibleDate
+      ? `${format(firstVisibleDate, 'd MMM')} - ${format(lastVisibleDate, 'd MMM')}`
+      : 'No dates';
   void business;
+  void service;
 
   return (
-    <div className="mx-auto w-full max-w-[360px]">
+      <div className="mx-auto w-full max-w-[360px]">
       <div className="mt-2">
         <div className="grid grid-cols-[48px_1fr_48px] items-center gap-4">
           <button
             type="button"
-            onClick={() => setMonth((current) => addMonths(current, -1))}
-            disabled={isSameDay(monthStart, startOfMonth(today))}
+            onClick={() => setPage((current) => Math.max(current - 1, 0))}
+            disabled={page === 0}
             className="flex h-12 w-12 items-center justify-center rounded-[16px] border border-[var(--color-border)] bg-[var(--page-surface)] shadow-[0_10px_24px_rgba(45,25,7,0.05)] disabled:opacity-40"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           </button>
-          <p className="text-center font-display text-[28px] text-[var(--color-text-primary)]">{format(month, 'MMMM yyyy')}</p>
+          <div className="text-center">
+            <p className="font-display text-[24px] text-[var(--color-text-primary)]">Available dates</p>
+            <p className="mt-1 text-[12px] text-[var(--color-text-secondary)]">{pageLabel}</p>
+          </div>
           <button
             type="button"
-            onClick={() => setMonth((current) => addMonths(current, 1))}
+            onClick={() => setPage((current) => Math.min(current + 1, maxPage))}
+            disabled={page === maxPage}
             className="flex h-12 w-12 items-center justify-center rounded-[16px] border border-[var(--color-border)] bg-[var(--page-surface)] shadow-[0_10px_24px_rgba(45,25,7,0.05)]"
           >
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
 
-        <div className="mt-6 grid grid-cols-7 gap-x-2 gap-y-3">
-          {weekdayOrder.map((day) => (
-            <p key={day} className="text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-secondary)]">
-              {day}
-            </p>
-          ))}
-
-          {leadingEmptyDays.map((_, index) => (
-            <div key={`empty-${index}`} aria-hidden="true" className="min-h-[76px]" />
-          ))}
-
-          {calendarDays.map((day) => {
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          {visibleDates.map((day) => {
             const iso = format(day, 'yyyy-MM-dd');
-            const weekend = [0, 6].includes(day.getDay());
-            const past = isBefore(day, today);
             const active = selected === iso;
-            const disabled = weekend || past;
 
             return (
               <button
                 key={iso}
                 type="button"
-                disabled={disabled}
                 onClick={() => setSelected(iso)}
                 className={`min-h-[76px] rounded-[18px] px-2 py-2.5 text-center transition ${
                   active
                     ? 'bg-[var(--color-void)] text-white shadow-[0_18px_24px_rgba(16,12,9,0.18)]'
-                    : disabled
-                      ? 'cursor-default bg-[var(--page-surface)] text-[var(--color-text-secondary)] opacity-35'
-                      : 'bg-[var(--page-surface)] shadow-[0_10px_20px_rgba(45,25,7,0.04)]'
+                    : 'bg-[var(--page-surface)] shadow-[0_10px_20px_rgba(45,25,7,0.04)]'
                 }`}
               >
-                <p className="text-[18px] font-semibold leading-none">{format(day, 'd')}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-secondary)]">
+                  {format(day, 'EEE')}
+                </p>
+                <p
+                  className={`mt-2 font-display text-[22px] leading-none ${
+                    active ? 'text-white' : 'text-[var(--color-text-primary)]'
+                  }`}
+                >
+                  {format(day, 'd')}
+                </p>
                 <p
                   className={`mt-2 text-[11px] uppercase tracking-[0.14em] ${
                     active ? 'text-[var(--color-gold)]' : 'text-[var(--color-text-secondary)]'

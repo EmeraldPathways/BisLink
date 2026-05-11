@@ -4,7 +4,7 @@ import { type RefObject } from 'react';
 import Image from 'next/image';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUpRight, Check, Package, Star, X } from 'lucide-react';
+import { Check, Package, Star, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { formatPrice } from '@/lib/utils/formatting';
 import type { ProductRecord } from '@/types';
@@ -29,6 +29,14 @@ export function ProductSheet({
   const isMobile = useIsMobile();
 
   if (!product) return null;
+
+  const detailRows = [
+    product.category ? { label: 'Category', value: product.category } : null,
+    product.badge ? { label: 'Highlight', value: product.badge } : null,
+    { label: 'Delivery', value: product.is_digital ? 'Digital product' : 'Physical product' },
+    { label: 'Availability', value: product.in_stock ? 'In stock' : 'Sold out' }
+  ].filter(Boolean) as Array<{ label: string; value: string }>;
+  const productDescription = product.description?.trim() || 'More details for this product will be added soon.';
 
   const framed = presentation === 'demo' && !isMobile && containerRef?.current;
   const shellClassName = framed ? 'absolute inset-0 z-50' : 'fixed inset-0 z-50';
@@ -79,11 +87,17 @@ export function ProductSheet({
             </div>
             {!product.in_stock ? <span className="rounded-full bg-[var(--page-surface-emphasis)] px-3 py-1 text-xs font-semibold text-[var(--text-3)]">Sold out</span> : null}
           </div>
-          <div className="mt-4 flex items-center gap-2 text-sm font-medium text-[var(--accent-strong)]">
-            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-            Full product details
+          <div className="mt-5 rounded-[18px] bg-[var(--page-surface-muted)] px-4 py-4">
+            <div className="space-y-3">
+              {detailRows.map((detail) => (
+                <div key={detail.label} className="flex items-start justify-between gap-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-strong)]">{detail.label}</p>
+                  <p className="text-right text-sm font-medium text-[var(--text-1)]">{detail.value}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="mt-3 text-sm leading-6 text-[var(--text-2)]">{product.description}</p>
+          <p className="mt-4 text-sm leading-6 text-[var(--text-2)]">{productDescription}</p>
           <button
             disabled={!product.in_stock}
             onClick={() => (inCart ? onViewCart() : onAdd(product))}
