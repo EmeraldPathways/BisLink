@@ -212,7 +212,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-strong)]">{row.label}</p>
-                    <p className="mt-1.5 break-words text-[14px] font-semibold leading-5 text-[var(--text-1)] sm:text-[15px] sm:leading-6">
+                    <p className="mt-1.5 break-words text-[14px] font-normal leading-5 text-[var(--text-1)] sm:text-[15px] sm:leading-6">
                       {formatContactValue(row.label, row.value)}
                     </p>
                   </div>
@@ -233,7 +233,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                 rel="noreferrer"
                 className={`mt-4 block overflow-hidden rounded-[24px] border border-[var(--page-border)] bg-[#ebefe6] ${mapHref ? '' : 'pointer-events-none'}`}
               >
-                <div className="relative aspect-video overflow-hidden">
+                <div className="relative aspect-[16/6] overflow-hidden">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.75),transparent_28%),linear-gradient(180deg,#eef2e8_0%,#dde6d7_100%)]" />
                   <svg
                     aria-hidden="true"

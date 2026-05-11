@@ -71,15 +71,15 @@ export function HeroSection({
               <h1 className="mt-1 font-display text-[21px] leading-[0.95] text-[var(--text-1)] sm:text-[24px] md:text-[28px]">
                 {business.name}
               </h1>
-              <p className="mt-1 text-[12px] leading-5 text-[var(--accent-strong)] md:text-[13px]">
-                {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
-              </p>
               {hasLocation ? (
-                <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[var(--text-2)] md:text-[13px]">
+                <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[var(--text-2)] md:text-[13px]">
                   <MapPin className="h-3.5 w-3.5 text-[var(--accent-strong)]" />
                   <span className="whitespace-nowrap">{business.location}</span>
                 </div>
               ) : null}
+              <p className="mt-1.5 text-[12px] leading-5 text-[var(--accent-strong)] md:text-[13px]">
+                {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
+              </p>
               {hasReviews ? (
                 <div className="mt-1.5 flex items-center gap-1.5 text-[12px] text-[var(--text-2)]">
                   <Star className="h-3 w-3 fill-[var(--accent)] text-[var(--accent)]" />

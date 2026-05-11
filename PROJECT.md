@@ -236,6 +236,9 @@ Default active tab: `bookings`.
 - The floating mobile cart tab now sits tighter against the bottom menu, can be right-aligned over the mobile nav, and Home now gets the same active-footer highlight state as the other primary nav items when the page is at the top.
 - About now uses the same image-header treatment and content spacing pattern as bookings and shop instead of a separate overlapping hero style.
 - Contact now uses the same image-led section shell as bookings, shop, and about, with minimal one-line contact cards and a bundled location card in the same visual system.
+- Hero mobile layout was tightened so location now sits with the business identity, social icons stay aligned in the top row, the top gap is removed, and hero description spacing is denser on small screens.
+- About mobile layout was simplified so stat cards stack in a single column and the lower booking CTA no longer competes with narrow two-column content.
+- Contact direct methods now render as one stacked list instead of four separate cards, and the location map now uses a wider 16:9-style presentation.
 - Owner dashboard product and service list cards now render uploaded image thumbnails directly in the cards instead of hiding media until the public page preview.
 - `My Link` now supports separate editable hero image, title, and subtitle content for Bookings, Shop, About, and Contact via new business-level section hero fields added in `supabase/migrations/0016_section_hero_fields.sql`.
 - Desktop `My Link` section tabs now also drive the live preview position so Link Settings / Hero / Announcement jump to the top and Portfolio / About / Contact jump directly to the matching public section.
@@ -246,6 +249,9 @@ Default active tab: `bookings`.
 - Booking sheet scrolling was hardened on mobile by switching the sheet panel to an explicit viewport-tied height so the date step remains scrollable inside the bottom sheet.
 - Booking service cards were redesigned into taller editorial cards with icon treatment, larger title hierarchy, a time/price divider row, and a dedicated full-width booking CTA.
 - Booking date selection was redesigned into a centered 7-column mobile calendar with month-only dates, tighter month controls, and a more reference-matched visual layout.
+- Booking date selection has since been simplified further into a compact paged list of upcoming relevant dates only, removing oversized month-grid presentation for mobile.
+- Booking time selection now shows the actual opening window for the selected day so available slots read as connected to business hours rather than as arbitrary times.
+- Booking details now label phone explicitly as optional for services.
 - Bookings, shop, and about sections now use reusable image-led section headers for stronger visual hierarchy on the public page.
 - Product cards and product detail sheets now render uploaded product imagery, and service cards now mirror the product-card layout with a booking icon action.
 - Owner dashboard service and product forms now support direct image uploads, with service images backed by `supabase/migrations/0015_service_images.sql`.
@@ -531,6 +537,9 @@ The app is now mostly live across owner, public, and payment-critical flows.
   - leaner PaymentIntent metadata with persisted pending orders
   - paid-order persistence kept on the webhook path
   - buyer and seller product-order emails via `order-lifecycle`
+  - cart rows now support item removal directly in the checkout sheet
+  - physical-product checkout now requires phone and shipping details in both UI and server validation
+  - product detail sheets now expose concrete metadata (category, delivery type, stock state, highlight badge) instead of an empty “full product details” affordance
 - security remediation pass:
   - root app upgraded to `next@16.2.3`
   - root lint stack upgraded to `eslint@9.27.0` and `eslint-config-next@16.2.3`
@@ -563,6 +572,9 @@ The app is now mostly live across owner, public, and payment-critical flows.
   - compact contact form moved above contact cards
   - city-map style location card treatment
   - month-only booking calendar without adjacent-month filler dates
+  - tighter hero mobile hierarchy with location moved under the business title block
+  - single-column about stats on mobile
+  - flattened contact-method list treatment and wider location-map ratio
 
 ### Still incomplete / highest remaining risk
 
