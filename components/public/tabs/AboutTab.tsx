@@ -50,14 +50,14 @@ export function AboutTab({
 
         <div className="space-y-5 px-4 py-4 sm:px-5 sm:py-5">
           {hasBio ? (
-            <div className="rounded-[28px] border border-[rgba(214,194,164,0.38)] bg-[var(--page-card-bg)] px-6 py-7 shadow-[0_10px_26px_rgba(139,104,37,0.05)]">
+            <div className="rounded-[28px] border border-[rgba(214,194,164,0.38)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[0_10px_26px_rgba(139,104,37,0.05)] sm:px-6 sm:py-7">
               <div className="flex items-start gap-4 sm:gap-5">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)] sm:h-[68px] sm:w-[68px]">
                   <UserRound className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-display text-[28px] leading-none tracking-[-0.02em] text-[var(--text-1)]">Story</h3>
-                  <p className="mt-5 text-[16px] leading-[1.62] text-[var(--text-2)]">{storyPreview}</p>
+                  <h3 className="font-display text-[24px] leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[28px]">Story</h3>
+                  <p className="mt-4 text-[15px] leading-[1.6] text-[var(--text-2)] sm:mt-5 sm:text-[16px] sm:leading-[1.62]">{storyPreview}</p>
                 </div>
               </div>
               {storyParagraphs.length > 1 ? (
@@ -73,21 +73,21 @@ export function AboutTab({
           ) : null}
 
           {visibleStats.length ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2">
               {visibleStats.map((stat, index) => (
                 <div
                   key={stat.label}
                   className={`rounded-[26px] border border-[rgba(214,194,164,0.36)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[0_8px_22px_rgba(139,104,37,0.04)] ${
-                    index === 2 ? 'col-span-1' : ''
+                    index === 2 ? 'min-[360px]:col-span-1' : ''
                   }`}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
                       <stat.icon className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-display text-[22px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
-                      <p className="mt-2 text-[10px] uppercase tracking-[0.1em] text-[var(--accent-strong)]">{stat.label}</p>
+                      <p className="font-display text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
+                      <p className="mt-2 text-[9px] uppercase leading-4 tracking-[0.12em] text-[var(--accent-strong)] sm:text-[10px]">{stat.label}</p>
                     </div>
                   </div>
                 </div>
@@ -96,20 +96,20 @@ export function AboutTab({
           ) : null}
 
           {onBook ? (
-            <div className="flex items-center justify-between gap-4 rounded-[28px] bg-[linear-gradient(135deg,#f4efe6_0%,#f8f4ec_100%)] px-5 py-6 shadow-[0_10px_28px_rgba(139,104,37,0.06)]">
+            <div className="flex flex-col gap-4 rounded-[28px] bg-[linear-gradient(135deg,#f4efe6_0%,#f8f4ec_100%)] px-5 py-5 shadow-[0_10px_28px_rgba(139,104,37,0.06)] sm:flex-row sm:items-center sm:justify-between sm:py-6">
               <div className="flex min-w-0 items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/80 bg-[rgba(255,255,255,0.32)] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.28)] sm:h-[64px] sm:w-[64px]">
                   <Calendar className="h-6 w-6 stroke-[1.7] text-[var(--accent)] sm:h-8 sm:w-8" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[14px] font-semibold text-[var(--text-1)] sm:text-[16px]">Ready to start your journey?</p>
-                  <p className="mt-1.5 text-[13px] leading-[1.4] text-[var(--text-2)] sm:mt-2 sm:text-[15px] sm:leading-[1.45]">Book a session and let&apos;s work together.</p>
+                  <p className="text-[15px] font-semibold text-[var(--text-1)] sm:text-[16px]">Ready to start your journey?</p>
+                  <p className="mt-1.5 max-w-[18rem] text-[13px] leading-[1.45] text-[var(--text-2)] sm:mt-2 sm:text-[15px] sm:leading-[1.45]">Book a session and let&apos;s work together.</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={onBook}
-                className="shrink-0 rounded-[16px] bg-[linear-gradient(135deg,#c99734_0%,#c7922f_100%)] px-5 py-3 text-[13px] font-medium text-white shadow-[0_16px_28px_rgba(139,104,37,0.18)] sm:rounded-[18px] sm:px-7 sm:py-4 sm:text-[15px]"
+                className="inline-flex h-11 w-full items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,#c99734_0%,#c7922f_100%)] px-5 text-[13px] font-medium text-white shadow-[0_16px_28px_rgba(139,104,37,0.18)] sm:h-auto sm:w-auto sm:shrink-0 sm:rounded-[18px] sm:px-7 sm:py-4 sm:text-[15px]"
               >
                 {ctaLabel}
               </button>
@@ -117,19 +117,19 @@ export function AboutTab({
           ) : null}
 
           {extraStats.length ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2">
               {extraStats.map((stat) => (
                 <div
                   key={stat.label}
                   className="rounded-[26px] border border-[rgba(214,194,164,0.36)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[0_8px_22px_rgba(139,104,37,0.04)]"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
                       <stat.icon className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-display text-[22px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
-                      <p className="mt-2 text-[10px] uppercase tracking-[0.1em] text-[var(--accent-strong)]">{stat.label}</p>
+                      <p className="font-display text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
+                      <p className="mt-2 text-[9px] uppercase leading-4 tracking-[0.12em] text-[var(--accent-strong)] sm:text-[10px]">{stat.label}</p>
                     </div>
                   </div>
                 </div>

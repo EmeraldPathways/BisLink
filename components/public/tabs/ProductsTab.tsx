@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Check, Eye, Package, Plus } from 'lucide-react';
+import { Check, Package, Plus } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
 import type { BusinessProfile, ProductRecord } from '@/types';
 import { SectionImageHeader } from '@/components/public/SectionImageHeader';
@@ -105,18 +105,6 @@ export function ProductsTab({
                           Sold out
                         </span>
                       ) : null}
-                      <button
-                        type="button"
-                        aria-label={`Open details for ${product.name}`}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          onOpen(product);
-                        }}
-                        className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-[9px] text-[var(--accent-strong)] shadow-sm"
-                        style={{ backgroundColor: 'color-mix(in srgb, var(--page-card-bg) 90%, transparent)' }}
-                      >
-                        <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-                      </button>
                     </div>
                     <div className="p-3">
                       <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--accent-strong)]">{product.category ?? 'Shop'}</p>

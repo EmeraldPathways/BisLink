@@ -54,43 +54,41 @@ export function HeroSection({
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: seq[0] }}
-            className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+            className="grid grid-cols-[64px_minmax(0,1fr)_78px] items-start gap-x-3 gap-y-2 sm:grid-cols-[64px_minmax(0,1fr)_max-content] sm:gap-x-4"
           >
-            <div className="flex min-w-0 flex-1 items-center gap-3">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--page-border)] bg-[linear-gradient(135deg,#f4deb0,var(--accent))] font-display text-[22px] font-semibold text-[var(--accent-contrast)] shadow-[0_10px_22px_rgba(62,35,8,0.1)]">
-                {business.photo_url ? (
-                  <Image alt={business.name} className="h-full w-full object-cover" height={64} src={business.photo_url} width={64} />
-                ) : (
-                  getInitials(business.name)
-                )}
-              </div>
-
-              <div className="min-w-0">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
-                  {business.category}
-                </div>
-                <h1 className="mt-1 font-display text-[24px] leading-[0.95] text-[var(--text-1)] md:text-[28px]">
-                  {business.name}
-                </h1>
-                <p className="mt-1 text-[12px] leading-5 text-[var(--accent-strong)] md:text-[13px]">
-                  {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
-                </p>
-                {hasReviews ? (
-                  <div className="mt-1.5 flex items-center gap-1.5 text-[12px] text-[var(--text-2)]">
-                    <Star className="h-3 w-3 fill-[var(--accent)] text-[var(--accent)]" />
-                    <span className="font-medium text-[var(--text-1)]">{rating.toFixed(1)}</span>
-                    <span>({reviewCount} reviews)</span>
-                  </div>
-                ) : null}
-              </div>
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--page-border)] bg-[linear-gradient(135deg,#f4deb0,var(--accent))] font-display text-[22px] font-semibold text-[var(--accent-contrast)] shadow-[0_10px_22px_rgba(62,35,8,0.1)]">
+              {business.photo_url ? (
+                <Image alt={business.name} className="h-full w-full object-cover" height={64} src={business.photo_url} width={64} />
+              ) : (
+                getInitials(business.name)
+              )}
             </div>
 
-            <div className="flex w-full flex-col items-start gap-2 pl-[76px] pt-0 text-left sm:w-auto sm:shrink-0 sm:items-end sm:pl-0 sm:pt-1 sm:text-right">
+            <div className="min-w-0 pt-1">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+                {business.category}
+              </div>
+              <h1 className="mt-1 font-display text-[21px] leading-[0.95] text-[var(--text-1)] sm:text-[24px] md:text-[28px]">
+                {business.name}
+              </h1>
+              <p className="mt-1 text-[12px] leading-5 text-[var(--accent-strong)] md:text-[13px]">
+                {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
+              </p>
+              {hasReviews ? (
+                <div className="mt-1.5 flex items-center gap-1.5 text-[12px] text-[var(--text-2)]">
+                  <Star className="h-3 w-3 fill-[var(--accent)] text-[var(--accent)]" />
+                  <span className="font-medium text-[var(--text-1)]">{rating.toFixed(1)}</span>
+                  <span>({reviewCount} reviews)</span>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex w-[78px] shrink-0 flex-col items-end gap-2 pt-1 text-right sm:w-auto">
               <SocialIconLinks business={business} variant="hero" />
               {hasLocation ? (
-                <div className="flex items-center gap-1.5 text-[12px] text-[var(--text-2)] md:text-[13px] sm:justify-end">
+                <div className="flex items-center gap-1 text-[11px] text-[var(--text-2)] md:text-[13px] sm:justify-end">
                   <MapPin className="h-3.5 w-3.5 text-[var(--accent-strong)]" />
-                  <span>{business.location}</span>
+                  <span className="whitespace-nowrap">{business.location}</span>
                 </div>
               ) : null}
             </div>
