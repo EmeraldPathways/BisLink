@@ -51,9 +51,9 @@ export function AboutTab({
         <div className="space-y-5 px-4 py-4 sm:px-5 sm:py-5">
           {hasBio ? (
             <div className="rounded-[28px] border border-[rgba(214,194,164,0.38)] bg-[var(--page-card-bg)] px-6 py-7 shadow-[0_10px_26px_rgba(139,104,37,0.05)]">
-              <div className="flex items-start gap-5">
-                <div className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)]">
-                  <UserRound className="h-8 w-8 stroke-[1.7]" aria-hidden="true" />
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)] sm:h-[68px] sm:w-[68px]">
+                  <UserRound className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
                   <h3 className="font-display text-[28px] leading-none tracking-[-0.02em] text-[var(--text-1)]">Story</h3>
@@ -82,8 +82,8 @@ export function AboutTab({
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)]">
-                      <stat.icon className="h-8 w-8 stroke-[1.7]" aria-hidden="true" />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
+                      <stat.icon className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
                       <p className="font-display text-[22px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>
@@ -98,18 +98,18 @@ export function AboutTab({
           {onBook ? (
             <div className="flex items-center justify-between gap-4 rounded-[28px] bg-[linear-gradient(135deg,#f4efe6_0%,#f8f4ec_100%)] px-5 py-6 shadow-[0_10px_28px_rgba(139,104,37,0.06)]">
               <div className="flex min-w-0 items-center gap-4">
-                <div className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full border border-white/80 bg-[rgba(255,255,255,0.32)] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.28)]">
-                  <Calendar className="h-8 w-8 stroke-[1.7] text-[var(--accent)]" aria-hidden="true" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/80 bg-[rgba(255,255,255,0.32)] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.28)] sm:h-[64px] sm:w-[64px]">
+                  <Calendar className="h-6 w-6 stroke-[1.7] text-[var(--accent)] sm:h-8 sm:w-8" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[16px] font-semibold text-[var(--text-1)]">Ready to start your journey?</p>
-                  <p className="mt-2 text-[15px] leading-[1.45] text-[var(--text-2)]">Book a session and let&apos;s work together.</p>
+                  <p className="text-[14px] font-semibold text-[var(--text-1)] sm:text-[16px]">Ready to start your journey?</p>
+                  <p className="mt-1.5 text-[13px] leading-[1.4] text-[var(--text-2)] sm:mt-2 sm:text-[15px] sm:leading-[1.45]">Book a session and let&apos;s work together.</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={onBook}
-                className="shrink-0 rounded-[18px] bg-[linear-gradient(135deg,#c99734_0%,#c7922f_100%)] px-7 py-4 text-[15px] font-medium text-white shadow-[0_16px_28px_rgba(139,104,37,0.18)]"
+                className="shrink-0 rounded-[16px] bg-[linear-gradient(135deg,#c99734_0%,#c7922f_100%)] px-5 py-3 text-[13px] font-medium text-white shadow-[0_16px_28px_rgba(139,104,37,0.18)] sm:rounded-[18px] sm:px-7 sm:py-4 sm:text-[15px]"
               >
                 {ctaLabel}
               </button>
@@ -124,8 +124,8 @@ export function AboutTab({
                   className="rounded-[26px] border border-[rgba(214,194,164,0.36)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[0_8px_22px_rgba(139,104,37,0.04)]"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)]">
-                      <stat.icon className="h-8 w-8 stroke-[1.7]" aria-hidden="true" />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(202,164,91,0.10)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
+                      <stat.icon className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
                       <p className="font-display text-[22px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)]">{stat.value}</p>

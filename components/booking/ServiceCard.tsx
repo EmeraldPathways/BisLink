@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { CalendarDays, Clock, Eye, UserRound } from 'lucide-react';
+import { CalendarDays, Clock, UserRound } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/formatting';
 import type { Service } from './BookingPage';
 
@@ -44,9 +44,6 @@ export function ServiceCard({
             {service.tag}
           </span>
         ) : null}
-        <div className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-[9px] bg-white/85 text-[var(--accent-strong)] shadow-sm">
-          <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-        </div>
       </div>
 
       <div className="p-3">

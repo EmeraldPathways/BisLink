@@ -198,26 +198,25 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
           </div>
 
           {rows.length ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               {rows.map((row) => (
                 <a
                   key={row.label}
                   href={row.href}
                   target={row.href.startsWith('http') ? '_blank' : undefined}
                   rel={row.href.startsWith('http') ? 'noreferrer' : undefined}
-                  className="rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)]"
+                  className="block rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-5 shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)]"
                 >
-                  <div className="flex flex-col items-center text-center">
+                  <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),var(--page-surface-muted))] text-[var(--accent-strong)]">
                       <row.icon className="h-3.5 w-3.5" strokeWidth={1.5} />
                     </div>
-                    <p className="mt-5 text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-strong)]">{row.label}</p>
-                  </div>
-                  <div className="mt-5 h-px bg-[color:color-mix(in_srgb,var(--page-border)_88%,white)]" />
-                  <div className="mt-5 flex items-center justify-between gap-3">
-                    <p className="min-w-0 flex-1 truncate text-[15px] font-semibold leading-none text-[var(--text-1)]">
-                      {formatContactValue(row.label, row.value)}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-strong)]">{row.label}</p>
+                      <p className="mt-2 truncate text-[15px] font-semibold leading-6 text-[var(--text-1)]">
+                        {formatContactValue(row.label, row.value)}
+                      </p>
+                    </div>
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
                       <ArrowUpRight className="h-4 w-4" />
                     </span>
@@ -228,38 +227,61 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
           ) : null}
 
           {hasLocation ? (
-            <a
-              href={mapHref ?? undefined}
-              target={mapHref?.startsWith('http') ? '_blank' : undefined}
-              rel={mapHref?.startsWith('http') ? 'noreferrer' : undefined}
-              className={`block rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:shadow-[var(--card-hover-shadow)] ${mapHref ? '' : 'pointer-events-none'}`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),var(--page-surface-muted))] text-[var(--accent-strong)]">
-                  <MapPin className="h-4 w-4" strokeWidth={1.6} />
+            <div className="rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
+              <h3 className="font-display text-[30px] leading-none text-[var(--text-1)]">Location</h3>
+              <a
+                href={mapHref ?? '#'}
+                target="_blank"
+                rel="noreferrer"
+                className={`mt-4 block overflow-hidden rounded-[24px] border border-[var(--page-border)] bg-[#ebefe6] ${mapHref ? '' : 'pointer-events-none'}`}
+              >
+                <div className="relative min-h-[210px] overflow-hidden">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.75),transparent_28%),linear-gradient(180deg,#eef2e8_0%,#dde6d7_100%)]" />
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 360 220"
+                    preserveAspectRatio="none"
+                    className="absolute inset-0 h-full w-full"
+                  >
+                    <g fill="none" stroke="rgba(96,122,96,0.22)" strokeWidth="5" strokeLinecap="round">
+                      <path d="M-20 46 C40 30, 84 58, 142 44 S246 22, 380 52" />
+                      <path d="M-10 110 C48 92, 118 134, 188 114 S294 80, 382 120" />
+                      <path d="M-10 180 C82 156, 112 206, 202 182 S302 152, 382 190" />
+                      <path d="M62 -20 C74 46, 48 70, 68 130 S88 210, 72 242" />
+                      <path d="M152 -10 C162 38, 134 88, 164 132 S180 206, 164 240" />
+                      <path d="M252 -16 C270 44, 226 90, 254 144 S274 210, 260 242" />
+                    </g>
+                    <g fill="none" stroke="rgba(191,162,94,0.42)" strokeWidth="9" strokeLinecap="round">
+                      <path d="M-8 76 C44 78, 110 58, 172 72 S286 94, 372 80" />
+                      <path d="M108 -10 C102 36, 128 84, 118 126 S96 204, 108 240" />
+                    </g>
+                    <g fill="rgba(122,148,123,0.18)">
+                      <circle cx="42" cy="42" r="16" />
+                      <circle cx="318" cy="48" r="22" />
+                      <circle cx="300" cy="178" r="18" />
+                      <circle cx="210" cy="154" r="14" />
+                    </g>
+                    <g fill="rgba(88,102,122,0.18)">
+                      <rect x="186" y="34" width="42" height="24" rx="5" />
+                      <rect x="226" y="118" width="34" height="20" rx="4" />
+                      <rect x="88" y="148" width="28" height="18" rx="4" />
+                      <rect x="130" y="88" width="26" height="18" rx="4" />
+                    </g>
+                  </svg>
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,transparent_52%,rgba(255,255,255,0.24)_100%)]" />
+                  <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3 rounded-full border border-white/80 bg-white/95 px-6 py-3 text-sm font-semibold text-[color:color-mix(in_srgb,var(--accent-strong)_88%,#1f2937)] shadow-[0_14px_34px_rgba(20,16,12,0.12)]">
+                    <MapPin className="h-5 w-5" />
+                    Open in Google Maps
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-strong)]">Location</p>
-                  <p className="mt-1 text-[14px] text-[var(--text-3)]">{business.location ?? 'Find us'}</p>
-                </div>
-              </div>
-              <div className="mt-5 h-px bg-[color:color-mix(in_srgb,var(--page-border)_88%,white)]" />
-              <div className="mt-5 flex items-center justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  {locationText ? (
-                    <p className="text-[15px] font-semibold leading-6 text-[var(--text-1)]">{locationText}</p>
-                  ) : null}
-                  {business.parking_notes ? (
-                    <p className="mt-2 text-[13px] leading-5 text-[var(--text-3)]">{business.parking_notes}</p>
-                  ) : null}
-                </div>
-                {mapHref ? (
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[var(--page-surface-muted)] text-[var(--accent-strong)]">
-                    <ArrowUpRight className="h-4 w-4" />
-                  </span>
-                ) : null}
-              </div>
-            </a>
+              </a>
+              {locationText ? (
+                <p className="mt-5 text-[18px] font-semibold leading-8 text-[var(--text-1)]">{locationText}</p>
+              ) : null}
+              {business.parking_notes ? (
+                <p className="mt-2 text-[15px] leading-7 text-[var(--text-3)]">{business.parking_notes}</p>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>

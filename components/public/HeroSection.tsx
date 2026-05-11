@@ -41,7 +41,7 @@ export function HeroSection({
 
         {announcementText?.trim() ? (
           <div className="border-y border-[color:color-mix(in_srgb,var(--accent)_18%,var(--page-border))] bg-[linear-gradient(90deg,color-mix(in_srgb,var(--accent-soft)_72%,white),color-mix(in_srgb,var(--page-surface)_90%,white))] px-5 py-3.5">
-            <div className="flex items-center gap-3 text-[15px] font-medium text-[var(--accent-strong)]">
+            <div className="flex items-center gap-3 text-[13px] font-medium text-[var(--accent-strong)] sm:text-[14px]">
               <Megaphone className="h-4 w-4 shrink-0" />
               <span className="min-w-0 flex-1 truncate sm:whitespace-normal">{announcementText}</span>
               <ChevronRight className="h-4 w-4 shrink-0 text-[var(--text-3)]" />
@@ -50,7 +50,12 @@ export function HeroSection({
         ) : null}
 
         <div className="px-5 pb-6 pt-5">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[0] }} className="flex items-start justify-between gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: seq[0] }}
+            className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+          >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--page-border)] bg-[linear-gradient(135deg,#f4deb0,var(--accent))] font-display text-[22px] font-semibold text-[var(--accent-contrast)] shadow-[0_10px_22px_rgba(62,35,8,0.1)]">
                 {business.photo_url ? (
@@ -80,10 +85,10 @@ export function HeroSection({
               </div>
             </div>
 
-            <div className="flex shrink-0 flex-col items-end gap-2 pt-1 text-right">
+            <div className="flex w-full flex-col items-start gap-2 pl-[76px] pt-0 text-left sm:w-auto sm:shrink-0 sm:items-end sm:pl-0 sm:pt-1 sm:text-right">
               <SocialIconLinks business={business} variant="hero" />
               {hasLocation ? (
-                <div className="flex items-center justify-end gap-1.5 text-[12px] text-[var(--text-2)] md:text-[13px]">
+                <div className="flex items-center gap-1.5 text-[12px] text-[var(--text-2)] md:text-[13px] sm:justify-end">
                   <MapPin className="h-3.5 w-3.5 text-[var(--accent-strong)]" />
                   <span>{business.location}</span>
                 </div>
@@ -91,7 +96,7 @@ export function HeroSection({
             </div>
           </motion.div>
 
-          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 border-t border-[var(--page-border)] pt-5 text-[16px] leading-8 text-[var(--text-2)]">
+          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 border-t border-[var(--page-border)] pt-5 text-[14px] leading-7 text-[var(--text-2)] sm:text-[15px] sm:leading-[1.9]">
             {heroBio}
           </motion.p>
 
@@ -99,7 +104,7 @@ export function HeroSection({
             <button
               type="button"
               onClick={onPrimaryAction}
-              className="mt-6 inline-flex w-full items-center justify-center rounded-[18px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 py-4 text-lg font-semibold text-white shadow-[0_18px_32px_rgba(139,104,37,0.22)]"
+              className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-[18px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 text-[17px] font-semibold text-white shadow-[0_18px_32px_rgba(139,104,37,0.22)] sm:h-14 sm:text-lg"
             >
               {business.primary_cta_label?.trim() || 'Book a Session'}
             </button>

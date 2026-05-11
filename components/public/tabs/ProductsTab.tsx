@@ -31,7 +31,7 @@ export function ProductsTab({
   getQuantity: (productId: string) => number;
 }) {
   return (
-    <section id={id} className="scroll-mt-20 px-2 pb-20 pt-3 md:pb-16">
+    <section id={id} className="scroll-mt-20 px-2 pb-8 pt-3">
       <div className="overflow-hidden rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] shadow-[var(--card-shadow)]">
         <SectionImageHeader
           title={business.products_title?.trim() || 'Shop'}
