@@ -10,7 +10,8 @@ type TicketFilter = 'all' | 'open' | 'in_progress' | 'resolved';
 
 export function SupportInbox({
   tickets,
-  counts
+  counts,
+  statuses,
 }: {
   tickets: SupportTicketRecord[];
   counts: {
@@ -18,6 +19,12 @@ export function SupportInbox({
     inProgress: number;
     resolved: number;
     highPriority: number;
+  };
+  statuses: {
+    stripe: { label: string; tone: 'good' | 'warn' };
+    calendar: { label: string; tone: 'good' | 'warn' };
+    contact: { label: string; tone: 'good' | 'warn' };
+    orders: { label: string; tone: 'good' | 'warn' };
   };
 }) {
   const router = useRouter();
@@ -103,6 +110,21 @@ export function SupportInbox({
           Handle public support questions and escalate platform issues when you
           need admin help.
         </p>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        <StatusCard label="Stripe" value={statuses.stripe.label} tone={statuses.stripe.tone} />
+        <StatusCard
+          label="Calendar"
+          value={statuses.calendar.label}
+          tone={statuses.calendar.tone}
+        />
+        <StatusCard
+          label="Contact"
+          value={statuses.contact.label}
+          tone={statuses.contact.tone}
+        />
+        <StatusCard label="Orders" value={statuses.orders.label} tone={statuses.orders.tone} />
       </div>
 
       <div className="grid gap-3 md:grid-cols-4">
@@ -309,6 +331,31 @@ function CountCard({ label, value }: { label: string; value: number }) {
         {label}
       </p>
       <p className="mt-2 font-display text-4xl text-[var(--color-text-primary)]">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function StatusCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: 'good' | 'warn';
+}) {
+  return (
+    <div className="rounded-[24px] border border-[var(--color-border)] bg-white p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-text-secondary)]">
+        {label}
+      </p>
+      <p
+        className={`mt-2 text-sm font-semibold ${
+          tone === 'good' ? 'text-emerald-700' : 'text-amber-700'
+        }`}
+      >
         {value}
       </p>
     </div>

@@ -26,6 +26,7 @@ import type {
 } from '@/types';
 
 const DEFAULT_CURRENCY = 'usd';
+type StatusTone = 'good' | 'warn';
 
 export async function getDashboardShellData() {
   return getCurrentOwnerBusiness();
@@ -287,8 +288,18 @@ export async function getPayoutsData() {
 }
 
 export async function getSupportData() {
-  const { business } = await getCurrentOwnerBusiness();
+  const { business, user } = await getCurrentOwnerBusiness();
   const supabase = createAdminClient() ?? (await createClient());
+  const stripeStatus = await getStripeConnectionStatus(business);
+  const calendarStatus = getCalendarConnectionStatus(business.google_cal_token);
+  const contactStatus = getContactDeliveryStatus({
+    businessEmail: business.contact_email ?? business.email ?? null,
+    ownerEmail: user.email ?? null
+  });
+  const orderConfirmationStatus = await getOrderConfirmationStatus(
+    business.id,
+    supabase,
+  );
   const { data } = await supabase
     .from('support_tickets')
     .select(
@@ -302,6 +313,24 @@ export async function getSupportData() {
 
   return {
     business,
+    statuses: {
+      stripe: {
+        label: stripeStatus.label,
+        tone: (stripeStatus.connected ? 'good' : 'warn') as StatusTone
+      },
+      calendar: {
+        label: calendarStatus,
+        tone: (calendarStatus === 'Connected' ? 'good' : 'warn') as StatusTone
+      },
+      contact: {
+        label: contactStatus,
+        tone: (contactStatus === 'Contact email configured' ? 'good' : 'warn') as StatusTone
+      },
+      orders: {
+        label: orderConfirmationStatus,
+        tone: (orderConfirmationStatus === 'No pending confirmations' ? 'good' : 'warn') as StatusTone
+      }
+    },
     tickets,
     counts: {
       open: tickets.filter((ticket) => ticket.status === 'open').length,
@@ -310,6 +339,31 @@ export async function getSupportData() {
       highPriority: tickets.filter((ticket) => ticket.priority === 'high').length
     }
   };
+}
+
+async function getOrderConfirmationStatus(
+  businessId: string,
+  supabase: NonNullable<ReturnType<typeof createAdminClient>> | Awaited<ReturnType<typeof createClient>>
+) {
+  const { data } = await supabase
+    .from('orders')
+    .select('status,confirmation_sent')
+    .eq('business_id', businessId)
+    .order('created_at', { ascending: false })
+    .limit(8);
+
+  const pendingOrders = ((data ?? []) as Array<{
+    status: string;
+    confirmation_sent?: boolean | null;
+  }>).filter(
+    (order) =>
+      (order.status === 'paid' || order.status === 'fulfilled') &&
+      order.confirmation_sent !== true
+  ).length;
+
+  return pendingOrders
+    ? `${pendingOrders} pending confirmation`
+    : 'No pending confirmations';
 }
 
 async function getStripeConnectionStatus(business: BusinessProfile) {

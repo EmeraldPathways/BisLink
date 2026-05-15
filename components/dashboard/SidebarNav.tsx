@@ -8,7 +8,6 @@ import {
   Clock3,
   DollarSign,
   Link2,
-  LifeBuoy,
   Settings,
   ShoppingBag,
   Sparkles,
@@ -24,11 +23,15 @@ const navItems = [
   { label: 'Services', href: '/services', icon: Sparkles },
   { label: 'Products', href: '/products', icon: ShoppingBag },
   { label: 'Customers', href: '/customers', icon: Users },
-  { label: 'Support', href: '/support', icon: LifeBuoy },
   { label: 'Reviews', href: '/reviews', icon: Star },
   { label: 'My Link', href: '/link', icon: Link2, match: 'exact' as const },
   { label: 'Theme', href: '/link/theme', icon: Settings, match: 'exact' as const },
   { label: 'Payouts', href: '/payouts', icon: DollarSign },
+];
+
+const utilityItems = [
+  { label: 'Availability', href: '/availability', icon: Settings },
+  { label: 'Settings', href: '/support', icon: Settings },
 ];
 
 function getInitials(name: string): string {
@@ -56,19 +59,6 @@ export function SidebarNav({
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{business.name}</p>
 
         <div className="mt-6 space-y-3">
-          <Link
-            href="/availability"
-            className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-2)]"
-          >
-            <Settings className="h-4 w-4 shrink-0 opacity-70" />
-            Availability
-          </Link>
-
-          <SignOutButton
-            redirectTo="/login"
-            className="flex w-full items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-2)] disabled:cursor-not-allowed disabled:opacity-60"
-          />
-
           <Link
             href={`/${business.slug}`}
             className="btn-primary w-full text-sm"
@@ -113,6 +103,34 @@ export function SidebarNav({
             );
           })}
         </nav>
+
+        <div className="mt-5 border-t border-[var(--color-border)] pt-5">
+          <div className="space-y-2">
+            {utilityItems.map(({ label, href, icon: Icon }) => {
+              const isActive = pathname === href || pathname.startsWith(`${href}/`);
+              return (
+                <Link
+                  key={label}
+                  href={href}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'border-[var(--color-void)] bg-[var(--color-surface-2)] text-[var(--color-void)]'
+                      : 'border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]'
+                  }`}
+                >
+                  <Icon className="h-4 w-4 shrink-0 opacity-70" />
+                  {label}
+                </Link>
+              );
+            })}
+
+            <SignOutButton
+              redirectTo="/login"
+              className="flex w-full items-center gap-3 rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-2)] disabled:cursor-not-allowed disabled:opacity-60"
+            />
+          </div>
+        </div>
       </div>
     </aside>
   );

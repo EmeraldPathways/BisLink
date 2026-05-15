@@ -8,18 +8,12 @@ export default async function Page() {
   const {
     business,
     stripeStatus,
-    calendarStatus,
-    contactStatus,
-    orderConfirmationStatus,
     payouts,
     recentOrders,
     revenue,
     totals,
   } = await getPayoutsData();
   const max = Math.max(...revenue.map((item) => item.amount), 1);
-  const hasContactIssue = contactStatus !== 'Contact email configured';
-  const hasPendingOrders =
-    orderConfirmationStatus !== 'No pending confirmations';
 
   return (
     <div className="space-y-6">
@@ -29,29 +23,6 @@ export default async function Page() {
           Stripe Connect status, revenue totals, and payout history in one
           place.
         </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatusCard
-          label="Stripe"
-          value={stripeStatus.label}
-          tone={stripeStatus.connected ? 'good' : 'warn'}
-        />
-        <StatusCard
-          label="Calendar"
-          value={calendarStatus}
-          tone={calendarStatus === 'Connected' ? 'good' : 'warn'}
-        />
-        <StatusCard
-          label="Contact"
-          value={contactStatus}
-          tone={hasContactIssue ? 'warn' : 'good'}
-        />
-        <StatusCard
-          label="Orders"
-          value={orderConfirmationStatus}
-          tone={hasPendingOrders ? 'warn' : 'good'}
-        />
       </div>
 
       {!stripeStatus.connected ? (
@@ -229,31 +200,6 @@ export default async function Page() {
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function StatusCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: 'good' | 'warn';
-}) {
-  return (
-    <div className="rounded-[22px] border border-[var(--color-border)] bg-white p-5">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
-        {label}
-      </p>
-      <p
-        className={`mt-3 text-sm font-semibold ${
-          tone === 'good' ? 'text-emerald-700' : 'text-amber-700'
-        }`}
-      >
-        {value}
-      </p>
     </div>
   );
 }

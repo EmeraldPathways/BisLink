@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  Calendar,
   CalendarDays,
   Clock3,
   DollarSign,
-  LifeBuoy,
   Link2,
   MoreHorizontal,
   Settings,
@@ -29,12 +29,15 @@ const primaryItems = [
 
 const moreItems = [
   { label: 'Customers', href: '/customers', icon: Users },
-  { label: 'Support', href: '/support', icon: LifeBuoy },
   { label: 'Reviews', href: '/reviews', icon: Star },
   { label: 'My Link', href: '/link', icon: Link2, match: 'exact' as const },
   { label: 'Theme', href: '/link/theme', icon: Settings, match: 'exact' as const },
   { label: 'Payouts', href: '/payouts', icon: DollarSign },
-  { label: 'Availability', href: '/availability', icon: Settings }
+];
+
+const utilityItems = [
+  { label: 'Availability', href: '/availability', icon: Calendar },
+  { label: 'Settings', href: '/support', icon: Settings },
 ];
 
 export function MobileNav({
@@ -147,6 +150,30 @@ export function MobileNav({
                 );
               })}
             </nav>
+
+            <div className="mx-5 mt-3 border-t border-[var(--color-border)] pt-3">
+              <nav aria-label="Utility navigation">
+                {utilityItems.map(({ label, href, icon: Icon }) => {
+                  const isActive =
+                    pathname === href || pathname.startsWith(`${href}/`);
+                  return (
+                    <Link
+                      key={label}
+                      href={href}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-colors hover:bg-[var(--color-surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-void)] ${
+                        isActive
+                          ? 'font-semibold text-[var(--color-void)]'
+                          : 'text-[var(--color-text-primary)]'
+                      }`}
+                    >
+                      <Icon className="h-5 w-5 text-[var(--color-text-secondary)]" aria-hidden="true" />
+                      {label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
 
             <div className="mx-5 mt-4 rounded-2xl bg-[var(--color-surface-2)] p-4">
               <p className="text-sm font-semibold">{business.name}</p>
