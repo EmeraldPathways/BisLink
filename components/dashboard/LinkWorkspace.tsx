@@ -85,6 +85,7 @@ export function LinkWorkspace({
     () => toPreviewBusiness(publicPage.business, form),
     [form, publicPage.business]
   );
+  const previewRenderKey = `${previewBusiness.theme_key}:${previewBusiness.custom_font_pairing ?? 'theme-default'}:${previewBusiness.custom_primary_color ?? 'theme-color'}`;
 
   function updateField<K extends keyof LinkEditorFormState>(
     key: K,
@@ -203,6 +204,7 @@ export function LinkWorkspace({
   const previewFrame = (
     <div className="overflow-hidden rounded-[32px] border border-[var(--color-border)] bg-white">
       <PublicPage
+        key={previewRenderKey}
         business={previewBusiness}
         services={publicPage.services}
         products={publicPage.products}

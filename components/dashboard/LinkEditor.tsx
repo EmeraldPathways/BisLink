@@ -231,11 +231,6 @@ export function LinkEditor({
         onChange={(value) => onFieldChange('category', value)}
       />
       <FormTextArea
-        label="Tagline"
-        value={form.tagline}
-        onChange={(value) => onFieldChange('tagline', value)}
-      />
-      <FormTextArea
         label="Short bio"
         value={form.bio}
         onChange={(value) => onFieldChange('bio', value)}

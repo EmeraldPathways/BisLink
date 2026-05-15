@@ -23,7 +23,7 @@ export function HeroSection({
   const seq = [0, 0.07, 0.13, 0.19];
   const hasReviews = reviewCount > 0;
   const hasLocation = Boolean(business.location);
-  const heroBio = business.bio?.trim() || business.tagline?.trim() || 'Book your next session in a few taps.';
+  const heroBio = business.bio?.trim() || 'Book your next session in a few taps.';
 
   return (
     <header className="relative isolate px-2 pt-0 md:px-0">
@@ -39,12 +39,11 @@ export function HeroSection({
           </div>
           <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-12 md:px-6 md:pb-6">
             <div className="max-w-[18rem]">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/72">{business.category}</p>
               <h2 className="mt-2 font-display text-[28px] leading-[0.95] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.28)] md:text-[34px]">
                 {business.name}
               </h2>
-              <p className="mt-2 text-[13px] leading-5 text-[var(--accent)] md:text-[14px] md:leading-6">
-                {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
+              <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)] md:text-[11px]">
+                {business.category}
               </p>
             </div>
           </div>
@@ -76,12 +75,12 @@ export function HeroSection({
             </div>
 
             <div className="min-w-0 pt-1">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
-                {business.category}
-              </div>
-              <h1 className="mt-1 font-display text-[21px] leading-[0.95] text-[var(--text-1)] sm:text-[24px] md:text-[28px]">
+              <h1 className="font-display text-[21px] leading-[0.95] text-[var(--text-1)] sm:text-[24px] md:text-[28px]">
                 {business.name}
               </h1>
+              <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+                {business.category}
+              </div>
               {hasLocation ? (
                 <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[var(--text-2)] md:text-[13px]">
                   <MapPin className="h-3.5 w-3.5 text-[var(--accent-strong)]" />

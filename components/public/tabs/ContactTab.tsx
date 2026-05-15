@@ -181,7 +181,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                 {errors.message ? <p className="text-xs text-red-600">{errors.message}</p> : null}
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="min-h-[20px]">
                   {message ? <p className="text-xs text-green-700">{message}</p> : null}
                   {error ? <p className="text-xs text-red-600">{error}</p> : null}
