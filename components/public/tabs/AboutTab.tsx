@@ -50,13 +50,13 @@ export function AboutTab({
 
         <div className="space-y-5 px-4 py-4 sm:px-5 sm:py-5">
           {hasBio ? (
-            <div className="rounded-[28px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)] sm:px-6 sm:py-7">
+            <div className="px-1 py-1 sm:px-2">
               <div className="flex items-start gap-4 sm:gap-5">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)] sm:h-[68px] sm:w-[68px]">
-                  <UserRound className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
+                <div className="flex h-[clamp(3rem,9vw,4.25rem)] w-[clamp(3rem,9vw,4.25rem)] shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">
+                  <UserRound className="h-[clamp(1.5rem,4vw,2rem)] w-[clamp(1.5rem,4vw,2rem)] stroke-[1.7]" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-display text-[24px] leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[28px]">Story</h3>
+                  <h3 className="text-[24px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[28px]">Story</h3>
                   <p className="mt-4 text-[15px] leading-[1.6] text-[var(--text-2)] sm:mt-5 sm:text-[16px] sm:leading-[1.62]">{storyPreview}</p>
                 </div>
               </div>
@@ -73,20 +73,18 @@ export function AboutTab({
           ) : null}
 
           {visibleStats.length ? (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="divide-y divide-[var(--page-border)] border-y border-[var(--page-border)]">
               {visibleStats.map((stat, index) => (
                 <div
                   key={stat.label}
-                  className={`rounded-[26px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)] ${
-                    index === 2 ? 'col-span-1' : ''
-                  }`}
+                  className={`px-1 py-5 sm:px-2 ${index === 0 ? 'pt-4' : ''}`}
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
-                      <stat.icon className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
+                    <div className="flex h-[clamp(3rem,8vw,4rem)] w-[clamp(3rem,8vw,4rem)] shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">
+                      <stat.icon className="h-[clamp(1.5rem,4vw,2rem)] w-[clamp(1.5rem,4vw,2rem)] stroke-[1.7]" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-display text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
+                      <p className="text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
                       <p className="mt-2 text-[9px] uppercase leading-4 tracking-[0.12em] text-[var(--accent-strong)] sm:text-[10px]">{stat.label}</p>
                     </div>
                   </div>
@@ -98,8 +96,8 @@ export function AboutTab({
           {onBook ? (
             <div className="flex flex-col gap-4 rounded-[28px] border border-[var(--page-border)] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--page-surface-muted)_82%,var(--accent-soft))_0%,color-mix(in_srgb,var(--page-card-bg)_88%,var(--accent-soft))_100%)] px-5 py-5 shadow-[var(--card-shadow)] sm:flex-row sm:items-center sm:justify-between sm:py-6">
               <div className="flex min-w-0 items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[var(--page-border-strong)] bg-[color-mix(in_srgb,var(--page-card-bg)_74%,var(--accent-soft))] text-[var(--accent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--page-border)_72%,transparent)] sm:h-[64px] sm:w-[64px]">
-                  <Calendar className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
+                <div className="flex h-[clamp(3rem,8vw,4rem)] w-[clamp(3rem,8vw,4rem)] shrink-0 items-center justify-center rounded-full border border-[var(--page-border-strong)] bg-[color-mix(in_srgb,var(--page-card-bg)_74%,var(--accent-soft))] text-[var(--accent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--page-border)_72%,transparent)]">
+                  <Calendar className="h-[clamp(1.5rem,4vw,2rem)] w-[clamp(1.5rem,4vw,2rem)] stroke-[1.7]" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[15px] font-semibold text-[var(--text-1)] sm:text-[16px]">Ready to start your journey?</p>
@@ -117,18 +115,18 @@ export function AboutTab({
           ) : null}
 
           {extraStats.length ? (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="divide-y divide-[var(--page-border)] border-y border-[var(--page-border)]">
               {extraStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-[26px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-5 py-6 shadow-[var(--card-shadow)]"
+                  className="px-1 py-5 sm:px-2"
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)] sm:h-[64px] sm:w-[64px]">
-                      <stat.icon className="h-6 w-6 stroke-[1.7] sm:h-8 sm:w-8" aria-hidden="true" />
+                    <div className="flex h-[clamp(3rem,8vw,4rem)] w-[clamp(3rem,8vw,4rem)] shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">
+                      <stat.icon className="h-[clamp(1.5rem,4vw,2rem)] w-[clamp(1.5rem,4vw,2rem)] stroke-[1.7]" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-display text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
+                      <p className="text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
                       <p className="mt-2 text-[9px] uppercase leading-4 tracking-[0.12em] text-[var(--accent-strong)] sm:text-[10px]">{stat.label}</p>
                     </div>
                   </div>
@@ -138,12 +136,12 @@ export function AboutTab({
           ) : null}
 
           {hasCredentials ? (
-            <div className="rounded-[24px] bg-[var(--page-surface-muted)] p-5">
-              <h3 className="font-display text-[19px] text-[var(--text-1)]">Credentials</h3>
+            <div className="border-t border-[var(--page-border)] px-1 pt-5 sm:px-2">
+              <h3 className="text-[19px] font-semibold text-[var(--text-1)]">Credentials</h3>
               <div className="mt-4 flex flex-wrap gap-2">
                 {credentials.map((credential) => (
                   <span key={credential.id} className="flex items-center gap-1 rounded-full bg-[var(--badge-soft-bg)] px-3 py-1.5 text-[11px] font-semibold text-[var(--badge-soft-text)]">
-                    <Check className="h-3 w-3" aria-hidden="true" /> {credential.label}
+                    <Check className="h-[clamp(0.75rem,2vw,0.875rem)] w-[clamp(0.75rem,2vw,0.875rem)]" aria-hidden="true" /> {credential.label}
                   </span>
                 ))}
               </div>
@@ -151,8 +149,8 @@ export function AboutTab({
           ) : null}
 
           {hasSpecialisms ? (
-            <div className="rounded-[24px] bg-[var(--page-surface-muted)] p-5">
-              <h3 className="font-display text-[19px] text-[var(--text-1)]">Specialisms</h3>
+            <div className="border-t border-[var(--page-border)] px-1 pt-5 sm:px-2">
+              <h3 className="text-[19px] font-semibold text-[var(--text-1)]">Specialisms</h3>
               <div className="mt-4 flex flex-wrap gap-2">
                 {specialisms.map((specialism) => (
                   <span key={specialism.id} className="rounded-full bg-[var(--page-card-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--text-2)]">

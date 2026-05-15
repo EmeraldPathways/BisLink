@@ -112,7 +112,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
         />
 
         <div className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
-          <div className="rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] px-4 py-4 shadow-[var(--card-shadow)]">
+          <div className="px-1 py-1 sm:px-2">
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="hidden">
                 <label htmlFor="contact-website">Website</label>
@@ -198,14 +198,14 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
           </div>
 
           {rows.length ? (
-            <div className="overflow-hidden rounded-[24px] border border-[var(--page-border)] bg-[var(--page-card-bg)]">
+            <div className="space-y-3 px-1 py-1 sm:px-2">
               {rows.map((row) => (
                 <a
                   key={row.label}
                   href={row.href}
                   target={row.href.startsWith('http') ? '_blank' : undefined}
                   rel={row.href.startsWith('http') ? 'noreferrer' : undefined}
-                  className="flex items-start gap-4 border-b border-[var(--page-border)] px-5 py-4 last:border-b-0"
+                  className="flex items-start gap-4 py-1"
                 >
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),var(--page-surface-muted))] text-[var(--accent-strong)]">
                     <row.icon className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -225,48 +225,81 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
           ) : null}
 
           {hasLocation ? (
-            <div className="rounded-[30px] border border-[var(--page-border)] bg-[var(--page-card-bg)] p-5 shadow-[var(--card-shadow)]">
-              <h3 className="font-display text-[30px] leading-none text-[var(--text-1)]">Location</h3>
+            <div className="border-t border-[var(--page-border)] px-1 pt-5 sm:px-2">
               <a
                 href={mapHref ?? '#'}
                 target="_blank"
                 rel="noreferrer"
-                className={`mt-4 block overflow-hidden rounded-[24px] border border-[var(--page-border)] bg-[#ebefe6] ${mapHref ? '' : 'pointer-events-none'}`}
+                className={`block overflow-hidden rounded-[24px] border border-[var(--page-border)] bg-[#ebefe6] ${mapHref ? '' : 'pointer-events-none'}`}
               >
                 <div className="relative aspect-[16/6] overflow-hidden">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.75),transparent_28%),linear-gradient(180deg,#eef2e8_0%,#dde6d7_100%)]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.85),transparent_26%),linear-gradient(180deg,#f5f2ec_0%,#e5ece1_100%)]" />
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 360 220"
                     preserveAspectRatio="none"
                     className="absolute inset-0 h-full w-full"
                   >
-                    <g fill="none" stroke="rgba(96,122,96,0.22)" strokeWidth="5" strokeLinecap="round">
-                      <path d="M-20 46 C40 30, 84 58, 142 44 S246 22, 380 52" />
-                      <path d="M-10 110 C48 92, 118 134, 188 114 S294 80, 382 120" />
-                      <path d="M-10 180 C82 156, 112 206, 202 182 S302 152, 382 190" />
-                      <path d="M62 -20 C74 46, 48 70, 68 130 S88 210, 72 242" />
-                      <path d="M152 -10 C162 38, 134 88, 164 132 S180 206, 164 240" />
-                      <path d="M252 -16 C270 44, 226 90, 254 144 S274 210, 260 242" />
+                    <g fill="rgba(132,158,128,0.22)">
+                      <path d="M12 22h74a10 10 0 0 1 10 10v44a10 10 0 0 1-10 10H18a10 10 0 0 1-10-10V30a8 8 0 0 1 4-8z" />
+                      <path d="M278 18h60a10 10 0 0 1 10 10v56a10 10 0 0 1-10 10h-52a10 10 0 0 1-10-10V28a10 10 0 0 1 2-10z" />
+                      <path d="M232 150h92a10 10 0 0 1 10 10v42a10 10 0 0 1-10 10h-98a10 10 0 0 1-10-10v-32a20 20 0 0 1 16-20z" />
                     </g>
-                    <g fill="none" stroke="rgba(191,162,94,0.42)" strokeWidth="9" strokeLinecap="round">
-                      <path d="M-8 76 C44 78, 110 58, 172 72 S286 94, 372 80" />
-                      <path d="M108 -10 C102 36, 128 84, 118 126 S96 204, 108 240" />
+                    <g fill="rgba(131,165,190,0.18)">
+                      <path d="M120 22h122a12 12 0 0 1 12 12v34a12 12 0 0 1-12 12H128a12 12 0 0 1-12-12V34a12 12 0 0 1 4-12z" />
                     </g>
-                    <g fill="rgba(122,148,123,0.18)">
-                      <circle cx="42" cy="42" r="16" />
-                      <circle cx="318" cy="48" r="22" />
-                      <circle cx="300" cy="178" r="18" />
-                      <circle cx="210" cy="154" r="14" />
+                    <g fill="rgba(99,110,124,0.12)">
+                      <rect x="34" y="106" width="42" height="26" rx="6" />
+                      <rect x="84" y="104" width="34" height="30" rx="6" />
+                      <rect x="126" y="102" width="38" height="34" rx="6" />
+                      <rect x="176" y="100" width="28" height="38" rx="6" />
+                      <rect x="216" y="104" width="30" height="30" rx="6" />
+                      <rect x="258" y="104" width="42" height="28" rx="6" />
+                      <rect x="52" y="150" width="34" height="22" rx="5" />
+                      <rect x="94" y="146" width="28" height="30" rx="5" />
+                      <rect x="132" y="148" width="54" height="24" rx="5" />
+                      <rect x="40" y="182" width="52" height="18" rx="5" />
+                      <rect x="104" y="182" width="34" height="18" rx="5" />
+                      <rect x="150" y="180" width="30" height="20" rx="5" />
                     </g>
-                    <g fill="rgba(88,102,122,0.18)">
-                      <rect x="186" y="34" width="42" height="24" rx="5" />
-                      <rect x="226" y="118" width="34" height="20" rx="4" />
-                      <rect x="88" y="148" width="28" height="18" rx="4" />
-                      <rect x="130" y="88" width="26" height="18" rx="4" />
+                    <g fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M-12 92 H374" />
+                      <path d="M20 142 H330" />
+                      <path d="M106 -10 V236" />
+                      <path d="M206 -10 V236" />
+                    </g>
+                    <g fill="none" stroke="rgba(255,255,255,0.72)" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M-12 50 H124" />
+                      <path d="M152 50 H372" />
+                      <path d="M18 188 H228" />
+                      <path d="M38 18 V92" />
+                      <path d="M38 142 V218" />
+                      <path d="M156 78 V220" />
+                      <path d="M258 18 V142" />
+                      <path d="M316 92 V220" />
+                      <path d="M236 148 C258 142, 276 128, 292 104" />
+                    </g>
+                    <g fill="none" stroke="rgba(199,167,96,0.52)" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M-16 116 C44 102, 94 118, 146 110 S258 92, 378 110" />
+                      <path d="M182 -10 C174 42, 192 82, 190 126 S178 200, 184 236" />
+                    </g>
+                    <g fill="none" stroke="rgba(255,255,255,0.64)" strokeWidth="2.5" strokeDasharray="7 8" strokeLinecap="round">
+                      <path d="M-8 92 H372" />
+                      <path d="M20 142 H330" />
+                      <path d="M106 -10 V236" />
+                      <path d="M206 -10 V236" />
+                    </g>
+                    <g transform="translate(212 106)">
+                      <circle r="34" fill="rgba(201,164,92,0.18)" />
+                      <circle r="20" fill="rgba(201,164,92,0.22)" />
+                      <path
+                        d="M0-18c-9.39 0-17 7.61-17 17 0 12.75 17 31 17 31s17-18.25 17-31c0-9.39-7.61-17-17-17z"
+                        fill="rgba(166,107,32,0.96)"
+                      />
+                      <circle cy="-1" r="6" fill="white" />
                     </g>
                   </svg>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,transparent_52%,rgba(255,255,255,0.24)_100%)]" />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0)_30%,rgba(17,24,39,0.03)_100%)]" />
                   <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3 rounded-full border border-white/80 bg-white/95 px-6 py-3 text-sm font-semibold text-[color:color-mix(in_srgb,var(--accent-strong)_88%,#1f2937)] shadow-[0_14px_34px_rgba(20,16,12,0.12)]">
                     <MapPin className="h-5 w-5" />
                     Open in Google Maps
