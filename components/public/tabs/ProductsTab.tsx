@@ -48,7 +48,7 @@ export function ProductsTab({
                 <button
                   key={category}
                   onClick={() => onCategoryChange(category)}
-                  className={`rounded-full border px-4 py-2 text-sm font-medium ${active ? 'border-[var(--cta-bg)] bg-[var(--cta-bg)] text-[var(--cta-text)]' : 'border-[var(--border)] bg-[var(--page-card-bg)] text-[var(--text-3)]'}`}
+                  className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${active ? 'border-[var(--cta-bg)] bg-[var(--cta-bg)] text-[var(--cta-text)]' : 'border-[color:color-mix(in_srgb,var(--accent-strong)_18%,var(--page-border))] bg-[color:color-mix(in_srgb,var(--page-surface-muted)_78%,white)] text-[var(--text-2)]'}`}
                 >
                   {category}
                 </button>

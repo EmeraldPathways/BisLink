@@ -32,10 +32,21 @@ export function HeroSection({
           {business.cover_image_url ? (
             <Image src={business.cover_image_url} alt={`${business.name} cover image`} fill className="object-cover" priority />
           ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/18 to-white/10" />
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
             <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[var(--hero-glow-soft)] blur-3xl" />
             <div className="absolute -right-8 top-8 h-36 w-36 rounded-full bg-white/20 blur-3xl" />
+          </div>
+          <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-12 md:px-6 md:pb-6">
+            <div className="max-w-[18rem]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/72">{business.category}</p>
+              <h2 className="mt-2 font-display text-[28px] leading-[0.95] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.28)] md:text-[34px]">
+                {business.name}
+              </h2>
+              <p className="mt-2 text-[13px] leading-5 text-white/82 md:text-[14px] md:leading-6">
+                {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -94,7 +105,7 @@ export function HeroSection({
             </div>
           </motion.div>
 
-          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 border-t border-[var(--page-border)] pt-5 text-[14px] leading-5 text-[var(--text-2)] sm:text-[15px] sm:leading-6">
+          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: seq[3] }} className="mt-5 text-[14px] leading-5 text-[var(--text-2)] sm:text-[15px] sm:leading-6">
             {heroBio}
           </motion.p>
 

@@ -73,11 +73,11 @@ export function AboutTab({
           ) : null}
 
           {visibleStats.length ? (
-            <div className="divide-y divide-[var(--page-border)] border-y border-[var(--page-border)]">
+            <div className="space-y-5">
               {visibleStats.map((stat, index) => (
                 <div
                   key={stat.label}
-                  className={`px-1 py-5 sm:px-2 ${index === 0 ? 'pt-4' : ''}`}
+                  className={`px-1 sm:px-2 ${index === 0 ? '' : ''}`}
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="flex h-[clamp(3rem,8vw,4rem)] w-[clamp(3rem,8vw,4rem)] shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">
@@ -107,7 +107,7 @@ export function AboutTab({
               <button
                 type="button"
                 onClick={onBook}
-                className="inline-flex h-11 w-full items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,var(--cta-bg)_0%,color-mix(in_srgb,var(--cta-bg)_70%,var(--accent))_100%)] px-5 text-[13px] font-medium text-[var(--cta-text)] shadow-[var(--card-hover-shadow)] sm:h-auto sm:w-auto sm:shrink-0 sm:rounded-[18px] sm:px-7 sm:py-4 sm:text-[15px]"
+                className="inline-flex h-11 w-full items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 text-[13px] font-semibold text-white shadow-[0_18px_32px_rgba(139,104,37,0.22)] sm:h-auto sm:w-auto sm:shrink-0 sm:rounded-[18px] sm:px-7 sm:py-4 sm:text-[15px]"
               >
                 {ctaLabel}
               </button>
@@ -115,11 +115,11 @@ export function AboutTab({
           ) : null}
 
           {extraStats.length ? (
-            <div className="divide-y divide-[var(--page-border)] border-y border-[var(--page-border)]">
+            <div className="space-y-5">
               {extraStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="px-1 py-5 sm:px-2"
+                  className="px-1 sm:px-2"
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="flex h-[clamp(3rem,8vw,4rem)] w-[clamp(3rem,8vw,4rem)] shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">

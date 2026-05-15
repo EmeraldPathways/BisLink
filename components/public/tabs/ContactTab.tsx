@@ -181,14 +181,14 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
                 {errors.message ? <p className="text-xs text-red-600">{errors.message}</p> : null}
               </div>
 
-              <div className="flex items-center justify-between gap-3">
+              <div className="space-y-3">
                 <div className="min-h-[20px]">
                   {message ? <p className="text-xs text-green-700">{message}</p> : null}
                   {error ? <p className="text-xs text-red-600">{error}</p> : null}
                 </div>
                 <button
                   disabled={loading}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-[16px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_32px_rgba(139,104,37,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[16px] bg-[linear-gradient(135deg,var(--accent),var(--accent-strong))] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_32px_rgba(139,104,37,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Send className="h-4 w-4" aria-hidden="true" />
                   {loading ? 'Sending...' : 'Send'}
@@ -198,7 +198,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
           </div>
 
           {rows.length ? (
-            <div className="space-y-3 px-1 py-1 sm:px-2">
+            <div className="space-y-3 border-t border-[var(--page-border)] px-1 pt-5 sm:px-2">
               {rows.map((row) => (
                 <a
                   key={row.label}
