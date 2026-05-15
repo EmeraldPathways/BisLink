@@ -16,40 +16,49 @@ export async function GET(req: NextRequest) {
   const error = req.nextUrl.searchParams.get('error');
   const state = decodeGoogleOAuthState(req.nextUrl.searchParams.get('state'));
   const nextPath = sanitizeNextPath(state.next);
+  const stateCookie = req.cookies.get('google_oauth_state')?.value;
 
   if (error) {
-    return NextResponse.redirect(
-      new URL(
-        `${nextPath}?googleCalendar=error&reason=${encodeURIComponent(error)}`,
-        appUrl,
-      ),
+    return redirectToCalendar(
+      appUrl,
+      `${nextPath}?googleCalendar=error&reason=${encodeURIComponent(error)}`,
     );
   }
 
   if (!code) {
-    return NextResponse.redirect(
-      new URL(`${nextPath}?googleCalendar=error&reason=missing_code`, appUrl),
+    return redirectToCalendar(
+      appUrl,
+      `${nextPath}?googleCalendar=error&reason=missing_code`,
+    );
+  }
+
+  if (
+    !state.nonce ||
+    !stateCookie ||
+    state.nonce !== stateCookie
+  ) {
+    return redirectToCalendar(
+      appUrl,
+      `${nextPath}?googleCalendar=error&reason=invalid_state`,
     );
   }
 
   const admin = createAdminClient();
   if (!admin) {
-    return NextResponse.redirect(
-      new URL(`${nextPath}?googleCalendar=error&reason=missing_admin`, appUrl),
+    return redirectToCalendar(
+      appUrl,
+      `${nextPath}?googleCalendar=error&reason=missing_admin`,
     );
   }
 
   try {
     const tokens = await exchangeCodeForTokens(code);
-    const businessId =
-      state.businessId ?? (await getBusinessIdForCurrentUser());
+    const businessId = await getBusinessIdForCurrentUser();
 
     if (!businessId) {
-      return NextResponse.redirect(
-        new URL(
-          `${nextPath}?googleCalendar=error&reason=missing_business`,
-          appUrl,
-        ),
+      return redirectToCalendar(
+        appUrl,
+        `${nextPath}?googleCalendar=error&reason=missing_business`,
       );
     }
 
@@ -69,21 +78,18 @@ export async function GET(req: NextRequest) {
       .eq('id', businessId);
     if (updateError) {
       console.error('[google callback] Failed to save tokens:', updateError);
-      return NextResponse.redirect(
-        new URL(`${nextPath}?googleCalendar=error&reason=save_failed`, appUrl),
+      return redirectToCalendar(
+        appUrl,
+        `${nextPath}?googleCalendar=error&reason=save_failed`,
       );
     }
 
-    return NextResponse.redirect(
-      new URL(`${nextPath}?googleCalendar=connected`, appUrl),
-    );
+    return redirectToCalendar(appUrl, `${nextPath}?googleCalendar=connected`);
   } catch (tokenError) {
     console.error('[google callback] Token exchange failed:', tokenError);
-    return NextResponse.redirect(
-      new URL(
-        `${nextPath}?googleCalendar=error&reason=token_exchange_failed`,
-        appUrl,
-      ),
+    return redirectToCalendar(
+      appUrl,
+      `${nextPath}?googleCalendar=error&reason=token_exchange_failed`,
     );
   }
 }
@@ -114,11 +120,27 @@ async function getBusinessIdForCurrentUser() {
 }
 
 function sanitizeNextPath(nextPath?: string) {
-  if (!nextPath?.startsWith('/')) {
+  if (
+    !nextPath?.startsWith('/') ||
+    nextPath.startsWith('//') ||
+    nextPath.includes('\\')
+  ) {
     return '/calendar';
   }
 
   return nextPath;
+}
+
+function redirectToCalendar(appUrl: string, path: string) {
+  const response = NextResponse.redirect(new URL(path, appUrl));
+  response.cookies.set('google_oauth_state', '', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/api/calendar/google/callback',
+    maxAge: 0,
+  });
+  return response;
 }
 
 async function exchangeCodeForTokens(code: string) {

@@ -4,6 +4,7 @@ import { isMissingRelationError } from '@/lib/supabase/schema-compat';
 import { listServices } from '@/lib/service-schema';
 import { getStripe } from '@/lib/stripe/client';
 import { getCurrentOwnerBusiness } from '@/lib/owner';
+import { hasGoogleCalendarRefreshToken } from '@/lib/google/oauth';
 import type {
   AvailabilityRecord,
   BlockedTimeRecord,
@@ -370,7 +371,7 @@ function getCalendarConnectionStatus(token: unknown) {
   }
 
   if (!token) return 'Not connected';
-  if (typeof token === 'object' && token && 'refresh_token' in token && (token as { refresh_token?: string | null }).refresh_token) {
+  if (hasGoogleCalendarRefreshToken(token)) {
     return 'Connected';
   }
 

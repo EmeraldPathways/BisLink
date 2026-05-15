@@ -1,7 +1,20 @@
 type OAuthState = {
-  businessId?: string;
   next?: string;
+  nonce?: string;
 };
+
+export function hasGoogleCalendarRefreshToken(
+  token: unknown,
+): token is { refresh_token: string } {
+  return Boolean(
+    token &&
+      typeof token === 'object' &&
+      'refresh_token' in token &&
+      typeof (token as { refresh_token?: unknown }).refresh_token ===
+        'string' &&
+      (token as { refresh_token: string }).refresh_token.trim(),
+  );
+}
 
 export function getGoogleOAuthRedirectUri() {
   const fallback = 'http://localhost:3000/api/calendar/google/callback';
