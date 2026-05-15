@@ -252,10 +252,10 @@ export function LinkEditor({
   );
 
   const bookingsHeroSection = (
-    <EditorSection title="Bookings Hero" description="Section image, title, and subtitle for the bookings area.">
+    <EditorSection title="Bookings">
       <SectionHeroFields
         prefix="bookings"
-        title="Bookings hero"
+        title="Bookings"
         imageValue={form.bookings_image_url}
         titleValue={form.bookings_title}
         subtitleValue={form.bookings_subtitle}
@@ -268,10 +268,10 @@ export function LinkEditor({
   );
 
   const productsHeroSection = (
-    <EditorSection title="Shop Hero" description="Section image, title, and subtitle for the shop area.">
+    <EditorSection title="Shop">
       <SectionHeroFields
         prefix="products"
-        title="Shop hero"
+        title="Shop"
         imageValue={form.products_image_url}
         titleValue={form.products_title}
         subtitleValue={form.products_subtitle}
@@ -319,10 +319,10 @@ export function LinkEditor({
   );
 
   const aboutSection = (
-    <EditorSection title="About & Trust" description="Example: Clients Helped / 200+">
+    <EditorSection title="About & Trust">
       <SectionHeroFields
         prefix="about"
-        title="About hero"
+        title="About"
         imageValue={form.about_image_url}
         titleValue={form.about_title}
         subtitleValue={form.about_subtitle}
@@ -382,10 +382,10 @@ export function LinkEditor({
   );
 
   const contactSection = (
-    <EditorSection title="Contact & Social Links">
+    <EditorSection title="Contact & Social">
       <SectionHeroFields
         prefix="contact"
-        title="Contact hero"
+        title="Contact"
         imageValue={form.contact_image_url}
         titleValue={form.contact_title}
         subtitleValue={form.contact_subtitle}
@@ -721,29 +721,20 @@ function SectionHeroFields({
 }) {
   return (
     <div className="space-y-3">
-      <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
-          {title}
-        </p>
-        <p className="mt-1 text-[11px] text-[var(--color-text-secondary)]">
-          16:9 image with custom title and subtitle.
-        </p>
-      </div>
       <ImageUploadField
-        label={`${title} image`}
+        label="Image"
         value={imageValue}
         kind="cover"
         chrome="plain"
-        aspectHint="16:9 image required."
         onChange={(url) => onFieldChange(`${prefix}_image_url` as keyof LinkEditorFormState, url as LinkEditorFormState[keyof LinkEditorFormState])}
       />
       <FormInput
-        label={`${title} title`}
+        label="Title"
         value={titleValue}
         onChange={(value) => onFieldChange(`${prefix}_title` as keyof LinkEditorFormState, value as LinkEditorFormState[keyof LinkEditorFormState])}
       />
       <FormTextArea
-        label={`${title} subtitle`}
+        label="Subtitle"
         value={subtitleValue}
         onChange={(value) => onFieldChange(`${prefix}_subtitle` as keyof LinkEditorFormState, value as LinkEditorFormState[keyof LinkEditorFormState])}
       />

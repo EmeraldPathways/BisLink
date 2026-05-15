@@ -114,7 +114,11 @@ export function PublicPage({
   const showOwnerPreview = Boolean(ownerPreview && isMobile);
   const theme = useMemo(() => resolveBusinessTheme(business.theme_key), [business.theme_key]);
   const themeStyle = useMemo(
-    () => applyBusinessBrandOverrides(theme.style as CSSProperties, business),
+    () => ({
+      ...applyBusinessBrandOverrides(theme.style as CSSProperties, business),
+      color: 'var(--page-text)',
+      fontFamily: 'var(--font-ui)'
+    }),
     [theme.style, business]
   );
   const publishedReviews = useMemo(() => reviews.filter((review) => review.is_published), [reviews]);
