@@ -1,16 +1,27 @@
 import { CalendarDays, Share2 } from 'lucide-react';
 import { formatDateLabel, formatPrice } from '@/lib/utils/formatting';
 import { BookingCard } from './BookingCard';
+import { RecentOrdersPanel } from './RecentOrdersPanel';
 import { StatsBar } from './StatsBar';
 import type { BusinessProfile, DashboardBookingRecord, DashboardStats } from '@/types';
 
 export function TodayView({
   business,
   bookings,
+  recentOrders,
   stats
 }: {
   business: BusinessProfile;
   bookings: DashboardBookingRecord[];
+  recentOrders: Array<{
+    id: string;
+    customer_name: string;
+    customer_email: string;
+    total_amount: number;
+    status: string;
+    created_at: string | null;
+    confirmation_sent?: boolean | null;
+  }>;
   stats: DashboardStats;
 }) {
   return (
@@ -75,6 +86,8 @@ export function TodayView({
           </div>
         )}
       </section>
+
+      <RecentOrdersPanel business={business} recentOrders={recentOrders} />
     </div>
   );
 }

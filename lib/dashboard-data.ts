@@ -37,7 +37,7 @@ export async function getTodayViewData() {
   const supabase = createAdminClient() ?? (await createClient());
   const startDate = subDays(new Date(), 31).toISOString();
 
-  const [{ data: bookings }, { data: orders }, { count: customerCount }, { count: productCount }, { count: reviewCount }] = await Promise.all([
+  const [{ data: bookings }, { data: orders }, { data: recentOrders }, { count: customerCount }, { count: productCount }, { count: reviewCount }] = await Promise.all([
     supabase
       .from('bookings')
       .select('id,business_id,service_id,customer_name,customer_email,customer_phone,start_time,end_time,status,payment_status,payment_intent_id,amount_paid,currency,review_token,notes,confirmation_sent,google_event_id')
@@ -45,6 +45,12 @@ export async function getTodayViewData() {
       .gte('start_time', startDate)
       .order('start_time', { ascending: true }),
     supabase.from('orders').select('total_amount,status,created_at,confirmation_sent').eq('business_id', business.id).gte('created_at', startDate),
+    supabase
+      .from('orders')
+      .select('id,customer_name,customer_email,total_amount,status,created_at,confirmation_sent')
+      .eq('business_id', business.id)
+      .order('created_at', { ascending: false })
+      .limit(8),
     supabase.from('customers').select('*', { count: 'exact', head: true }).eq('business_id', business.id),
     supabase.from('products').select('*', { count: 'exact', head: true }).eq('business_id', business.id).eq('is_active', true),
     supabase.from('reviews').select('*', { count: 'exact', head: true }).eq('business_id', business.id).eq('is_published', true)
@@ -59,12 +65,22 @@ export async function getTodayViewData() {
   });
   const todayKey = getTimeZoneDateKey(new Date(), business.timezone);
 
-  return {
-    business,
-    bookings: dashboardBookings.filter((booking) => getTimeZoneDateKey(new Date(booking.start_time), business.timezone) === todayKey),
-    stats
-  };
-}
+    return {
+      business,
+      bookings: dashboardBookings.filter((booking) => getTimeZoneDateKey(new Date(booking.start_time), business.timezone) === todayKey),
+      recentOrders:
+        (recentOrders ?? []) as Array<{
+          id: string;
+          customer_name: string;
+          customer_email: string;
+          total_amount: number;
+          status: string;
+          created_at: string | null;
+          confirmation_sent?: boolean | null;
+        }>,
+      stats
+    };
+  }
 
 export async function getCalendarData() {
   const { business } = await getCurrentOwnerBusiness();

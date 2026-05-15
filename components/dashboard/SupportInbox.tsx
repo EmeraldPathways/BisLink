@@ -105,10 +105,10 @@ export function SupportInbox({
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-display text-5xl">Support</h1>
+        <h1 className="font-display text-5xl">Settings</h1>
         <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
-          Handle public support questions and escalate platform issues when you
-          need admin help.
+          Manage business support, communication status, and platform help in
+          one place.
         </p>
       </div>
 
@@ -126,63 +126,6 @@ export function SupportInbox({
         />
         <StatusCard label="Orders" value={statuses.orders.label} tone={statuses.orders.tone} />
       </div>
-
-      <div className="grid gap-3 md:grid-cols-4">
-        <CountCard label="Open" value={counts.open} />
-        <CountCard label="In progress" value={counts.inProgress} />
-        <CountCard label="Resolved" value={counts.resolved} />
-        <CountCard label="High priority" value={counts.highPriority} />
-      </div>
-
-      <section className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
-        <div className="flex items-start gap-3">
-          <div className="rounded-2xl bg-[var(--color-surface-2)] p-3 text-[var(--color-gold-dark)]">
-            <LifeBuoy className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <h2 className="font-display text-3xl">Ask admin for help</h2>
-            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
-              Use this for business-owner questions about the platform, payments,
-              or account support.
-            </p>
-          </div>
-        </div>
-
-        <form onSubmit={submitOwnerRequest} className="mt-5 space-y-3">
-          <input
-            value={form.subject}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, subject: event.target.value }))
-            }
-            className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3"
-            placeholder="Subject"
-            minLength={3}
-            maxLength={120}
-            required
-          />
-          <textarea
-            value={form.message}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, message: event.target.value }))
-            }
-            className="min-h-[120px] w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3"
-            placeholder="What do you need help with?"
-            minLength={10}
-            maxLength={2000}
-            required
-          />
-          {formError ? <p className="text-sm text-red-600">{formError}</p> : null}
-          {formSuccess ? (
-            <p className="text-sm text-green-700">{formSuccess}</p>
-          ) : null}
-          <button
-            disabled={isPending}
-            className="rounded-xl bg-[var(--color-void)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
-          >
-            Send support request
-          </button>
-        </form>
-      </section>
 
       <section className="rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -312,6 +255,63 @@ export function SupportInbox({
             </div>
           )}
         </div>
+      </section>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        <CountCard label="Open" value={counts.open} />
+        <CountCard label="In progress" value={counts.inProgress} />
+        <CountCard label="Resolved" value={counts.resolved} />
+        <CountCard label="High priority" value={counts.highPriority} />
+      </div>
+
+      <section className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
+        <div className="flex items-start gap-3">
+          <div className="rounded-2xl bg-[var(--color-surface-2)] p-3 text-[var(--color-gold-dark)]">
+            <LifeBuoy className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="font-display text-3xl">Ask admin for help</h2>
+            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+              Use this for business-owner questions about the platform, payments,
+              or account support.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={submitOwnerRequest} className="mt-5 space-y-3">
+          <input
+            value={form.subject}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, subject: event.target.value }))
+            }
+            className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3"
+            placeholder="Subject"
+            minLength={3}
+            maxLength={120}
+            required
+          />
+          <textarea
+            value={form.message}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, message: event.target.value }))
+            }
+            className="min-h-[120px] w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3"
+            placeholder="What do you need help with?"
+            minLength={10}
+            maxLength={2000}
+            required
+          />
+          {formError ? <p className="text-sm text-red-600">{formError}</p> : null}
+          {formSuccess ? (
+            <p className="text-sm text-green-700">{formSuccess}</p>
+          ) : null}
+          <button
+            disabled={isPending}
+            className="rounded-xl bg-[var(--color-void)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            Send support request
+          </button>
+        </form>
       </section>
 
       {error ? (
