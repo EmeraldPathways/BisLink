@@ -101,7 +101,7 @@ export function ContactTab({ id = 'contact', business }: { id?: string; business
   }
 
   return (
-    <section id={id} className="scroll-mt-20 px-2 pb-10 pt-3">
+    <section id={id} className="scroll-mt-20 px-2 pt-3">
       <div className="overflow-hidden rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] shadow-[var(--card-shadow)]">
         <SectionImageHeader
           title={business.contact_title?.trim() || 'Contact'}

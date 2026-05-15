@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Check, Dumbbell, UserRound, Users } from 'lucide-react';
+import { Calendar, Check, Dumbbell, Users } from 'lucide-react';
 import type { BusinessProfile, CredentialRecord, ReviewRecord, SpecialismRecord } from '@/types';
 import { SectionImageHeader } from '@/components/public/SectionImageHeader';
 
@@ -38,7 +38,7 @@ export function AboutTab({
   const visibleStats = [primaryStat, secondaryStat, tertiaryStat].filter(Boolean) as typeof stats;
 
   return (
-    <section id={id} className="scroll-mt-20 px-2 pb-8 pt-3">
+    <section id={id} className="scroll-mt-20 px-2 pt-3">
       <div className="overflow-hidden rounded-[32px] border border-[var(--page-border)] bg-[var(--page-card-bg)] shadow-[var(--card-shadow)]">
         <SectionImageHeader
           title={business.about_title?.trim() || 'About'}
@@ -51,14 +51,9 @@ export function AboutTab({
         <div className="space-y-5 px-4 py-4 sm:px-5 sm:py-5">
           {hasBio ? (
             <div className="px-1 py-1 sm:px-2">
-              <div className="flex items-start gap-4 sm:gap-5">
-                <div className="flex h-[clamp(3rem,9vw,4.25rem)] w-[clamp(3rem,9vw,4.25rem)] shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">
-                  <UserRound className="h-[clamp(1.5rem,4vw,2rem)] w-[clamp(1.5rem,4vw,2rem)] stroke-[1.7]" aria-hidden="true" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="text-[24px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[28px]">Story</h3>
-                  <p className="mt-4 text-[15px] leading-[1.6] text-[var(--text-2)] sm:mt-5 sm:text-[16px] sm:leading-[1.62]">{storyPreview}</p>
-                </div>
+              <div className="min-w-0">
+                <h3 className="text-[24px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[28px]">Story</h3>
+                <p className="mt-4 text-[15px] leading-[1.6] text-[var(--text-2)] sm:mt-5 sm:text-[16px] sm:leading-[1.62]">{storyPreview}</p>
               </div>
               {storyParagraphs.length > 1 ? (
                 <div className="mt-5 space-y-4">
@@ -79,14 +74,9 @@ export function AboutTab({
                   key={stat.label}
                   className={`px-1 sm:px-2 ${index === 0 ? '' : ''}`}
                 >
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="flex h-[clamp(3rem,8vw,4rem)] w-[clamp(3rem,8vw,4rem)] shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">
-                      <stat.icon className="h-[clamp(1.5rem,4vw,2rem)] w-[clamp(1.5rem,4vw,2rem)] stroke-[1.7]" aria-hidden="true" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
-                      <p className="mt-2 text-[9px] uppercase leading-4 tracking-[0.12em] text-[var(--accent-strong)] sm:text-[10px]">{stat.label}</p>
-                    </div>
+                  <div className="min-w-0">
+                    <p className="text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
+                    <p className="mt-2 text-[9px] uppercase leading-4 tracking-[0.12em] text-[var(--accent-strong)] sm:text-[10px]">{stat.label}</p>
                   </div>
                 </div>
               ))}
@@ -121,14 +111,9 @@ export function AboutTab({
                   key={stat.label}
                   className="px-1 sm:px-2"
                 >
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="flex h-[clamp(3rem,8vw,4rem)] w-[clamp(3rem,8vw,4rem)] shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">
-                      <stat.icon className="h-[clamp(1.5rem,4vw,2rem)] w-[clamp(1.5rem,4vw,2rem)] stroke-[1.7]" aria-hidden="true" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
-                      <p className="mt-2 text-[9px] uppercase leading-4 tracking-[0.12em] text-[var(--accent-strong)] sm:text-[10px]">{stat.label}</p>
-                    </div>
+                  <div className="min-w-0">
+                    <p className="text-[18px] font-semibold leading-none tracking-[-0.02em] text-[var(--text-1)] sm:text-[22px]">{stat.value}</p>
+                    <p className="mt-2 text-[9px] uppercase leading-4 tracking-[0.12em] text-[var(--accent-strong)] sm:text-[10px]">{stat.label}</p>
                   </div>
                 </div>
               ))}

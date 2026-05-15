@@ -20,7 +20,7 @@ export function TrustStrip({
   if (!reviewSummary.publishedCount || !published.length) return null;
 
   return (
-    <section aria-label="Customer reviews" className="px-2 pb-8">
+    <section aria-label="Customer reviews" className="px-2 pt-3">
       <div className="rounded-[var(--card-radius)] border border-[var(--border)] bg-[var(--page-card-bg)] p-4 shadow-[var(--card-shadow)]">
         <div className="flex flex-wrap items-center gap-2">
           <span aria-hidden="true">⭐</span>

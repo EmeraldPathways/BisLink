@@ -43,7 +43,7 @@ export function HeroSection({
               <h2 className="mt-2 font-display text-[28px] leading-[0.95] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.28)] md:text-[34px]">
                 {business.name}
               </h2>
-              <p className="mt-2 text-[13px] leading-5 text-white/82 md:text-[14px] md:leading-6">
+              <p className="mt-2 text-[13px] leading-5 text-[var(--accent)] md:text-[14px] md:leading-6">
                 {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
               </p>
             </div>
@@ -51,11 +51,11 @@ export function HeroSection({
         </div>
 
         {announcementText?.trim() ? (
-          <div className="border-y border-[color:color-mix(in_srgb,var(--accent)_18%,var(--page-border))] bg-[linear-gradient(90deg,color-mix(in_srgb,var(--accent-soft)_72%,white),color-mix(in_srgb,var(--page-surface)_90%,white))] px-5 py-3.5">
-            <div className="flex items-center gap-3 text-[13px] font-medium text-[var(--accent-strong)] sm:text-[14px]">
-              <Megaphone className="h-4 w-4 shrink-0" />
+          <div className="border-y border-[color:color-mix(in_srgb,var(--accent)_38%,var(--accent-strong))] bg-[linear-gradient(135deg,var(--accent)_0%,var(--accent-strong)_100%)] px-5 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]">
+            <div className="flex items-center gap-3 text-[13px] font-semibold text-white sm:text-[14px]">
+              <Megaphone className="h-4 w-4 shrink-0 text-white" />
               <span className="min-w-0 flex-1 truncate sm:whitespace-normal">{announcementText}</span>
-              <ChevronRight className="h-4 w-4 shrink-0 text-[var(--text-3)]" />
+              <ChevronRight className="h-4 w-4 shrink-0 text-white/82" />
             </div>
           </div>
         ) : null}
@@ -88,9 +88,6 @@ export function HeroSection({
                   <span className="whitespace-nowrap">{business.location}</span>
                 </div>
               ) : null}
-              <p className="mt-1.5 text-[12px] leading-5 text-[var(--accent-strong)] md:text-[13px]">
-                {business.tagline?.trim() || 'Meaningful care. Clear next steps.'}
-              </p>
               {hasReviews ? (
                 <div className="mt-1.5 flex items-center gap-1.5 text-[12px] text-[var(--text-2)]">
                   <Star className="h-3 w-3 fill-[var(--accent)] text-[var(--accent)]" />

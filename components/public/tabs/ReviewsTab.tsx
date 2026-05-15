@@ -40,7 +40,7 @@ export function ReviewsTab({
   const reviewSummary = getReviewSummaryFromReviews(reviews);
 
   return (
-    <section id={id} className="scroll-mt-20 space-y-4 px-2 pb-10 pt-6">
+    <section id={id} className="scroll-mt-20 space-y-4 px-2 pt-3">
       <div className="px-3">
         <h2 className="font-display text-[28px] leading-[1.02] text-[var(--text-1)]">More Reviews</h2>
       </div>

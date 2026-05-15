@@ -54,16 +54,16 @@ export function ServiceCard({
         <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--text-4)]" title={service.description} aria-label={service.description}>
           {service.description}
         </p>
-        <div className="mt-3 flex items-center justify-between">
-          <div>
-            <span className="font-display text-[15px] font-bold tracking-[-0.02em] text-[var(--text-1)]">
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="shrink-0 font-display text-[15px] font-bold tracking-[-0.02em] text-[var(--text-1)]">
               {formatPrice(service.price, service.currency)}
             </span>
-            <span className="ml-2 inline-flex items-center gap-1 text-[11px] text-[var(--text-4)]">
+            <span className="inline-flex min-w-0 items-center gap-1 text-[11px] leading-none text-[var(--text-4)]">
               <Clock className="h-3.5 w-3.5" strokeWidth={1.75} /> {service.duration_minutes} min
             </span>
           </div>
-          <span className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[var(--page-surface-emphasis)] text-[var(--text-2)]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[9px] bg-[var(--page-surface-emphasis)] text-[var(--text-2)]">
             <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
         </div>

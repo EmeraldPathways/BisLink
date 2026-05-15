@@ -12,7 +12,7 @@ export function PortfolioSection({
   if (!items.length) return null;
 
   return (
-    <section id={id} className="scroll-mt-20 px-2 pb-8">
+    <section id={id} className="scroll-mt-20 px-2 pt-3">
       <div className="px-3 pb-4">
         <h2 className="font-display text-[28px] leading-[1.02] text-[var(--text-1)]">Portfolio</h2>
       </div>
