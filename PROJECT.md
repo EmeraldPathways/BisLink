@@ -133,16 +133,16 @@ components/
     SignupForm.tsx              Client sign-up form
   public/
     PublicPage.tsx              Shared live/demo public page shell with frame-aware overlays
-    HeroSection.tsx             Public hero card with cover image, stronger announcement bar, compact profile row, social row, location, and CTA
+    HeroSection.tsx             Public hero card with branded cover-image overlay, stronger gold announcement bar, compact profile row, social row, location, and CTA
     SectionImageHeader.tsx      Reusable image-led section header used by bookings, shop, and about
     MobileBottomNav.tsx         Shared fixed bottom navigation with stable Home / Book / Shop / About / More primary actions
     TabBar.tsx                  Legacy semantic section nav component retained in the repo but no longer mounted on the live public page
     tabs/
-      BookingsTab.tsx           Editorial booking section with image header and service cards styled to match product cards
-      ProductsTab.tsx           Product grid + filters + real product-image support + accessible product detail entry without an extra outer wrapper card
+      BookingsTab.tsx           Editorial booking section with image header and service cards styled to match product cards, with aligned price / duration / booking icon metadata
+      ProductsTab.tsx           Product grid + filters + real product-image support + stronger unselected filter-pill contrast + accessible product detail entry without an extra outer wrapper card
       ReviewsTab.tsx            Rating summary + review cards using shared review counts
-      AboutTab.tsx              Image-led about section with story, stats, credentials, specialisms, and booking CTA
-      ContactTab.tsx            Compact top-aligned contact form, editorial contact cards, and city-map style location card
+      AboutTab.tsx              Image-led about section with cardless story/stats presentation, credentials, specialisms, and a gold booking CTA
+      ContactTab.tsx            Compact top-aligned contact form with full-width send CTA, editorial contact rows, and a city-map style location card
     sheets/
       CartSheet.tsx             Product cart + checkout, demo-frame aware
       ProductSheet.tsx          Product detail sheet, demo-frame aware
@@ -230,16 +230,21 @@ Default active tab: `bookings`.
 - About tab sections now hide empty content, avoid fake stats for new businesses, and present new profiles with cleaner fallback labels.
 - Hero metadata no longer shows noisy "New profile" copy, and zero-review profiles no longer render an orphaned divider before the location.
 - Hero presentation was rebuilt into a lighter editorial card with a cover image, avatar, single social-icon row, inline announcement bar directly below the hero image, review metadata, location row, and full-width CTA.
+- Hero imagery now carries its own hierarchy with a lower-left brand overlay, gold tagline, and a stronger gold-gradient announcement bar.
 - Public navigation now reuses the same fixed bottom-menu component across mobile and desktop and keeps a stable Home / Book / Shop / About / More primary nav instead of switching section labels by state.
 - Shared public-page sections now render with tighter spacing, smaller section titles, and centered dividers for a cleaner vertical rhythm.
+- Public section wrappers now use one shared vertical rhythm so Hero -> Bookings, Shop, About, Reviews, and Contact all sit on the same spacing cadence.
 - Product and service uploads now enforce square `1:1` images, hero cover uploads enforce `16:9`, rotated photos are normalized before validation, and invalid non-image uploads are rejected server-side.
 - Shop and booking cards now use square top media areas so uploaded product and service imagery matches the public card layout.
+- Shop filter pills now keep the selected dark treatment while unselected pills use a stronger border and soft surface tint for clearer contrast.
 - The floating mobile cart tab now sits tighter against the bottom menu, can be right-aligned over the mobile nav, and Home now gets the same active-footer highlight state as the other primary nav items when the page is at the top.
 - About now uses the same image-header treatment and content spacing pattern as bookings and shop instead of a separate overlapping hero style.
+- About now uses a cardless text-first layout for story and stats, removes icon badges, keeps typography consistent across headings/body, and preserves the booking CTA as the only strong card treatment in the section.
 - Contact now uses the same image-led section shell as bookings, shop, and about, with minimal one-line contact cards and a bundled location card in the same visual system.
 - Hero mobile layout was tightened so location now sits with the business identity, social icons stay aligned in the top row, the top gap is removed, and hero description spacing is denser on small screens.
 - About mobile layout was simplified so stat cards stack in a single column and the lower booking CTA no longer competes with narrow two-column content.
 - Contact direct methods now render as one stacked list instead of four separate cards, and the location map now uses a wider 16:9-style presentation.
+- Contact now places a single divider below the form, uses a full-width Send button, drops the location heading, and renders a denser inline SVG city-map background for the maps card.
 - Owner dashboard product and service list cards now render uploaded image thumbnails directly in the cards instead of hiding media until the public page preview.
 - `My Link` now supports separate editable hero image, title, and subtitle content for Bookings, Shop, About, and Contact via new business-level section hero fields added in `supabase/migrations/0016_section_hero_fields.sql`.
 - Desktop `My Link` section tabs now also drive the live preview position so Link Settings / Hero / Announcement jump to the top and Portfolio / About / Contact jump directly to the matching public section.
@@ -258,6 +263,7 @@ Default active tab: `bookings`.
 - Booking time selection now shows the actual opening window for the selected day so available slots read as connected to business hours rather than as arbitrary times.
 - Booking details now label phone explicitly as optional for services.
 - Bookings, shop, and about sections now use reusable image-led section headers for stronger visual hierarchy on the public page.
+- Booking service cards now keep price, duration, and the calendar action aligned on one visual line.
 - Product cards and product detail sheets now render uploaded product imagery, and service cards now mirror the product-card layout with a booking icon action.
 - Owner dashboard service and product forms now support direct image uploads, with service images backed by `supabase/migrations/0015_service_images.sql`.
 - Owner dashboard calendar hours now derive from live availability instead of a fixed 7 AM to 8 PM range, and the hour labels no longer shift incorrectly across timezones.

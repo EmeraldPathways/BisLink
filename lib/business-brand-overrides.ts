@@ -4,24 +4,24 @@ import type { BusinessProfile } from '@/types';
 export const FONT_PAIRINGS = {
   'theme-default': null,
   editorial: {
-    label: 'Editorial',
+    label: 'Editorial - Instrument Serif / Sora',
     display: "'Instrument Serif', serif",
     ui: "'Sora', sans-serif"
   },
   modern: {
-    label: 'Modern',
+    label: 'Modern - Space Grotesk / Manrope',
     display: "'Space Grotesk', sans-serif",
     ui: "'Manrope', sans-serif"
   },
   friendly: {
-    label: 'Friendly',
+    label: 'Friendly - Fraunces / DM Sans',
     display: "'Fraunces', serif",
-    ui: "'Manrope', sans-serif"
+    ui: "'DM Sans', sans-serif"
   },
   premium: {
-    label: 'Premium',
+    label: 'Premium - Cormorant Garamond / Manrope',
     display: "'Cormorant Garamond', serif",
-    ui: "'Space Grotesk', sans-serif"
+    ui: "'Manrope', sans-serif"
   }
 } as const;
 
