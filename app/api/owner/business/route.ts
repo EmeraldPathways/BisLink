@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { BUSINESS_THEME_KEYS } from '@/lib/business-themes';
 import { requireOwnerBusiness } from '@/lib/owner-api';
@@ -109,5 +110,10 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidatePath('/link');
+  revalidatePath('/link/theme');
+  revalidatePath(`/${parsed.data.slug}`);
+
   return NextResponse.json({ business: data });
 }
