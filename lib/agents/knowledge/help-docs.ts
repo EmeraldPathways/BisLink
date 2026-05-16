@@ -74,7 +74,7 @@ export const helpDocs: HelpDoc[] = [
       'details submitted'
     ],
     content:
-      'Open Dashboard -> Payouts to complete Stripe Connect onboarding and review payout history. The Connect button starts or resumes Stripe Express onboarding. BisLink treats payments as ready only when the connected Stripe account exists and Stripe reports charges enabled plus details submitted. If Stripe is not fully connected, booking payments and product checkout return "Business payments not configured".'
+      'Go to Dashboard -> Payouts and use the Complete Stripe onboarding button. Finish the Stripe Express flow, then return to BisLink. Payments only work after the connected account exists and Stripe reports charges enabled plus details submitted. If setup is incomplete, bookings and product checkout can fail with "Business payments not configured".'
   },
   {
     id: 'products',
@@ -87,11 +87,12 @@ export const helpDocs: HelpDoc[] = [
       'digital',
       'physical products',
       'product image',
+      'add product',
       'badge',
       'out of stock'
     ],
     content:
-      'Open Dashboard -> Products to manage items sold on the public page. Each business can have up to 10 active products. Product names can be up to 120 characters, descriptions up to 1000, categories up to 80, and badges up to 40. Only active products are shown publicly. Out-of-stock products cannot be purchased. Physical-product checkout requires both a phone number and a shipping address. Digital-product support exists in the data model, but the current owner product form creates standard in-stock products by default.'
+      'Go to Dashboard -> Products and use the product form on the right side of the page. Enter a name and price, then optionally add a description, square image, category, original price, and badge. Save to create the product. New products are created as active and in stock by default, and each business can have up to 10 active products.'
   },
   {
     id: 'reviews',
@@ -117,11 +118,14 @@ export const helpDocs: HelpDoc[] = [
       'public page',
       'video link',
       'image',
+      'image specs',
+      'image size',
+      'image dimensions',
       'sections',
       'preview'
     ],
     content:
-      'The Link editor previews the public page live. Portfolio supports image and video-link items, and you can have up to 6 active portfolio items in the editor. Section-specific images and headings are available for Bookings, Shop, About, and Contact. The public page uses only active services, active products, and published reviews.'
+      'Open Dashboard -> Link to edit your public page sections. Portfolio supports image and video-link items, with up to 6 active portfolio items. Section-specific images and headings are available for Bookings, Shop, About, and Contact. Uploads must be JPG, PNG, or WebP and 5MB or smaller. Product and service images must be square 1:1. Cover images and Link section images must be 16:9. Portfolio images do not enforce a fixed ratio.'
   },
   {
     id: 'share-link',

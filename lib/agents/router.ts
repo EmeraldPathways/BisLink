@@ -1,4 +1,4 @@
-import { shouldEscalate } from '@/lib/agents/escalation';
+import { detectEscalation } from '@/lib/agents/escalation';
 import { runAgentCompletion } from '@/lib/agents/openai-client';
 import { ROUTER_SYSTEM_PROMPT } from '@/lib/agents/prompts';
 import type {
@@ -54,12 +54,13 @@ export async function routeSupportMessage({
   runCompletion?: typeof runAgentCompletion;
 }): Promise<RouterResult> {
   const normalized = message.toLowerCase();
+  const escalation = detectEscalation(message, context);
 
-  if (shouldEscalate(message, context)) {
+  if (escalation) {
     return {
       route: 'human_escalation',
       confidence: 0.99,
-      reason: 'Sensitive or risky issue detected by deterministic escalation rules.',
+      reason: escalation.reason,
       requiresHuman: true
     };
   }

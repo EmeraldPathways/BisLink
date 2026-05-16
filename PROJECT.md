@@ -28,6 +28,7 @@ Pricing model: flat subscription, no per-booking fees.
 | Calendar Sync | Google Calendar API (Microsoft parity deferred) |
 | Payments | Stripe + Stripe Connect Express |
 | Email | Resend |
+| AI Support | OpenAI via isolated `lib/agents/openai-client.ts` wrapper |
 | Error Monitoring | Sentry |
 | Hosting | Vercel |
 | DNS/CDN | Cloudflare |
@@ -102,16 +103,17 @@ app/
     login/                      Owner sign-in page
     signup/                     Dedicated owner sign-up page
   (dashboard)/
-    dashboard/                  Today view - live bookings + stats
-    calendar/                   Weekly calendar grid
+    dashboard/                  Today view - live bookings, stats, recent orders, activation nudge, and support chat
+    calendar/                   Weekly calendar grid + Google Calendar connection state
     services/                   Add/edit/reorder services
     products/                   Add/edit/reorder products (max 10)
     availability/               Working hours + blocked times
     customers/                  CRM - booking history, spend, order activity
     reviews/                    Review moderation + visibility
+    support/                    Support page for inbox, status cards, activation nudge, AI chat, and owner help requests
     link/                       My Link editor for public-page content, contact, and link settings
       theme/                    Theme Settings page for presets, brand colour, and font pairing
-    payouts/                    Stripe Connect + revenue chart + recent orders
+    payouts/                    Stripe Connect + revenue chart + payout history
   (onboarding)/onboarding/      5-step onboarding wizard
   admin/
     login/                      Internal admin login
@@ -126,6 +128,8 @@ app/
     reviews/                    Public review submission
     stripe/webhook/             Stripe source-of-truth payment completion
     calendar/                   Google connect/callback/sync routes
+    support-chat/               Context-aware owner support chat orchestration
+    support/                    Read-only support context and activation status endpoints
 
 components/
   auth/
@@ -151,18 +155,23 @@ components/
     BookingSheet.tsx            Multi-step booking bottom sheet with labeled progress
     StepDate.tsx / StepTime.tsx / StepDetails.tsx / StepPayment.tsx / StepConfirm.tsx
   dashboard/
-    MobileNav.tsx               Mobile bottom nav with More drawer for hidden dashboard routes
+    MobileNav.tsx               Mobile bottom nav with More drawer and lower utility/settings group
     MobileCalendar.tsx          Single-day mobile calendar
-    CalendarView.tsx            Desktop weekly grid + mobile calendar switch
+    CalendarView.tsx            Desktop weekly grid + mobile calendar switch + Google Calendar integration panel
     CustomersList.tsx           Search/filter/sort customer UI
     Sidebar.tsx                 Desktop owner nav shell
-    SidebarNav.tsx              Shared dashboard nav links
+    SidebarNav.tsx              Shared dashboard nav links with lower utility/settings group
     StatsBar.tsx                Mobile 2x2 stat layout
     LinkEditor.tsx              Split owner editor for My Link content or Theme Settings controls
     LinkWorkspace.tsx           Shared owner editor + live public preview wrapper for `/link` and `/link/theme`
     ProductForm.tsx             Owner product create/edit form with product image upload and no owner emoji picker
+    RecentOrdersPanel.tsx       Shared recent-orders section used by Today and Payouts
     ServiceForm.tsx             Owner service create/edit form with service image upload and simplified fields
     ReviewsManager.tsx          Owner review moderation UI
+    SupportInbox.tsx            Settings page content for support inbox, status cards, counts, and owner help form
+  support/
+    ActivationNudgeCard.tsx     Compact activation score and next-best-action card
+    SupportChatWidget.tsx       Context-aware dashboard support chat UI
   payments/
     EmbeddedPaymentForm.tsx     Shared Stripe Payment Element wrapper
 
@@ -180,6 +189,7 @@ hooks/
   useBreakpoint.ts             SSR-safe mobile breakpoint hook
 
 lib/
+  agents/                       Context-aware support system: router, prompts, knowledge, activation, escalation, ticket drafts, persistence helpers
   business-themes.ts            Theme preset registry + token maps
   demo-data.ts                  Demo dataset for explicit demo route
   public-page-data.ts           Live public page read model
@@ -199,7 +209,7 @@ functions/
 types/index.ts                  Application types
 supabase/                       DB migrations and schema
 emails/                         Email templates
-ybial-agents/                   AI agent layer
+ybial-agents/                   Legacy/reference AI agent package not used by the live BisLink support system
 ```
 
 ---
@@ -279,6 +289,18 @@ Default active tab: `bookings`.
 - Desktop `My Link` editing now uses a tabbed section menu with `Link Settings` first to reduce long-scroll editing.
 - Desktop dashboard sidebar actions were regrouped so account controls and quick actions surface above the main nav.
 - About tab story content now renders above stat cards instead of below them.
+- Dashboard support is now primarily a floating chat widget mounted at the shared `(dashboard)` layout level, so it appears across all owner dashboard pages and sits above the mobile footer nav.
+- The support/settings page keeps the activation nudge and support inbox, while the large embedded chat panel has been removed in favor of the shared floating widget.
+- The owner support system now uses deterministic routing with OpenAI fallback across four routes: `support`, `setup_completion`, `technical_triage`, and `human_escalation`.
+- Support replies now combine real owner context, activation scoring, and internal implementation-grounded help docs instead of a generic chatbot flow.
+- Support suggested-action links now prefer internal dashboard destinations such as `/services`, `/availability`, `/products`, `/link`, `/reviews`, and `/payouts` rather than falling back to the public BisLink URL.
+- Technical issue reports now generate structured internal ticket drafts and persist them through the existing `support_tickets` workflow.
+- Risky support topics such as refunds, legal complaints, GDPR/data requests, security issues, account access problems, billing disputes, data loss, and repeated payment failures now escalate deterministically for human review.
+- Escalation detection is now issue-typed rather than flat keyword-only routing, and escalation replies ask a follow-up question that matches the detected issue type.
+- Technical triage now uses tighter severity rules for `P0`/`P1` cases and asks issue-specific follow-up questions for payments, bookings, public-page failures, dashboard issues, account-access problems, data loss, security incidents, and UI-only defects.
+- Support chat conversations and messages now persist in Supabase through `support_conversations` and `support_messages`, backed by `supabase/migrations/20260516091733_support_conversations.sql`.
+- Escalated and triaged tickets are stored directly in `support_tickets`; the admin support inbox reads those rows on page load/refresh. There is no automatic admin email notification yet.
+- OpenAI usage is isolated behind `lib/agents/openai-client.ts` and configured through `OPENAI_API_KEY`, `OPENAI_SUPPORT_MODEL`, and `OPENAI_ESCALATION_MODEL`.
 
 ---
 
@@ -297,6 +319,9 @@ All monetary values are stored in cents. Row Level Security is enabled.
 | `products` | Up to 10 products per business |
 | `orders` | Product purchases persisted from Stripe payment intents |
 | `reviews` | Customer reviews linked to bookings |
+| `support_tickets` | Internal support and escalation tickets |
+| `support_conversations` | Persisted owner AI support conversations |
+| `support_messages` | Persisted owner AI support chat messages |
 | `app_logs` | Server-side operational warnings/errors written via Supabase admin client |
 | `credentials` | Public credentials list |
 | `specialisms` | Public specialisms list |
@@ -532,6 +557,10 @@ The app is now mostly live across owner, public, and payment-critical flows.
   - separate Theme Settings route for presets and brand styling
   - live preview on both owner editor pages
   - weekly calendar hours now follow configured availability and render correct local labels
+- dashboard navigation/settings refresh:
+  - Support is now presented as `Settings` in both desktop and mobile nav
+  - Availability, Settings, and Sign out now live in a lower utility group beneath Payouts with a divider
+  - the Settings page now leads with operational status cards, public support inbox, ticket counts, and the owner help form in that order
 - owner dashboard auth/session UX:
   - desktop sidebar sign-out action
   - mobile More drawer sign-out action
@@ -566,6 +595,15 @@ The app is now mostly live across owner, public, and payment-critical flows.
   - owner product and service edits revalidate the live public slug page
   - public products now exclude out-of-stock items to match policy
 - Google Calendar token persistence and booking sync
+- dashboard Google Calendar integration hardening:
+  - `/calendar` now exposes a visible connect/reconnect CTA after onboarding
+  - OAuth start failures stay inline instead of dropping owners onto a raw API response
+  - callback redirects now return owners to `/calendar` with connected/error status feedback
+  - Google token state is validated with an HttpOnly nonce cookie and internal-only redirect sanitization
+  - business resolution now comes from the signed-in owner session instead of trusting a query-string business id
+- shared recent-orders surface:
+  - Today now shows the same recent-orders section as Payouts
+  - the orders panel is centralized in `RecentOrdersPanel.tsx` so both pages stay aligned
 - Supabase-backed operational logging for key API failures and selected warnings
 - Sentry runtime instrumentation for server/client/global-error capture
 - stricter TypeScript settings with `noUncheckedIndexedAccess` and `noImplicitAny`

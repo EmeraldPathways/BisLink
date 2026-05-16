@@ -16,7 +16,10 @@ import {
 } from '@/lib/agents/tools/support-conversations';
 import type { SupportTicketDraft } from '@/lib/agents/types';
 import { requireOwnerBusiness } from '@/lib/owner-api';
-import { shouldEscalate } from '@/lib/agents/escalation';
+import {
+  detectEscalation,
+  getEscalationFollowUpQuestion
+} from '@/lib/agents/escalation';
 
 const schema = z.object({
   message: z.string().trim().min(1).max(4000),
@@ -84,6 +87,7 @@ export async function POST(req: NextRequest) {
   const context = await getUserSupportContext(owner.user.id);
   const activationStatus = await getActivationStatus(context);
   const relevantDocs = findRelevantHelpDocs(parsed.data.message);
+  const escalation = detectEscalation(parsed.data.message, context);
   const router = await routeSupportMessage({
     message: parsed.data.message,
     context,
@@ -104,7 +108,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  if (router.route === 'human_escalation' || shouldEscalate(parsed.data.message, context)) {
+  if (router.route === 'human_escalation' || escalation) {
     const ticketDraft = buildEscalationDraft(
       parsed.data.message,
       owner.user.id,
@@ -123,20 +127,24 @@ export async function POST(req: NextRequest) {
         })
       : null;
 
+    const followUpQuestion = escalation
+      ? getEscalationFollowUpQuestion(escalation.issueType)
+      : 'Please reply with the key details so the support team can review this quickly.';
+    const reply =
+      `This issue needs human review. I created an escalation summary for the support team. ${followUpQuestion}`;
+
     if (conversation) {
       await saveSupportMessage({
         supabase: owner.supabase,
         conversationId: conversation.id,
         role: 'assistant',
-        content:
-          'This issue needs human review. I created an escalation summary for the support team.',
+        content: reply,
         agentName: 'human_escalation'
       });
     }
 
     return NextResponse.json({
-      reply:
-        'This issue needs human review. I created an escalation summary for the support team.',
+      reply,
       route: 'human_escalation',
       requiresHuman: true,
       activationStatus,
