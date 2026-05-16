@@ -3,8 +3,17 @@ import { runAgentCompletion } from '@/lib/agents/openai-client';
 import { shouldEscalate } from '@/lib/agents/escalation';
 import type { SupportAgentInput, SupportAgentOutput } from '@/lib/agents/types';
 
+function toInternalDashboardHref(href?: string) {
+  return href?.startsWith('/') ? href : undefined;
+}
+
 function buildDeterministicReply(input: SupportAgentInput) {
-  const docText = input.relevantDocs[0]?.content;
+  const primaryDoc = input.relevantDocs[0];
+  const docText = primaryDoc?.content;
+  const docHref = toInternalDashboardHref(primaryDoc?.href);
+  const nextBestActionHref = toInternalDashboardHref(
+    input.activationStatus.nextBestActionHref
+  );
 
   if (!input.context.hasAvailability && /book/i.test(input.message)) {
     return {
@@ -25,14 +34,14 @@ function buildDeterministicReply(input: SupportAgentInput) {
   if (docText) {
     return {
       reply: docText,
-      suggestedActionHref: input.activationStatus.nextBestActionHref
+      suggestedActionHref: docHref ?? nextBestActionHref
     };
   }
 
   return {
     reply:
       'I can help with BisLink setup, bookings, products, reviews, payments, and public page issues. Tell me what you are trying to do, and I will guide you step by step.',
-    suggestedActionHref: input.activationStatus.nextBestActionHref
+    suggestedActionHref: nextBestActionHref
   };
 }
 

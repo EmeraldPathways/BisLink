@@ -111,11 +111,6 @@ export function SupportChatWidget({
       </div>
 
       <div className="mt-3 max-h-[280px] space-y-2 overflow-y-auto px-1">
-        {messages.length === 0 ? (
-          <div className="rounded-2xl bg-[var(--color-surface-2)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
-            Ask a question to get started.
-          </div>
-        ) : null}
         {messages.map((message, index) => (
           <div
             key={`${message.role}-${index}`}
@@ -184,7 +179,7 @@ export function SupportChatWidget({
 
   if (variant === 'floating') {
     return (
-      <div className="pointer-events-none fixed bottom-5 right-5 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end gap-3 md:bottom-6 md:right-6">
+      <div className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+6rem)] right-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end gap-3 md:bottom-6 md:right-6">
         {isOpen ? (
           <div className="pointer-events-auto w-[min(380px,calc(100vw-2rem))]">
             {widgetBody}

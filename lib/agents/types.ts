@@ -101,6 +101,7 @@ export interface HelpDoc {
   title: string;
   keywords: string[];
   content: string;
+  href?: string;
 }
 
 export interface SupportConversationRecord {

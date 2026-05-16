@@ -7,6 +7,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'link-editor-overview',
     title: 'How the BisLink page editor works',
+    href: '/link',
     keywords: [
       'link',
       'page',
@@ -26,6 +27,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'services',
     title: 'How services work in BisLink',
+    href: '/services',
     keywords: [
       'service',
       'services',
@@ -42,6 +44,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'availability',
     title: 'How availability and blocked time work',
+    href: '/availability',
     keywords: [
       'availability',
       'hours',
@@ -58,6 +61,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'payouts-stripe',
     title: 'How payouts and Stripe Connect work',
+    href: '/payouts',
     keywords: [
       'stripe',
       'payments',
@@ -75,6 +79,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'products',
     title: 'How products and shop checkout work',
+    href: '/products',
     keywords: [
       'products',
       'shop',
@@ -91,6 +96,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'reviews',
     title: 'How reviews work in the dashboard',
+    href: '/reviews',
     keywords: [
       'reviews',
       'rating',
@@ -105,6 +111,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'portfolio-and-public-page',
     title: 'How portfolio and public page sections work',
+    href: '/link',
     keywords: [
       'portfolio',
       'public page',
@@ -119,6 +126,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'share-link',
     title: 'How to share your BisLink URL',
+    href: '/link',
     keywords: ['share', 'link', 'url', 'public page', 'slug', 'copy link'],
     content:
       'Your public BisLink URL is based on the slug saved in Dashboard -> Link. The in-app link editor can copy the public URL directly. If the slug is changed, the new public route is revalidated after save. Share the public page only after services, availability, and contact details are in place.'
@@ -126,6 +134,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'booking-issues',
     title: 'How to diagnose booking issues',
+    href: '/availability',
     keywords: [
       'booking',
       'cannot book',
@@ -142,6 +151,7 @@ export const helpDocs: HelpDoc[] = [
   {
     id: 'payment-issues',
     title: 'How to diagnose payment and checkout issues',
+    href: '/payouts',
     keywords: [
       'payment',
       'checkout',
