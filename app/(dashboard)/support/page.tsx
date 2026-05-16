@@ -1,10 +1,21 @@
+import { ActivationNudgeCard } from '@/components/support/ActivationNudgeCard';
+import { SupportChatWidget } from '@/components/support/SupportChatWidget';
 import { SupportInbox } from '@/components/dashboard/SupportInbox';
-import { getSupportData } from '@/lib/dashboard-data';
+import { getSupportAssistantData, getSupportData } from '@/lib/dashboard-data';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const { tickets, counts, statuses } = await getSupportData();
+  const [{ tickets, counts, statuses }, { activationStatus }] = await Promise.all([
+    getSupportData(),
+    getSupportAssistantData()
+  ]);
 
-  return <SupportInbox tickets={tickets} counts={counts} statuses={statuses} />;
+  return (
+    <div className="space-y-5">
+      <ActivationNudgeCard activationStatus={activationStatus} />
+      <SupportChatWidget initialActivationStatus={activationStatus} />
+      <SupportInbox tickets={tickets} counts={counts} statuses={statuses} />
+    </div>
+  );
 }

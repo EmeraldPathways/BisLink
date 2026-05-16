@@ -1,4 +1,6 @@
 import { addDays, format, startOfWeek, subDays } from 'date-fns';
+import { getActivationStatus } from '@/lib/agents/tools/get-activation-status';
+import { getUserSupportContext } from '@/lib/agents/tools/get-user-context';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { isMissingRelationError } from '@/lib/supabase/schema-compat';
 import { listServices } from '@/lib/service-schema';
@@ -30,6 +32,17 @@ type StatusTone = 'good' | 'warn';
 
 export async function getDashboardShellData() {
   return getCurrentOwnerBusiness();
+}
+
+export async function getSupportAssistantData() {
+  const { user } = await getCurrentOwnerBusiness();
+  const context = await getUserSupportContext(user.id);
+  const activationStatus = await getActivationStatus(context);
+
+  return {
+    context,
+    activationStatus
+  };
 }
 
 export async function getTodayViewData() {

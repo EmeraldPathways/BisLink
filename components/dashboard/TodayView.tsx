@@ -1,4 +1,7 @@
 import { CalendarDays, Share2 } from 'lucide-react';
+import { ActivationNudgeCard } from '@/components/support/ActivationNudgeCard';
+import { SupportChatWidget } from '@/components/support/SupportChatWidget';
+import type { ActivationStatus } from '@/lib/agents/types';
 import { formatDateLabel, formatPrice } from '@/lib/utils/formatting';
 import { BookingCard } from './BookingCard';
 import { RecentOrdersPanel } from './RecentOrdersPanel';
@@ -6,11 +9,13 @@ import { StatsBar } from './StatsBar';
 import type { BusinessProfile, DashboardBookingRecord, DashboardStats } from '@/types';
 
 export function TodayView({
+  activationStatus,
   business,
   bookings,
   recentOrders,
   stats
 }: {
+  activationStatus: ActivationStatus;
   business: BusinessProfile;
   bookings: DashboardBookingRecord[];
   recentOrders: Array<{
@@ -50,6 +55,10 @@ export function TodayView({
       </div>
 
       <StatsBar stats={stats} />
+
+      <ActivationNudgeCard activationStatus={activationStatus} />
+
+      <SupportChatWidget initialActivationStatus={activationStatus} />
 
       {/* Upcoming Bookings */}
       <section className="space-y-4">
