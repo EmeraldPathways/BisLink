@@ -5,7 +5,7 @@ import { getSupportAssistantData, getSupportData } from '@/lib/dashboard-data';
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const [{ tickets, counts, statuses }, { activationStatus }] = await Promise.all([
+  const [{ tickets, counts, statuses, supportMessagesByConversationId }, { activationStatus }] = await Promise.all([
     getSupportData(),
     getSupportAssistantData()
   ]);
@@ -13,7 +13,12 @@ export default async function Page() {
   return (
     <div className="space-y-5">
       <ActivationNudgeCard activationStatus={activationStatus} />
-      <SupportInbox tickets={tickets} counts={counts} statuses={statuses} />
+      <SupportInbox
+        tickets={tickets}
+        counts={counts}
+        statuses={statuses}
+        supportMessagesByConversationId={supportMessagesByConversationId}
+      />
     </div>
   );
 }

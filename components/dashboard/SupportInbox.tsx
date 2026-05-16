@@ -4,6 +4,7 @@ import type { FormEvent, ReactNode } from 'react';
 import { useMemo, useState, useTransition } from 'react';
 import { LifeBuoy, TriangleAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import type { SupportMessageRecord } from '@/lib/agents/types';
 import type { SupportTicketRecord } from '@/types';
 
 type TicketFilter = 'all' | 'open' | 'in_progress' | 'resolved';
@@ -12,6 +13,7 @@ export function SupportInbox({
   tickets,
   counts,
   statuses,
+  supportMessagesByConversationId,
 }: {
   tickets: SupportTicketRecord[];
   counts: {
@@ -26,6 +28,7 @@ export function SupportInbox({
     contact: { label: string; tone: 'good' | 'warn' };
     orders: { label: string; tone: 'good' | 'warn' };
   };
+  supportMessagesByConversationId: Record<string, SupportMessageRecord[]>;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -151,6 +154,9 @@ export function SupportInbox({
           {filteredTickets.length ? (
             filteredTickets.map((ticket) => {
               const disabled = isPending && pendingId === ticket.id;
+              const conversationMessages = ticket.conversation_id
+                ? supportMessagesByConversationId[ticket.conversation_id] ?? []
+                : [];
               return (
                 <article
                   key={ticket.id}
@@ -189,6 +195,37 @@ export function SupportInbox({
                   <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-[var(--color-text-primary)]">
                     {ticket.message}
                   </p>
+
+                  {conversationMessages.length ? (
+                    <div className="mt-4 rounded-[18px] bg-[var(--color-surface-2)] p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+                        Conversation
+                      </p>
+                      <div className="mt-3 space-y-2">
+                        {conversationMessages.map((message) => (
+                          <div
+                            key={message.id}
+                            className={`rounded-2xl px-4 py-3 text-sm ${
+                              message.role === 'user'
+                                ? 'bg-white text-[var(--color-text-primary)]'
+                                : 'bg-[var(--color-void)] text-white'
+                            }`}
+                          >
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] opacity-70">
+                              {message.role === 'user'
+                                ? 'You'
+                                : message.agent_name === 'admin_support'
+                                  ? 'Admin'
+                                  : 'Support'}
+                            </p>
+                            <p className="mt-1 whitespace-pre-wrap leading-6">
+                              {message.content}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     <ActionButton

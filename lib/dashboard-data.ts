@@ -1,4 +1,5 @@
 import { addDays, format, startOfWeek, subDays } from 'date-fns';
+import type { SupportMessageRecord } from '@/lib/agents/types';
 import { getActivationStatus } from '@/lib/agents/tools/get-activation-status';
 import { getUserSupportContext } from '@/lib/agents/tools/get-user-context';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
@@ -339,6 +340,12 @@ export async function getSupportData() {
     .order('created_at', { ascending: false });
 
   const tickets = ((data ?? []) as SupportTicketRecord[]).map(normalizeSupportTicket);
+  const conversationIds = tickets
+    .map((ticket) => ticket.conversation_id)
+    .filter((value): value is string => Boolean(value));
+  const supportMessagesByConversationId = conversationIds.length
+    ? await getSupportMessagesByConversationId(supabase, conversationIds)
+    : {};
 
   return {
     business,
@@ -361,6 +368,7 @@ export async function getSupportData() {
       }
     },
     tickets,
+    supportMessagesByConversationId,
     counts: {
       open: tickets.filter((ticket) => ticket.status === 'open').length,
       inProgress: tickets.filter((ticket) => ticket.status === 'in_progress').length,
@@ -368,6 +376,31 @@ export async function getSupportData() {
       highPriority: tickets.filter((ticket) => ticket.priority === 'high').length
     }
   };
+}
+
+async function getSupportMessagesByConversationId(
+  supabase:
+    | NonNullable<ReturnType<typeof createAdminClient>>
+    | Awaited<ReturnType<typeof createClient>>,
+  conversationIds: string[]
+) {
+  const { data } = await supabase
+    .from('support_messages')
+    .select('id,conversation_id,role,content,agent_name,created_at')
+    .in('conversation_id', conversationIds)
+    .order('created_at', { ascending: true });
+
+  return ((data ?? []) as SupportMessageRecord[]).reduce<Record<string, SupportMessageRecord[]>>(
+    (acc, message) => {
+      const key = message.conversation_id;
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(message);
+      return acc;
+    },
+    {}
+  );
 }
 
 async function getOrderConfirmationStatus(

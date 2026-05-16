@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS support_conversations (
   user_id UUID NOT NULL,
   business_id UUID REFERENCES businesses(id) ON DELETE SET NULL,
   status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'resolved', 'escalated')),
-  current_agent TEXT NOT NULL CHECK (current_agent IN ('support', 'technical_triage', 'setup_completion', 'human_escalation')),
+  current_agent TEXT NOT NULL CHECK (current_agent IN ('support', 'technical_triage', 'setup_completion', 'human_escalation', 'admin_support')),
   title TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS support_messages (
   conversation_id UUID NOT NULL REFERENCES support_conversations(id) ON DELETE CASCADE,
   role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
   content TEXT NOT NULL,
-  agent_name TEXT CHECK (agent_name IN ('support', 'technical_triage', 'setup_completion', 'human_escalation')),
+  agent_name TEXT CHECK (agent_name IN ('support', 'technical_triage', 'setup_completion', 'human_escalation', 'admin_support')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
