@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { MessageCircle, X } from 'lucide-react';
+import { formatSupportError } from '@/lib/agents/format-support-error';
 import type {
   ActivationStatus,
   ConversationMessage,
@@ -69,7 +70,7 @@ export function SupportChatWidget({
 
       const data = (await response.json()) as ChatResponse & { error?: string };
       if (!response.ok) {
-        throw new Error(data.error ?? 'Support chat request failed');
+        throw new Error(formatSupportError(data.error));
       }
 
       setLastResponse(data);
@@ -79,11 +80,7 @@ export function SupportChatWidget({
         { role: 'assistant', content: data.reply }
       ]);
     } catch (submissionError) {
-      setError(
-        submissionError instanceof Error
-          ? submissionError.message
-          : 'Support chat request failed'
-      );
+      setError(formatSupportError(submissionError));
     } finally {
       setIsLoading(false);
     }
