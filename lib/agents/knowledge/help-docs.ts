@@ -123,10 +123,15 @@ export const helpDocs: HelpDoc[] = [
       'testimonial',
       'publish review',
       'hide review',
-      'verified review'
+      'verified review',
+      'customer review',
+      'hide customer review',
+      'public page review',
+      'hide review from public page',
+      'request review button'
     ],
     content:
-      'Open Dashboard -> Reviews to publish or hide customer reviews. Only published reviews appear on the public page. The dashboard shows whether a review is verified. The current review management flow supports visibility changes only. The "Request review" button is present in the UI but the follow-up outbound workflow is not wired up yet.'
+      'Open Dashboard -> Reviews to publish or hide customer reviews. Use this page if you need to hide a customer review from your public page. Only published reviews appear on the public page. The dashboard shows whether a review is verified. The current review management flow supports visibility changes only. The "Request review" button is present in the UI but the follow-up outbound workflow is not wired up yet.'
   },
   {
     id: 'portfolio-and-public-page',
@@ -162,14 +167,21 @@ export const helpDocs: HelpDoc[] = [
       'booking',
       'cannot book',
       'no bookings',
+      'no booking slots',
+      'no booking slots showing',
+      'no times showing',
       'calendar broken',
       'slot unavailable',
       'slot blocked',
       'service not found',
-      'bookings not working'
+      'bookings not working',
+      'service active',
+      'service is active',
+      'public page no slots',
+      'public page booking slots'
     ],
     content:
-      'Booking slots are available only when the business is active, the service is active, the selected weekday has active availability, and the requested time does not overlap an existing pending or confirmed booking or any blocked time. The public availability API returns "Business not found or inactive", "Service not found or inactive", or no opening hours when setup is incomplete. The booking creation API can also return "Slot no longer available" or "Slot is blocked" if the time became unavailable.'
+      'Booking slots are available only when the business is active, the service is active, the selected weekday has active availability, and the requested time does not overlap an existing pending or confirmed booking or any blocked time. If your service is active but no booking slots are showing on the public page, check weekday availability, blocked time, and existing bookings first. The public availability API returns "Business not found or inactive", "Service not found or inactive", or no opening hours when setup is incomplete. The booking creation API can also return "Slot no longer available" or "Slot is blocked" if the time became unavailable.'
   },
   {
     id: 'payment-issues',

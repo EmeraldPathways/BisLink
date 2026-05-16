@@ -105,3 +105,81 @@ test('routeSupportMessage treats calendar sync failures as technical triage', as
   assert.equal(result.route, 'technical_triage');
   assert.equal(result.requiresHuman, false);
 });
+
+test('routeSupportMessage keeps payment setup issues out of human escalation', async () => {
+  let runnerCalled = false;
+
+  const result = await routeSupportMessage({
+    message: 'Why does checkout say "Business payments not configured" when a customer tries to pay?',
+    context: {
+      ...baseContext,
+      stripeConnected: false
+    },
+    activationStatus: {
+      ...baseActivation,
+      activationScore: 80,
+      missingSteps: ['stripe_connection'],
+      completedSteps: [
+        'business_name',
+        'profile_image',
+        'banner_image',
+        'service_created',
+        'availability',
+        'contact_or_social_links'
+      ],
+      nextBestAction: 'Complete Stripe setup',
+      nextBestActionHref: '/payouts'
+    },
+    runCompletion: async () => {
+      runnerCalled = true;
+      return null;
+    }
+  });
+
+  assert.equal(runnerCalled, false);
+  assert.equal(result.route, 'setup_completion');
+});
+
+test('routeSupportMessage treats stale public page content after save as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'I saved changes to my public page but the new content is not showing live.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage treats failing uploads as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'My portfolio image upload keeps failing even though the file is under 5MB.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage treats missing support inbox messages as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'The support inbox is missing my earlier conversation messages.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage keeps known request-review limitation in support', async () => {
+  const result = await routeSupportMessage({
+    message: 'The Request review button is there but nothing happens after I click it.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'support');
+});

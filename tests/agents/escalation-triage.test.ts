@@ -77,3 +77,50 @@ test('detectEscalation catches bookings disappeared with data-loss concern', () 
   assert.equal(result?.issueType, 'data_loss');
   assert.equal(result?.reason, 'Possible data loss.');
 });
+
+test('detectEscalation does not escalate payment setup blockers when Stripe is disconnected', () => {
+  const result = detectEscalation(
+    'Why does checkout say "Business payments not configured" when a customer tries to pay?',
+    {
+      ...baseContext,
+      stripeConnected: false
+    }
+  );
+
+  assert.equal(result, null);
+});
+
+test('detectEscalation catches delete-all-data privacy requests', () => {
+  const result = detectEscalation('I need to delete all my data from BisLink.', baseContext);
+
+  assert.equal(result?.issueType, 'privacy_request');
+});
+
+test('detectEscalation catches customer-data export requests', () => {
+  const result = detectEscalation('I want to export my customer data.', baseContext);
+
+  assert.equal(result?.issueType, 'privacy_request');
+});
+
+test('detectEscalation catches unauthorized account access phrasing', () => {
+  const result = detectEscalation(
+    'Someone unauthorized accessed my account and changed details.',
+    baseContext
+  );
+
+  assert.equal(result?.issueType, 'security');
+});
+
+test('technical triage asks calendar-specific follow-up for reconnect failures', async () => {
+  const result = await runTechnicalTriageAgent({
+    message: 'I clicked reconnect Google Calendar but it still says not connected.',
+    context: baseContext,
+    activationStatus: baseActivation
+  });
+
+  assert.equal(result.needsFollowUp, true);
+  assert.equal(
+    result.followUpQuestion,
+    'What happened when you tried to connect or reconnect Google Calendar, and what status or error did you see?'
+  );
+});

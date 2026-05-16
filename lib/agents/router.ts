@@ -84,6 +84,35 @@ export async function routeSupportMessage({
   }
 
   if (
+    !context.stripeConnected &&
+    includesAny(normalized, [
+      'business payments not configured',
+      'connect stripe',
+      'stripe setup',
+      'complete stripe setup'
+    ])
+  ) {
+    return {
+      route: 'setup_completion',
+      confidence: 0.96,
+      reason: 'Message matches an incomplete Stripe setup blocker.',
+      requiresHuman: false
+    };
+  }
+
+  if (
+    includesAny(normalized, ['request review']) &&
+    includesAny(normalized, ['button', 'click', 'nothing happens'])
+  ) {
+    return {
+      route: 'support',
+      confidence: 0.95,
+      reason: 'Message matches a documented review-request limitation.',
+      requiresHuman: false
+    };
+  }
+
+  if (
     includesAny(normalized, [
       'bug',
       'broken',
@@ -95,6 +124,8 @@ export async function routeSupportMessage({
       'payment failed',
       'page crashed',
       'booking failed',
+      'keeps failing',
+      'nothing happens',
       'visual bug',
       'typo'
     ])
@@ -121,6 +152,48 @@ export async function routeSupportMessage({
       route: 'technical_triage',
       confidence: 0.95,
       reason: 'Message describes a calendar integration or sync failure.',
+      requiresHuman: false
+    };
+  }
+
+  if (
+    includesAny(normalized, ['public page', 'link page', 'hero image', 'content']) &&
+    includesAny(normalized, [
+      'not showing',
+      'not visible',
+      'still shows',
+      'old content',
+      'saved successfully'
+    ])
+  ) {
+    return {
+      route: 'technical_triage',
+      confidence: 0.94,
+      reason: 'Message describes saved content not appearing on the public page.',
+      requiresHuman: false
+    };
+  }
+
+  if (
+    includesAny(normalized, ['upload', 'image upload', 'portfolio image']) &&
+    includesAny(normalized, ['failing', 'failed', 'not working', 'error'])
+  ) {
+    return {
+      route: 'technical_triage',
+      confidence: 0.94,
+      reason: 'Message describes a media upload failure.',
+      requiresHuman: false
+    };
+  }
+
+  if (
+    includesAny(normalized, ['support inbox', 'conversation messages', 'support messages']) &&
+    includesAny(normalized, ['missing', 'gone', 'disappeared'])
+  ) {
+    return {
+      route: 'technical_triage',
+      confidence: 0.95,
+      reason: 'Message describes missing support conversation data.',
       requiresHuman: false
     };
   }

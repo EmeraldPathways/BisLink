@@ -46,12 +46,15 @@ const ESCALATION_RULES: EscalationRule[] = [
     patterns: [
       /\bgdpr\b/,
       /\bdelete my data\b/,
+      /\bdelete all my data\b/,
       /\bdata deletion\b/,
       /\bdata access request\b/,
       /\bsubject access request\b/,
       /\bprivacy request\b/,
       /\berase my data\b/,
-      /\bexport my data\b/
+      /\bexport my data\b/,
+      /\bexport my customer data\b/,
+      /\bdelete.*customer data\b/
     ]
   },
   {
@@ -64,6 +67,8 @@ const ESCALATION_RULES: EscalationRule[] = [
       /\bcompromised\b/,
       /\baccount hacked\b/,
       /\bsomeone (got into|logged into|accessed) my account\b/,
+      /\bsomeone unauthori[sz]ed accessed my account\b/,
+      /\bunauthori[sz]ed.*access(ed)? my account\b/,
       /\bunauthori[sz]ed access\b/
     ]
   },
@@ -138,16 +143,6 @@ export function detectEscalation(
         reason: rule.reason
       };
     }
-  }
-
-  if (
-    context?.stripeConnected === false &&
-    /\b(refund|payment|charged|charge|checkout)\b/.test(normalized)
-  ) {
-    return {
-      issueType: 'payment_failure',
-      reason: 'Payment issue reported while Stripe is not connected.'
-    };
   }
 
   return null;

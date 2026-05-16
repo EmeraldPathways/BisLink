@@ -94,11 +94,16 @@ function hasAny(text: string, patterns: RegExp[]) {
   return patterns.some((pattern) => pattern.test(text));
 }
 
-function getTechnicalFollowUp(issueType: TechnicalIssueType): string {
+function getTechnicalFollowUp(message: string, issueType: TechnicalIssueType): string {
+  const normalized = message.toLowerCase();
+
   switch (issueType) {
     case 'payments':
       return 'What were you trying to charge for, and what error or result did you see?';
     case 'bookings':
+      if (/calendar|google calendar|sync|reconnect/.test(normalized)) {
+        return 'What happened when you tried to connect or reconnect Google Calendar, and what status or error did you see?';
+      }
       return 'What were you trying to book, and what happened instead?';
     case 'public_page':
       return 'Which public page or section is broken, and what do you see when it fails?';
@@ -213,7 +218,7 @@ export async function runTechnicalTriageAgent({
   }
 
   if (needsFollowUp(message, issueType)) {
-    const followUpQuestion = getTechnicalFollowUp(issueType);
+    const followUpQuestion = getTechnicalFollowUp(message, issueType);
     return {
       reply: followUpQuestion,
       route: 'technical_triage',

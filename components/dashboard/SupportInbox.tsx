@@ -36,6 +36,7 @@ export function SupportInbox({
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<TicketFilter>('all');
   const [form, setForm] = useState({ subject: '', message: '' });
 
@@ -102,6 +103,39 @@ export function SupportInbox({
     setFormSuccess('Support request sent to admin.');
     startTransition(() => {
       router.refresh();
+    });
+  }
+
+  async function submitReply(
+    event: FormEvent<HTMLFormElement>,
+    ticket: SupportTicketRecord
+  ) {
+    event.preventDefault();
+    const draft = replyDrafts[ticket.id]?.trim();
+    if (!draft) return;
+
+    setError(null);
+    setPendingId(ticket.id);
+
+    const response = await fetch(`/api/owner/support/${ticket.id}/reply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: draft })
+    });
+
+    if (!response.ok) {
+      const data = (await response.json().catch(() => null)) as
+        | { error?: string }
+        | null;
+      setError(data?.error ?? 'Could not send reply');
+      setPendingId(null);
+      return;
+    }
+
+    setReplyDrafts((current) => ({ ...current, [ticket.id]: '' }));
+    startTransition(() => {
+      router.refresh();
+      setPendingId(null);
     });
   }
 
@@ -196,34 +230,65 @@ export function SupportInbox({
                     {ticket.message}
                   </p>
 
-                  {conversationMessages.length ? (
+                  {ticket.conversation_id ? (
                     <div className="mt-4 rounded-[18px] bg-[var(--color-surface-2)] p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
                         Conversation
                       </p>
-                      <div className="mt-3 space-y-2">
-                        {conversationMessages.map((message) => (
-                          <div
-                            key={message.id}
-                            className={`rounded-2xl px-4 py-3 text-sm ${
-                              message.role === 'user'
-                                ? 'bg-white text-[var(--color-text-primary)]'
-                                : 'bg-[var(--color-void)] text-white'
-                            }`}
-                          >
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] opacity-70">
-                              {message.role === 'user'
-                                ? 'You'
-                                : message.agent_name === 'admin_support'
-                                  ? 'Admin'
-                                  : 'Support'}
-                            </p>
-                            <p className="mt-1 whitespace-pre-wrap leading-6">
-                              {message.content}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
+                      {conversationMessages.length ? (
+                        <div className="mt-3 space-y-2">
+                          {conversationMessages.map((message) => (
+                            <div
+                              key={message.id}
+                              className={`rounded-2xl px-4 py-3 text-sm ${
+                                message.role === 'user'
+                                  ? 'bg-white text-[var(--color-text-primary)]'
+                                  : 'bg-[var(--color-void)] text-white'
+                              }`}
+                            >
+                              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] opacity-70">
+                                {message.role === 'user'
+                                  ? 'You'
+                                  : message.agent_name === 'admin_support'
+                                    ? 'Admin'
+                                    : 'Support'}
+                              </p>
+                              <p className="mt-1 whitespace-pre-wrap leading-6">
+                                {message.content}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="mt-3 text-sm text-[var(--color-text-secondary)]">
+                          No messages yet in this conversation.
+                        </p>
+                      )}
+
+                      <form
+                        onSubmit={(event) => submitReply(event, ticket)}
+                        className="mt-3 space-y-2"
+                      >
+                        <textarea
+                          value={replyDrafts[ticket.id] ?? ''}
+                          onChange={(event) =>
+                            setReplyDrafts((current) => ({
+                              ...current,
+                              [ticket.id]: event.target.value
+                            }))
+                          }
+                          className="min-h-[96px] w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm"
+                          placeholder="Reply in this support conversation"
+                          maxLength={4000}
+                        />
+                        <button
+                          type="submit"
+                          disabled={disabled || !(replyDrafts[ticket.id] ?? '').trim()}
+                          className="rounded-xl bg-[var(--color-void)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                        >
+                          Send reply
+                        </button>
+                      </form>
                     </div>
                   ) : null}
 
