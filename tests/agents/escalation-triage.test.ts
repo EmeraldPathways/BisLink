@@ -102,6 +102,15 @@ test('detectEscalation catches customer-data export requests', () => {
   assert.equal(result?.issueType, 'privacy_request');
 });
 
+test('detectEscalation catches requests for all personal data copies', () => {
+  const result = detectEscalation(
+    'I need a copy of all the personal data you hold about me.',
+    baseContext
+  );
+
+  assert.equal(result?.issueType, 'privacy_request');
+});
+
 test('detectEscalation catches unauthorized account access phrasing', () => {
   const result = detectEscalation(
     'Someone unauthorized accessed my account and changed details.',

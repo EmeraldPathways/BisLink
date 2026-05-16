@@ -183,3 +183,91 @@ test('routeSupportMessage keeps known request-review limitation in support', asy
 
   assert.equal(result.route, 'support');
 });
+
+test('routeSupportMessage treats owner inbox reply delivery failures as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'I sent a reply from the owner support inbox but it never appeared in the conversation.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage treats missing contact-form inbox tickets as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'A contact-form message from my public page never showed up in the support inbox.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage treats missing owner support requests as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'My owner support request says it sent, but no ticket appears in the inbox.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage treats blocked-time enforcement failures as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'Blocked time is saved, but customers can still book during those hours.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage treats connected calendar sync failures as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'Google Calendar says connected, but new bookings are still not appearing there.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage treats published review visibility failures as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'I clicked publish on a review, but it still does not appear on the public page.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage treats stale cover images on the live page as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'The cover image upload succeeds, but the old image still shows on the live page.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});
+
+test('routeSupportMessage treats missing order confirmations as technical triage', async () => {
+  const result = await routeSupportMessage({
+    message: 'Order confirmations are paid, but customers are not receiving them.',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'technical_triage');
+});

@@ -157,7 +157,7 @@ export async function routeSupportMessage({
   }
 
   if (
-    includesAny(normalized, ['public page', 'link page', 'hero image', 'content']) &&
+    includesAny(normalized, ['public page', 'link page', 'hero image', 'cover image', 'live page', 'content']) &&
     includesAny(normalized, [
       'not showing',
       'not visible',
@@ -194,6 +194,81 @@ export async function routeSupportMessage({
       route: 'technical_triage',
       confidence: 0.95,
       reason: 'Message describes missing support conversation data.',
+      requiresHuman: false
+    };
+  }
+
+  if (
+    includesAny(normalized, [
+      'support inbox',
+      'conversation',
+      'support ticket',
+      'support request',
+      'contact-form message',
+      'contact form message'
+    ]) &&
+    includesAny(normalized, [
+      'never appeared',
+      'never showed up',
+      'cannot see',
+      'can not see',
+      'not see',
+      'no ticket appears',
+      'sent, but no ticket appears'
+    ])
+  ) {
+    return {
+      route: 'technical_triage',
+      confidence: 0.95,
+      reason: 'Message describes missing or invisible support conversation data.',
+      requiresHuman: false
+    };
+  }
+
+  if (
+    includesAny(normalized, ['blocked time']) &&
+    includesAny(normalized, ['can still book', 'still book', 'still shows', 'still available'])
+  ) {
+    return {
+      route: 'technical_triage',
+      confidence: 0.95,
+      reason: 'Message describes blocked time not affecting availability correctly.',
+      requiresHuman: false
+    };
+  }
+
+  if (
+    includesAny(normalized, ['google calendar', 'calendar']) &&
+    includesAny(normalized, ['says connected', 'still not appearing', 'not appearing there'])
+  ) {
+    return {
+      route: 'technical_triage',
+      confidence: 0.95,
+      reason: 'Message describes bookings not syncing despite a connected calendar.',
+      requiresHuman: false
+    };
+  }
+
+  if (
+    includesAny(normalized, ['review']) &&
+    includesAny(normalized, ['clicked publish', 'still does not appear', 'still does not show'])
+  ) {
+    return {
+      route: 'technical_triage',
+      confidence: 0.94,
+      reason: 'Message describes published review content not appearing on the public page.',
+      requiresHuman: false
+    };
+  }
+
+  if (
+    includesAny(normalized, ['order confirmation', 'order confirmations']) &&
+    includesAny(normalized, ['not receiving', 'not received', 'not getting'])
+  ) {
+    return {
+      route: 'technical_triage',
+      confidence: 0.95,
+      reason: 'Message describes order confirmations not being delivered.',
       requiresHuman: false
     };
   }

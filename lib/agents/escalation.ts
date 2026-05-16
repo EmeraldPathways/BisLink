@@ -49,6 +49,8 @@ const ESCALATION_RULES: EscalationRule[] = [
       /\bdelete all my data\b/,
       /\bdata deletion\b/,
       /\bdata access request\b/,
+      /\bcopy of .*personal data\b/,
+      /\bpersonal data you hold about me\b/,
       /\bsubject access request\b/,
       /\bprivacy request\b/,
       /\berase my data\b/,
