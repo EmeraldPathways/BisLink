@@ -108,6 +108,24 @@ export async function routeSupportMessage({
   }
 
   if (
+    includesAny(normalized, ['google calendar', 'calendar connection', 'calendar sync']) &&
+    includesAny(normalized, [
+      'stopped working',
+      'not syncing',
+      'stopped syncing',
+      'reconnect',
+      'sync failed'
+    ])
+  ) {
+    return {
+      route: 'technical_triage',
+      confidence: 0.95,
+      reason: 'Message describes a calendar integration or sync failure.',
+      requiresHuman: false
+    };
+  }
+
+  if (
     activationStatus.missingSteps.length > 0 &&
     (includesAny(normalized, [
       'what next',

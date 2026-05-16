@@ -67,3 +67,13 @@ test('technical triage upgrades data loss to P0', async () => {
   assert.equal(result.ticketDraft?.severity, 'P0');
   assert.equal(result.requiresHuman, true);
 });
+
+test('detectEscalation catches bookings disappeared with data-loss concern', () => {
+  const result = detectEscalation(
+    'Bookings disappeared after I changed something today. I need help urgently and I’m worried data was lost.',
+    baseContext
+  );
+
+  assert.equal(result?.issueType, 'data_loss');
+  assert.equal(result?.reason, 'Possible data loss.');
+});

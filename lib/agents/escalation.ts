@@ -73,8 +73,12 @@ const ESCALATION_RULES: EscalationRule[] = [
     patterns: [
       /\bdata loss\b/,
       /\blost data\b/,
+      /\bdata was lost\b/,
+      /\bworried data was lost\b/,
       /\bmy data is gone\b/,
       /\beverything disappeared\b/,
+      /\b(bookings|products|services|reviews).*(disappeared)\b/,
+      /\bdisappeared.*(bookings|products|services|reviews)\b/,
       /\b(bookings|products|services|reviews).*(missing|gone|deleted)\b/,
       /\b(missing|gone|deleted).*(bookings|products|services|reviews)\b/
     ]

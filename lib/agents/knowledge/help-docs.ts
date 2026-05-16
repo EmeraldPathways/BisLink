@@ -59,6 +59,25 @@ export const helpDocs: HelpDoc[] = [
       'Open Dashboard -> Availability to set working hours for each day of the week. Active days require both a start time and end time. You can also add blocked time for specific dates and times, and the end time must be after the start time. Public booking availability is calculated from active weekly hours, existing bookings, blocked time, service duration, and service buffer. Without active availability on that weekday, customers will see no bookable slots.'
   },
   {
+    id: 'google-calendar-connection',
+    title: 'How Google Calendar connection and reconnect work',
+    href: '/calendar',
+    keywords: [
+      'google calendar',
+      'calendar connection',
+      'connect calendar',
+      'reconnect calendar',
+      'calendar stopped working',
+      'calendar not connected',
+      'reconnect needed',
+      'calendar unavailable',
+      'google oauth',
+      'calendar sync'
+    ],
+    content:
+      'Open Dashboard -> Calendar to check the Google Calendar integration card and use Connect Google Calendar or Reconnect Google Calendar. If the status is Not connected or Reconnect needed, reconnect the Google account so new bookings can sync again. If the button shows an error like missing_code, invalid_state, save_failed, or token_exchange_failed, restart the connection from the Calendar page. If the app shows Calendar unavailable, the Google Calendar environment variables are not configured and this needs support review.'
+  },
+  {
     id: 'payouts-stripe',
     title: 'How payouts and Stripe Connect work',
     href: '/payouts',

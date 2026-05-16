@@ -82,3 +82,26 @@ test('routeSupportMessage keeps deterministic escalation ahead of AI fallback', 
   assert.equal(result.route, 'human_escalation');
   assert.equal(result.requiresHuman, true);
 });
+
+test('routeSupportMessage treats calendar sync failures as technical triage', async () => {
+  let runnerCalled = false;
+
+  const result = await routeSupportMessage({
+    message: 'My Google Calendar connection stopped working and new bookings are not syncing. What should I do?',
+    context: baseContext,
+    activationStatus: baseActivation,
+    runCompletion: async () => {
+      runnerCalled = true;
+      return JSON.stringify({
+        route: 'support',
+        confidence: 0.2,
+        reason: 'wrong',
+        requiresHuman: false
+      });
+    }
+  });
+
+  assert.equal(runnerCalled, false);
+  assert.equal(result.route, 'technical_triage');
+  assert.equal(result.requiresHuman, false);
+});

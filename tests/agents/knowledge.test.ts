@@ -17,3 +17,10 @@ test('findRelevantHelpDocs surfaces implementation-grounded booking failure docs
   assert.equal(ids.includes('api-bookings-failures'), true);
   assert.equal(ids.includes('payouts-stripe'), true);
 });
+
+test('findRelevantHelpDocs prefers Google Calendar connection guidance over availability for reconnect issues', () => {
+  const docs = findRelevantHelpDocs('Hi, my calendar connection has stopped working');
+  const ids = docs.map((doc) => doc.id);
+
+  assert.equal(ids[0], 'google-calendar-connection');
+});
