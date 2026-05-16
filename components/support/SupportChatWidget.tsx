@@ -4,18 +4,13 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Loader2, MessageCircle, Send, X } from 'lucide-react';
 import { formatSupportError } from '@/lib/agents/format-support-error';
-import type {
-  ActivationStatus,
-  ConversationMessage,
-  SupportTicketDraft
-} from '@/lib/agents/types';
+import type { ActivationStatus, ConversationMessage } from '@/lib/agents/types';
 
 type ChatResponse = {
   reply: string;
   route: 'support' | 'technical_triage' | 'setup_completion' | 'human_escalation';
   requiresHuman: boolean;
   activationStatus?: ActivationStatus;
-  ticketDraft?: SupportTicketDraft | null;
   suggestedActionHref?: string;
   conversationId?: string | null;
 };
@@ -80,7 +75,6 @@ export function SupportChatWidget({
             route: current?.route ?? 'support',
             requiresHuman: current?.requiresHuman ?? false,
             suggestedActionHref: current?.suggestedActionHref,
-            ticketDraft: current?.ticketDraft,
             conversationId: data.conversationId ?? current?.conversationId ?? null,
             activationStatus: data.activationStatus
           }));
@@ -153,9 +147,6 @@ export function SupportChatWidget({
       <div className="flex items-center justify-between gap-3 border-b border-[var(--color-border)] px-2 pb-3">
         <div>
           <p className="text-sm font-semibold text-[var(--color-text-primary)]">Support</p>
-          <p className="text-xs text-[var(--color-text-secondary)]">
-            Quick help for setup, bookings, payments, and bugs.
-          </p>
         </div>
         {variant === 'floating' ? (
           <button
@@ -190,19 +181,7 @@ export function SupportChatWidget({
         ) : null}
       </div>
 
-      {lastResponse?.requiresHuman ? (
-        <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          This needs human review.
-        </div>
-      ) : null}
-
-      {lastResponse?.ticketDraft ? (
-        <div className="mt-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
-          Ticket draft ready: {lastResponse.ticketDraft.title}
-        </div>
-      ) : null}
-
-      {lastResponse?.suggestedActionHref ? (
+      {!lastResponse?.requiresHuman && lastResponse?.suggestedActionHref ? (
         <div className="mt-3">
           <Link
             href={lastResponse.suggestedActionHref}
@@ -216,11 +195,11 @@ export function SupportChatWidget({
       <form onSubmit={onSubmit} className="mt-3">
         <div className="flex items-end gap-2">
           <textarea
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          placeholder="Ask about bookings, services, payments, products, reviews, or bugs."
-          className="min-h-[88px] flex-1 resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3 text-sm"
-          maxLength={4000}
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            placeholder="Ask about bookings, payments, products, or bugs."
+            className="min-h-[88px] flex-1 resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3 text-sm"
+            maxLength={4000}
           />
           <button
             type="submit"
