@@ -6,6 +6,8 @@ import { Loader2, MessageCircle, Send, X } from 'lucide-react';
 import { formatSupportError } from '@/lib/agents/format-support-error';
 import type { ActivationStatus, ConversationMessage } from '@/lib/agents/types';
 
+const SUPPORT_CONVERSATION_STORAGE_KEY = 'bislink-support-conversation-id';
+
 type ChatResponse = {
   reply: string;
   route: 'support' | 'technical_triage' | 'setup_completion' | 'human_escalation';
@@ -42,19 +44,42 @@ export function SupportChatWidget({
   );
 
   useEffect(() => {
+    const savedConversationId = window.sessionStorage.getItem(
+      SUPPORT_CONVERSATION_STORAGE_KEY
+    );
+    if (savedConversationId) {
+      setConversationId(savedConversationId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!conversationId) {
+      window.sessionStorage.removeItem(SUPPORT_CONVERSATION_STORAGE_KEY);
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      SUPPORT_CONVERSATION_STORAGE_KEY,
+      conversationId
+    );
+  }, [conversationId]);
+
+  useEffect(() => {
     if (!isOpen) return;
+    if (!conversationId) return;
 
     let cancelled = false;
+    const activeConversationId = conversationId;
 
     async function loadConversation() {
       try {
-        const search = conversationId
-          ? `?conversationId=${encodeURIComponent(conversationId)}`
-          : '';
-        const response = await fetch(`/api/support-chat${search}`, {
-          method: 'GET',
-          cache: 'no-store'
-        });
+        const response = await fetch(
+          `/api/support-chat?conversationId=${encodeURIComponent(activeConversationId)}`,
+          {
+            method: 'GET',
+            cache: 'no-store'
+          }
+        );
         const data = (await response.json()) as ChatBootstrapResponse & { error?: string };
 
         if (!response.ok) {
@@ -92,6 +117,14 @@ export function SupportChatWidget({
       cancelled = true;
     };
   }, [conversationId, isOpen]);
+
+  function startNewChat() {
+    setMessages([]);
+    setInput('');
+    setError(null);
+    setLastResponse(null);
+    setConversationId(null);
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -145,8 +178,17 @@ export function SupportChatWidget({
   const widgetBody = (
     <section className="rounded-[24px] border border-[var(--color-border)] bg-white p-3 shadow-[0_20px_60px_rgba(17,13,10,0.14)]">
       <div className="flex items-center justify-between gap-3 border-b border-[var(--color-border)] px-2 pb-3">
-        <div>
+        <div className="flex items-center gap-2">
           <p className="text-sm font-semibold text-[var(--color-text-primary)]">Support</p>
+          {(conversationId || messages.length > 0) ? (
+            <button
+              type="button"
+              onClick={startNewChat}
+              className="rounded-full bg-[var(--color-surface-2)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-text-secondary)] transition hover:bg-[var(--color-border)]"
+            >
+              New chat
+            </button>
+          ) : null}
         </div>
         {variant === 'floating' ? (
           <button
