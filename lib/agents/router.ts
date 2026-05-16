@@ -1,12 +1,12 @@
-import { shouldEscalate } from './escalation.js';
-import { runAgentCompletion } from './openai-client.js';
-import { ROUTER_SYSTEM_PROMPT } from './prompts.js';
+import { shouldEscalate } from '@/lib/agents/escalation';
+import { runAgentCompletion } from '@/lib/agents/openai-client';
+import { ROUTER_SYSTEM_PROMPT } from '@/lib/agents/prompts';
 import type {
   ActivationStatus,
   ConversationMessage,
   RouterResult,
   UserSupportContext
-} from './types.js';
+} from '@/lib/agents/types';
 
 function includesAny(message: string, keywords: string[]) {
   return keywords.some((keyword) => message.includes(keyword));

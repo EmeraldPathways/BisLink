@@ -1,7 +1,7 @@
 import type { HelpDoc } from '@/lib/agents/types';
-import { apiKnowledgeDocs } from './api-docs.js';
-import { dashboardKnowledgeDocs } from './dashboard-docs.js';
-import { scoreKnowledgeDocs } from './index.js';
+import { apiKnowledgeDocs } from '@/lib/agents/knowledge/api-docs';
+import { dashboardKnowledgeDocs } from '@/lib/agents/knowledge/dashboard-docs';
+import { scoreKnowledgeDocs } from '@/lib/agents/knowledge/index';
 
 export const helpDocs: HelpDoc[] = [
   {
