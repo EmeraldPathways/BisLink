@@ -9,7 +9,9 @@ import { getActivationStatus } from '@/lib/agents/tools/get-activation-status';
 import { createSupportTicket } from '@/lib/agents/tools/create-support-ticket';
 import { getUserSupportContext } from '@/lib/agents/tools/get-user-context';
 import {
+  getLatestSupportConversation,
   getOrCreateSupportConversation,
+  getSupportConversationById,
   listSupportConversationMessages,
   saveSupportMessage,
   updateSupportConversationAgent
@@ -54,6 +56,42 @@ function buildEscalationDraft(
   };
 }
 
+export async function GET(req: NextRequest) {
+  const owner = await requireOwnerBusiness();
+  if (!owner) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const conversationId = req.nextUrl.searchParams.get('conversationId');
+  const conversation = conversationId
+    ? await getSupportConversationById({
+        supabase: owner.supabase,
+        conversationId,
+        userId: owner.user.id
+      })
+    : await getLatestSupportConversation({
+        supabase: owner.supabase,
+        userId: owner.user.id
+      });
+
+  const messages =
+    conversation
+      ? await listSupportConversationMessages({
+          supabase: owner.supabase,
+          conversationId: conversation.id,
+          userId: owner.user.id
+        })
+      : [];
+  const context = await getUserSupportContext(owner.user.id);
+  const activationStatus = await getActivationStatus(context);
+
+  return NextResponse.json({
+    conversationId: conversation?.id ?? null,
+    messages,
+    activationStatus
+  });
+}
+
 export async function POST(req: NextRequest) {
   const owner = await requireOwnerBusiness();
   if (!owner) {
@@ -92,7 +130,8 @@ export async function POST(req: NextRequest) {
     message: parsed.data.message,
     context,
     activationStatus,
-    conversationHistory
+    conversationHistory,
+    currentRoute: conversation?.current_agent
   });
   if (conversation) {
     await saveSupportMessage({
@@ -109,6 +148,35 @@ export async function POST(req: NextRequest) {
   }
 
   if (router.route === 'human_escalation' || escalation) {
+    const isEscalationFollowUp =
+      !escalation && conversation?.current_agent === 'human_escalation';
+
+    if (isEscalationFollowUp) {
+      const reply =
+        'Thanks. I added that detail to the escalation context for the support team.';
+
+      if (conversation) {
+        await saveSupportMessage({
+          supabase: owner.supabase,
+          conversationId: conversation.id,
+          role: 'assistant',
+          content: reply,
+          agentName: 'human_escalation'
+        });
+      }
+
+      return NextResponse.json({
+        reply,
+        route: 'human_escalation',
+        requiresHuman: true,
+        activationStatus,
+        ticketDraft: null,
+        ticketId: null,
+        conversationId: conversation?.id ?? null,
+        suggestedActionHref: '/support'
+      });
+    }
+
     const ticketDraft = buildEscalationDraft(
       parsed.data.message,
       owner.user.id,
@@ -120,6 +188,7 @@ export async function POST(req: NextRequest) {
       ? await createSupportTicket({
           supabase: owner.supabase,
           businessId: context.businessId,
+          conversationId: conversation?.id ?? null,
           customerName: context.businessName ?? null,
           customerEmail: owner.user.email ?? null,
           draft: ticketDraft,
@@ -192,6 +261,7 @@ export async function POST(req: NextRequest) {
         ? await createSupportTicket({
             supabase: owner.supabase,
             businessId: context.businessId,
+            conversationId: conversation?.id ?? null,
             customerName: context.businessName ?? null,
             customerEmail: owner.user.email ?? null,
             draft: result.ticketDraft,

@@ -9,7 +9,14 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminSupportPage() {
   await requireAdminUser();
-  const { tickets, reviews, onboardingRisks, refundedOrders, bookingIssues } =
+  const {
+    tickets,
+    supportMessagesByConversationId,
+    reviews,
+    onboardingRisks,
+    refundedOrders,
+    bookingIssues
+  } =
     await getAdminSupportData();
 
   return (
@@ -19,7 +26,10 @@ export default async function AdminSupportPage() {
         description="Moderate reviews, surface businesses with incomplete setup, and inspect recent payment and booking issues."
       />
 
-      <AdminSupportInbox tickets={tickets} />
+      <AdminSupportInbox
+        tickets={tickets}
+        supportMessagesByConversationId={supportMessagesByConversationId}
+      />
 
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="rounded-[28px] border border-[var(--color-border)] bg-white p-6">

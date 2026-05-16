@@ -70,6 +70,57 @@ export async function getOrCreateSupportConversation({
   return data as SupportConversationRecord;
 }
 
+export async function getSupportConversationById({
+  supabase,
+  conversationId,
+  userId
+}: {
+  supabase: SupportSupabase;
+  conversationId: string;
+  userId: string;
+}): Promise<SupportConversationRecord | null> {
+  const { data, error } = await supabase
+    .from('support_conversations')
+    .select('id,user_id,business_id,status,current_agent,title,created_at,updated_at')
+    .eq('id', conversationId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingRelationError(error, 'support_conversations')) {
+      return null;
+    }
+    throw error;
+  }
+
+  return data ? (data as SupportConversationRecord) : null;
+}
+
+export async function getLatestSupportConversation({
+  supabase,
+  userId
+}: {
+  supabase: SupportSupabase;
+  userId: string;
+}): Promise<SupportConversationRecord | null> {
+  const { data, error } = await supabase
+    .from('support_conversations')
+    .select('id,user_id,business_id,status,current_agent,title,created_at,updated_at')
+    .eq('user_id', userId)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingRelationError(error, 'support_conversations')) {
+      return null;
+    }
+    throw error;
+  }
+
+  return data ? (data as SupportConversationRecord) : null;
+}
+
 export async function listSupportConversationMessages({
   supabase,
   conversationId,
@@ -116,6 +167,49 @@ export async function listSupportConversationMessages({
   }));
 }
 
+export async function listSupportConversationMessageRecords({
+  supabase,
+  conversationId,
+  userId
+}: {
+  supabase: SupportSupabase;
+  conversationId: string;
+  userId: string;
+}): Promise<SupportMessageRecord[]> {
+  const { data: conversation, error: conversationError } = await supabase
+    .from('support_conversations')
+    .select('id')
+    .eq('id', conversationId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (conversationError) {
+    if (isMissingRelationError(conversationError, 'support_conversations')) {
+      return [];
+    }
+    throw conversationError;
+  }
+
+  if (!conversation) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('support_messages')
+    .select('id,conversation_id,role,content,agent_name,created_at')
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    if (isMissingRelationError(error, 'support_messages')) {
+      return [];
+    }
+    throw error;
+  }
+
+  return (data ?? []) as SupportMessageRecord[];
+}
+
 export async function saveSupportMessage({
   supabase,
   conversationId,
@@ -144,6 +238,20 @@ export async function saveSupportMessage({
       return false;
     }
     throw error;
+  }
+
+  const { error: conversationError } = await supabase
+    .from('support_conversations')
+    .update({
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', conversationId);
+
+  if (conversationError) {
+    if (isMissingRelationError(conversationError, 'support_conversations')) {
+      return true;
+    }
+    throw conversationError;
   }
 
   return true;

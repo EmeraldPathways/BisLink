@@ -6,6 +6,7 @@ type CreateSupportTicketArgs = {
     from: (table: 'support_tickets') => any;
   };
   businessId: string;
+  conversationId?: string | null;
   customerName: string | null;
   customerEmail: string | null;
   draft: SupportTicketDraft;
@@ -29,6 +30,7 @@ function formatDraftMessage(draft: SupportTicketDraft) {
 export async function createSupportTicket({
   supabase,
   businessId,
+  conversationId,
   customerName,
   customerEmail,
   draft,
@@ -38,6 +40,7 @@ export async function createSupportTicket({
     .from('support_tickets')
     .insert({
       business_id: businessId,
+      conversation_id: conversationId ?? null,
       ticket_type: ticketType,
       status: 'open',
       priority:
@@ -50,7 +53,7 @@ export async function createSupportTicket({
       customer_email: customerEmail
     })
     .select(
-      'id,business_id,ticket_type,status,priority,source,created_by_role,subject,message,customer_name,customer_email,assigned_admin_email,resolved_at,created_at,updated_at'
+      'id,business_id,conversation_id,ticket_type,status,priority,source,created_by_role,subject,message,customer_name,customer_email,assigned_admin_email,resolved_at,created_at,updated_at'
     )
     .single();
 

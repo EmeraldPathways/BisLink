@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Loader2, MessageCircle, Send, X } from 'lucide-react';
 import { formatSupportError } from '@/lib/agents/format-support-error';
@@ -18,6 +18,12 @@ type ChatResponse = {
   ticketDraft?: SupportTicketDraft | null;
   suggestedActionHref?: string;
   conversationId?: string | null;
+};
+
+type ChatBootstrapResponse = {
+  conversationId?: string | null;
+  messages?: ConversationMessage[];
+  activationStatus?: ActivationStatus;
 };
 
 export function SupportChatWidget({
@@ -39,6 +45,59 @@ export function SupportChatWidget({
     () => messages.filter((message) => message.role !== 'system'),
     [messages]
   );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+
+    async function loadConversation() {
+      try {
+        const search = conversationId
+          ? `?conversationId=${encodeURIComponent(conversationId)}`
+          : '';
+        const response = await fetch(`/api/support-chat${search}`, {
+          method: 'GET',
+          cache: 'no-store'
+        });
+        const data = (await response.json()) as ChatBootstrapResponse & { error?: string };
+
+        if (!response.ok) {
+          throw new Error(formatSupportError(data.error));
+        }
+
+        if (cancelled) return;
+
+        if (Array.isArray(data.messages)) {
+          setMessages(data.messages);
+        }
+        if (data.conversationId) {
+          setConversationId(data.conversationId);
+        }
+        if (data.activationStatus) {
+          setLastResponse((current) => ({
+            reply: current?.reply ?? '',
+            route: current?.route ?? 'support',
+            requiresHuman: current?.requiresHuman ?? false,
+            suggestedActionHref: current?.suggestedActionHref,
+            ticketDraft: current?.ticketDraft,
+            conversationId: data.conversationId ?? current?.conversationId ?? null,
+            activationStatus: data.activationStatus
+          }));
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(formatSupportError(loadError));
+        }
+      }
+    }
+
+    void loadConversation();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [conversationId, isOpen]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

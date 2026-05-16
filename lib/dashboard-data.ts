@@ -332,7 +332,7 @@ export async function getSupportData() {
   const { data } = await supabase
     .from('support_tickets')
     .select(
-      'id,business_id,ticket_type,status,priority,source,created_by_role,subject,message,customer_name,customer_email,assigned_admin_email,resolved_at,created_at,updated_at'
+      'id,business_id,conversation_id,ticket_type,status,priority,source,created_by_role,subject,message,customer_name,customer_email,assigned_admin_email,resolved_at,created_at,updated_at'
     )
     .eq('business_id', business.id)
     .in('ticket_type', ['public_support', 'escalation'])
@@ -666,6 +666,7 @@ function normalizeBlockedTime(record: BlockedTimeRecord): BlockedTimeRecord {
 function normalizeSupportTicket(ticket: SupportTicketRecord): SupportTicketRecord {
   return {
     ...ticket,
+    conversation_id: ticket.conversation_id ?? null,
     subject: ticket.subject ?? null,
     customer_name: ticket.customer_name ?? null,
     customer_email: ticket.customer_email ?? null,

@@ -1,6 +1,7 @@
 import { startOfMonth, subDays } from 'date-fns';
 import { ADMIN_EMAIL } from '@/lib/admin';
 import { getAgentDiagnostics } from '@/lib/agent-diagnostics';
+import type { SupportMessageRecord } from '@/lib/agents/types';
 import { getStripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/server';
 import type {
@@ -333,7 +334,7 @@ export async function getAdminSupportData() {
       .limit(20),
     admin
       .from('support_tickets')
-      .select('id,business_id,ticket_type,status,priority,source,created_by_role,subject,message,customer_name,customer_email,assigned_admin_email,resolved_at,created_at,updated_at')
+      .select('id,business_id,conversation_id,ticket_type,status,priority,source,created_by_role,subject,message,customer_name,customer_email,assigned_admin_email,resolved_at,created_at,updated_at')
       .in('ticket_type', ['owner_support', 'escalation'])
       .order('created_at', { ascending: false })
       .limit(50)
@@ -341,6 +342,13 @@ export async function getAdminSupportData() {
 
   const businessRows = (businesses.data ?? []) as RawBusiness[];
   const businessNameMap = new Map(businessRows.map((business) => [business.id, business.name]));
+  const supportTicketRows = (supportTickets.data ?? []) as SupportTicketRecord[];
+  const conversationIds = supportTicketRows
+    .map((ticket) => ticket.conversation_id)
+    .filter((value): value is string => Boolean(value));
+  const supportMessagesByConversationId = conversationIds.length
+    ? await getSupportMessagesByConversationId(admin, conversationIds)
+    : {};
   const onboardingRisks = await Promise.all(
     businessRows.map(async (business) => {
       const counts = await getBusinessCounts(admin, business.id);
@@ -360,15 +368,39 @@ export async function getAdminSupportData() {
   );
 
   return {
-    tickets: ((supportTickets.data ?? []) as SupportTicketRecord[]).map((ticket) => ({
+    tickets: supportTicketRows.map((ticket) => ({
       ...ticket,
       businessName: businessNameMap.get(ticket.business_id) ?? 'Unknown business'
     })),
+    supportMessagesByConversationId,
     reviews: reviews.data ?? [],
     onboardingRisks: onboardingRisks.filter((item) => item.missing.length > 0),
     refundedOrders: refundedOrders.data ?? [],
     bookingIssues: refundedBookings.data ?? []
   };
+}
+
+async function getSupportMessagesByConversationId(
+  admin: NonNullable<ReturnType<typeof createAdminClient>>,
+  conversationIds: string[]
+) {
+  const { data } = await admin
+    .from('support_messages')
+    .select('id,conversation_id,role,content,agent_name,created_at')
+    .in('conversation_id', conversationIds)
+    .order('created_at', { ascending: true });
+
+  return ((data ?? []) as SupportMessageRecord[]).reduce<Record<string, SupportMessageRecord[]>>(
+    (acc, message) => {
+      const key = message.conversation_id;
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(message);
+      return acc;
+    },
+    {}
+  );
 }
 
 export async function getAdminFinanceData() {

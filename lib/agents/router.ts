@@ -45,12 +45,14 @@ export async function routeSupportMessage({
   context,
   activationStatus,
   conversationHistory,
+  currentRoute,
   runCompletion = runAgentCompletion
 }: {
   message: string;
   context: UserSupportContext;
   activationStatus: ActivationStatus;
   conversationHistory?: ConversationMessage[];
+  currentRoute?: RouterResult['route'] | 'admin_support';
   runCompletion?: typeof runAgentCompletion;
 }): Promise<RouterResult> {
   const normalized = message.toLowerCase();
@@ -61,6 +63,22 @@ export async function routeSupportMessage({
       route: 'human_escalation',
       confidence: 0.99,
       reason: escalation.reason,
+      requiresHuman: true
+    };
+  }
+
+  if (
+    currentRoute === 'human_escalation' &&
+    conversationHistory?.some(
+      (item) =>
+        item.role === 'assistant' &&
+        /needs human review|support team/i.test(item.content)
+    )
+  ) {
+    return {
+      route: 'human_escalation',
+      confidence: 0.91,
+      reason: 'Continuing an active human-escalation follow-up.',
       requiresHuman: true
     };
   }

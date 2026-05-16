@@ -220,6 +220,7 @@ export type SupportTicketCreatedByRole = 'public_user' | 'owner' | 'admin';
 export type SupportTicketRecord = {
   id: string;
   business_id: string;
+  conversation_id?: string | null;
   ticket_type: SupportTicketType;
   status: SupportTicketStatus;
   priority: SupportTicketPriority;

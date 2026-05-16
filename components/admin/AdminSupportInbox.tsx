@@ -1,8 +1,9 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import type { SupportMessageRecord } from '@/lib/agents/types';
 import type { SupportTicketRecord } from '@/types';
 
 type AdminSupportTicket = SupportTicketRecord & {
@@ -10,14 +11,17 @@ type AdminSupportTicket = SupportTicketRecord & {
 };
 
 export function AdminSupportInbox({
-  tickets
+  tickets,
+  supportMessagesByConversationId
 }: {
   tickets: AdminSupportTicket[];
+  supportMessagesByConversationId: Record<string, SupportMessageRecord[]>;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
 
   async function updateTicket(
     id: string,
@@ -48,6 +52,36 @@ export function AdminSupportInbox({
     });
   }
 
+  async function submitReply(event: FormEvent<HTMLFormElement>, ticket: AdminSupportTicket) {
+    event.preventDefault();
+    const draft = replyDrafts[ticket.id]?.trim();
+    if (!draft) return;
+
+    setError(null);
+    setPendingId(ticket.id);
+
+    const response = await fetch(`/api/admin/support/${ticket.id}/reply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: draft })
+    });
+
+    if (!response.ok) {
+      const data = (await response.json().catch(() => null)) as
+        | { error?: string }
+        | null;
+      setError(data?.error ?? 'Could not send admin reply');
+      setPendingId(null);
+      return;
+    }
+
+    setReplyDrafts((current) => ({ ...current, [ticket.id]: '' }));
+    startTransition(() => {
+      router.refresh();
+      setPendingId(null);
+    });
+  }
+
   return (
     <section className="rounded-[28px] border border-[var(--color-border)] bg-white p-6">
       <div className="flex items-start justify-between gap-3">
@@ -66,6 +100,9 @@ export function AdminSupportInbox({
         {tickets.length ? (
           tickets.map((ticket) => {
             const disabled = isPending && pendingId === ticket.id;
+            const conversationMessages = ticket.conversation_id
+              ? supportMessagesByConversationId[ticket.conversation_id] ?? []
+              : [];
             return (
               <article
                 key={ticket.id}
@@ -164,6 +201,58 @@ export function AdminSupportInbox({
                     />
                   </div>
                 </div>
+
+                {conversationMessages.length ? (
+                  <div className="mt-4 rounded-[18px] bg-[var(--color-surface-2)] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+                      Conversation
+                    </p>
+                    <div className="mt-3 space-y-2">
+                      {conversationMessages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`rounded-2xl px-4 py-3 text-sm ${
+                            message.role === 'user'
+                              ? 'bg-white text-[var(--color-text-primary)]'
+                              : 'bg-[var(--color-void)] text-white'
+                          }`}
+                        >
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] opacity-70">
+                            {message.role === 'user' ? 'Owner' : message.agent_name === 'admin_support' ? 'Admin' : 'Support'}
+                          </p>
+                          <p className="mt-1 whitespace-pre-wrap leading-6">
+                            {message.content}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <form
+                      onSubmit={(event) => submitReply(event, ticket)}
+                      className="mt-3 space-y-2"
+                    >
+                      <textarea
+                        value={replyDrafts[ticket.id] ?? ''}
+                        onChange={(event) =>
+                          setReplyDrafts((current) => ({
+                            ...current,
+                            [ticket.id]: event.target.value
+                          }))
+                        }
+                        className="min-h-[96px] w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm"
+                        placeholder="Reply to the owner in this support conversation"
+                        maxLength={4000}
+                      />
+                      <button
+                        type="submit"
+                        disabled={disabled || !(replyDrafts[ticket.id] ?? '').trim()}
+                        className="rounded-xl bg-[var(--color-void)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                      >
+                        Send reply
+                      </button>
+                    </form>
+                  </div>
+                ) : null}
               </article>
             );
           })

@@ -485,6 +485,7 @@ export type Database = {
         Row: {
           assigned_admin_email: string | null;
           business_id: string;
+          conversation_id: string | null;
           created_at: string;
           created_by_role: 'public_user' | 'owner' | 'admin';
           customer_email: string | null;
@@ -502,6 +503,7 @@ export type Database = {
         Insert: {
           assigned_admin_email?: string | null;
           business_id: string;
+          conversation_id?: string | null;
           created_at?: string;
           created_by_role: 'public_user' | 'owner' | 'admin';
           customer_email?: string | null;

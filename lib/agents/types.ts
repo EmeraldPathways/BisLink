@@ -109,7 +109,7 @@ export interface SupportConversationRecord {
   user_id: string;
   business_id: string | null;
   status: 'open' | 'resolved' | 'escalated';
-  current_agent: AgentRoute;
+  current_agent: AgentRoute | 'admin_support';
   title: string | null;
   created_at: string;
   updated_at: string;
