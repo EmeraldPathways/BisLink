@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { MessageCircle, X } from 'lucide-react';
 import type {
   ActivationStatus,
   ConversationMessage,
@@ -19,9 +20,11 @@ type ChatResponse = {
 };
 
 export function SupportChatWidget({
-  initialActivationStatus
+  initialActivationStatus,
+  variant = 'embedded'
 }: {
   initialActivationStatus: ActivationStatus;
+  variant?: 'embedded' | 'floating';
 }) {
   const [messages, setMessages] = useState<ConversationMessage[]>([
     {
@@ -35,6 +38,7 @@ export function SupportChatWidget({
   const [error, setError] = useState<string | null>(null);
   const [lastResponse, setLastResponse] = useState<ChatResponse | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(variant === 'embedded');
 
   const conversationHistory = useMemo(
     () => messages.filter((message) => message.role !== 'system'),
@@ -87,9 +91,9 @@ export function SupportChatWidget({
 
   const activationStatus = lastResponse?.activationStatus ?? initialActivationStatus;
 
-  return (
-    <section className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
-      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+  const widgetBody = (
+    <section className="rounded-[28px] border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_48px_rgba(17,13,10,0.08)]">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-secondary)]">
             AI Support
@@ -100,9 +104,19 @@ export function SupportChatWidget({
             {activationStatus.nextBestAction}
           </p>
         </div>
+        {variant === 'floating' ? (
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border)] text-[var(--color-text-secondary)]"
+            aria-label="Close support chat"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        ) : null}
       </div>
 
-      <div className="mt-4 space-y-3 rounded-[22px] bg-[var(--color-surface-2)] p-4">
+      <div className="mt-4 max-h-[320px] space-y-3 overflow-y-auto rounded-[22px] bg-[var(--color-surface-2)] p-4">
         {messages.map((message, index) => (
           <div
             key={`${message.role}-${index}`}
@@ -164,4 +178,27 @@ export function SupportChatWidget({
       </form>
     </section>
   );
+
+  if (variant === 'floating') {
+    return (
+      <div className="pointer-events-none fixed bottom-5 right-5 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end gap-3 md:bottom-6 md:right-6">
+        {isOpen ? (
+          <div className="pointer-events-auto w-[min(420px,calc(100vw-2rem))]">
+            {widgetBody}
+          </div>
+        ) : null}
+        <button
+          type="button"
+          onClick={() => setIsOpen((current) => !current)}
+          className="pointer-events-auto inline-flex items-center gap-3 rounded-full bg-[var(--color-void)] px-5 py-4 text-sm font-semibold text-white shadow-[0_18px_48px_rgba(17,13,10,0.24)]"
+          aria-label={isOpen ? 'Hide support chat' : 'Open support chat'}
+        >
+          {isOpen ? <X className="h-4 w-4" /> : <MessageCircle className="h-4 w-4" />}
+          {isOpen ? 'Hide AI support' : 'Ask BisLink AI'}
+        </button>
+      </div>
+    );
+  }
+
+  return widgetBody;
 }

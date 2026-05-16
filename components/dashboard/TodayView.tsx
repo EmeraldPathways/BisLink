@@ -58,7 +58,7 @@ export function TodayView({
 
       <ActivationNudgeCard activationStatus={activationStatus} />
 
-      <SupportChatWidget initialActivationStatus={activationStatus} />
+      <SupportChatWidget initialActivationStatus={activationStatus} variant="floating" />
 
       {/* Upcoming Bookings */}
       <section className="space-y-4">
