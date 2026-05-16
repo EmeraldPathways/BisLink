@@ -20,7 +20,7 @@ import { shouldEscalate } from '@/lib/agents/escalation';
 
 const schema = z.object({
   message: z.string().trim().min(1).max(4000),
-  conversationId: z.string().trim().optional(),
+  conversationId: z.string().trim().nullable().optional(),
   conversationHistory: z
     .array(
       z.object({
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 
   const conversation = await getOrCreateSupportConversation({
     supabase: owner.supabase,
-    conversationId: parsed.data.conversationId,
+    conversationId: parsed.data.conversationId ?? undefined,
     userId: owner.user.id,
     businessId: owner.business.id,
     initialMessage: parsed.data.message
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
   const conversationHistory =
     persistedHistory.length > 0
       ? persistedHistory
-      : parsed.data.conversationHistory;
+      : (parsed.data.conversationHistory ?? []);
 
   const context = await getUserSupportContext(owner.user.id);
   const activationStatus = await getActivationStatus(context);
@@ -215,7 +215,7 @@ export async function POST(req: NextRequest) {
     context,
     activationStatus,
     relevantDocs,
-    conversationHistory: parsed.data.conversationHistory
+    conversationHistory
   });
 
   if (conversation) {

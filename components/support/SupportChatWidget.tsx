@@ -58,14 +58,23 @@ export function SupportChatWidget({
     setError(null);
 
     try {
+      const payload: {
+        message: string;
+        conversationHistory: ConversationMessage[];
+        conversationId?: string;
+      } = {
+        message: trimmed,
+        conversationHistory
+      };
+
+      if (conversationId) {
+        payload.conversationId = conversationId;
+      }
+
       const response = await fetch('/api/support-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: trimmed,
-          conversationId,
-          conversationHistory
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = (await response.json()) as ChatResponse & { error?: string };
