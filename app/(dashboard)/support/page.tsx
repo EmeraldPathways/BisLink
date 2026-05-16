@@ -1,5 +1,4 @@
 import { ActivationNudgeCard } from '@/components/support/ActivationNudgeCard';
-import { SupportChatWidget } from '@/components/support/SupportChatWidget';
 import { SupportInbox } from '@/components/dashboard/SupportInbox';
 import { getSupportAssistantData, getSupportData } from '@/lib/dashboard-data';
 
@@ -14,7 +13,6 @@ export default async function Page() {
   return (
     <div className="space-y-5">
       <ActivationNudgeCard activationStatus={activationStatus} />
-      <SupportChatWidget initialActivationStatus={activationStatus} />
       <SupportInbox tickets={tickets} counts={counts} statuses={statuses} />
     </div>
   );

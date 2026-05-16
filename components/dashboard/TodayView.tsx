@@ -1,6 +1,5 @@
 import { CalendarDays, Share2 } from 'lucide-react';
 import { ActivationNudgeCard } from '@/components/support/ActivationNudgeCard';
-import { SupportChatWidget } from '@/components/support/SupportChatWidget';
 import type { ActivationStatus } from '@/lib/agents/types';
 import { formatDateLabel, formatPrice } from '@/lib/utils/formatting';
 import { BookingCard } from './BookingCard';
@@ -57,8 +56,6 @@ export function TodayView({
       <StatsBar stats={stats} />
 
       <ActivationNudgeCard activationStatus={activationStatus} />
-
-      <SupportChatWidget initialActivationStatus={activationStatus} variant="floating" />
 
       {/* Upcoming Bookings */}
       <section className="space-y-4">
