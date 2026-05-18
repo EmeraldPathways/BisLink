@@ -277,3 +277,24 @@ test('routeSupportMessage treats missing order confirmations as technical triage
 
   assert.equal(result.route, 'technical_triage');
 });
+
+test('routeSupportMessage carries forward the last user context for support clarification follow-ups', async () => {
+  const result = await routeSupportMessage({
+    message: 'Upload image',
+    context: baseContext,
+    activationStatus: baseActivation,
+    currentRoute: 'support',
+    conversationHistory: [
+      { role: 'user', content: 'H, i cannot add an image to products' },
+      {
+        role: 'assistant',
+        content: 'Which part of Products are you trying to change or verify?'
+      }
+    ],
+    runCompletion: async () => null
+  });
+
+  assert.equal(result.route, 'support');
+  assert.equal(result.decisionType, 'grounded_answer');
+  assert.equal(result.knowledgeAreaIds.includes('products'), true);
+});

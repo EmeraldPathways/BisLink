@@ -7,6 +7,24 @@ import type {
   UserSupportContext
 } from '@/lib/agents/types';
 
+function buildSupportFollowUpMessage({
+  message,
+  conversationHistory
+}: {
+  message: string;
+  conversationHistory?: ConversationMessage[];
+}) {
+  const previousUserMessage = [...(conversationHistory ?? [])]
+    .reverse()
+    .find((item) => item.role === 'user')?.content;
+
+  if (!previousUserMessage) {
+    return message;
+  }
+
+  return `${previousUserMessage}\n${message}`;
+}
+
 export async function routeSupportMessage({
   message,
   context,
@@ -45,7 +63,13 @@ export async function routeSupportMessage({
   void runCompletion;
 
   return classifySupportRequest({
-    message,
+    message:
+      currentRoute === 'support'
+        ? buildSupportFollowUpMessage({
+            message,
+            conversationHistory
+          })
+        : message,
     context,
     activationStatus
   });
