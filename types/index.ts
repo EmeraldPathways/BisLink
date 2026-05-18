@@ -216,6 +216,13 @@ export type SupportTicketStatus = 'open' | 'in_progress' | 'resolved';
 export type SupportTicketPriority = 'normal' | 'high';
 export type SupportTicketSource = 'contact_form' | 'owner_dashboard';
 export type SupportTicketCreatedByRole = 'public_user' | 'owner' | 'admin';
+export type SupportReviewLabel =
+  | 'correct'
+  | 'wrong_domain'
+  | 'weak_knowledge'
+  | 'bad_escalation'
+  | 'poor_wording'
+  | 'missing_rule';
 
 export type SupportTicketRecord = {
   id: string;
@@ -232,6 +239,41 @@ export type SupportTicketRecord = {
   customer_email: string | null;
   assigned_admin_email: string | null;
   resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SupportDecisionRecord = {
+  id: string;
+  conversation_id: string | null;
+  user_id: string | null;
+  business_id: string | null;
+  route: 'support' | 'technical_triage' | 'setup_completion' | 'human_escalation';
+  domain:
+    | 'frontend_expert'
+    | 'backend_expert'
+    | 'payments_expert'
+    | 'booking_expert'
+    | 'calendar_expert'
+    | 'support_ops_expert'
+    | 'safety_escalation_expert';
+  decision_type: 'grounded_answer' | 'clarifying_question' | 'technical_triage' | 'human_escalation';
+  confidence: number;
+  requires_human: boolean;
+  fallback_used: boolean;
+  needs_follow_up: boolean;
+  escalated_later: boolean;
+  ticket_id: string | null;
+  support_message: string;
+  assistant_reply: string | null;
+  reason: string | null;
+  suggested_action_href: string | null;
+  evidence_refs: string[];
+  knowledge_area_ids: string[];
+  review_label: SupportReviewLabel | null;
+  review_notes: string | null;
+  reviewed_by_admin_email: string | null;
+  reviewed_at: string | null;
   created_at: string;
   updated_at: string;
 };

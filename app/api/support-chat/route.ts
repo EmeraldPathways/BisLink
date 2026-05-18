@@ -7,6 +7,10 @@ import { runSupportAgent } from '@/lib/agents/support-agent';
 import { runTechnicalTriageAgent } from '@/lib/agents/technical-triage-agent';
 import { getActivationStatus } from '@/lib/agents/tools/get-activation-status';
 import { createSupportTicket } from '@/lib/agents/tools/create-support-ticket';
+import {
+  markConversationEscalatedLater,
+  persistSupportDecision
+} from '@/lib/agents/tools/support-decisions';
 import { getUserSupportContext } from '@/lib/agents/tools/get-user-context';
 import {
   getLatestSupportConversation,
@@ -22,6 +26,7 @@ import {
   detectEscalation,
   getEscalationFollowUpQuestion
 } from '@/lib/agents/escalation';
+import { writeAppLog } from '@/lib/app-logs';
 
 const schema = z.object({
   message: z.string().trim().min(1).max(4000),
@@ -147,7 +152,29 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  void writeAppLog({
+    level: 'log',
+    source: 'support-chat',
+    event: 'support_decision',
+    message: router.reason,
+    context: {
+      route: router.route,
+      domain: router.domain,
+      decisionType: router.decisionType,
+      confidence: router.confidence,
+      requiresHuman: router.requiresHuman,
+      evidenceRefs: router.evidenceRefs,
+      knowledgeAreaIds: router.knowledgeAreaIds,
+      conversationId: conversation?.id ?? null
+    }
+  });
+
   if (router.route === 'human_escalation' || escalation) {
+    await markConversationEscalatedLater({
+      supabase: owner.supabase,
+      conversationId: conversation?.id ?? null
+    });
+
     const isEscalationFollowUp =
       !escalation && conversation?.current_agent === 'human_escalation';
 
@@ -165,9 +192,30 @@ export async function POST(req: NextRequest) {
         });
       }
 
+      await persistSupportDecision({
+        supabase: owner.supabase,
+        conversationId: conversation?.id ?? null,
+        userId: owner.user.id,
+        businessId: owner.business.id,
+        message: parsed.data.message,
+      decision: {
+        ...router,
+        route: 'human_escalation',
+        decisionType: 'human_escalation'
+      },
+      reply,
+      needsFollowUp: false,
+      ticketId: null,
+      reason: router.reason
+    });
+
       return NextResponse.json({
         reply,
         route: 'human_escalation',
+        domain: router.domain,
+        decisionType: 'human_escalation',
+        confidence: router.confidence,
+        evidenceRefs: router.evidenceRefs,
         requiresHuman: true,
         activationStatus,
         ticketDraft: null,
@@ -212,9 +260,30 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    await persistSupportDecision({
+      supabase: owner.supabase,
+      conversationId: conversation?.id ?? null,
+      userId: owner.user.id,
+      businessId: owner.business.id,
+      message: parsed.data.message,
+      decision: {
+        ...router,
+        route: 'human_escalation',
+        decisionType: 'human_escalation'
+      },
+      reply,
+      needsFollowUp: false,
+      ticketId: ticket?.id ?? null,
+      reason: router.reason
+    });
+
     return NextResponse.json({
       reply,
       route: 'human_escalation',
+      domain: router.domain,
+      decisionType: 'human_escalation',
+      confidence: router.confidence,
+      evidenceRefs: router.evidenceRefs,
       requiresHuman: true,
       activationStatus,
       ticketDraft,
@@ -228,7 +297,10 @@ export async function POST(req: NextRequest) {
     const result = await runSetupCompletionHelper({
       message: parsed.data.message,
       context,
-      activationStatus
+      activationStatus,
+      domain: router.domain,
+      confidence: router.confidence,
+      evidenceRefs: router.evidenceRefs
     });
 
     if (conversation) {
@@ -240,6 +312,19 @@ export async function POST(req: NextRequest) {
         agentName: result.route
       });
     }
+
+    await persistSupportDecision({
+      supabase: owner.supabase,
+      conversationId: conversation?.id ?? null,
+      userId: owner.user.id,
+      businessId: owner.business.id,
+      message: parsed.data.message,
+      decision: result,
+      reply: result.reply,
+      needsFollowUp: false,
+      ticketId: null,
+      reason: router.reason
+    });
 
     return NextResponse.json({
       ...result,
@@ -253,7 +338,10 @@ export async function POST(req: NextRequest) {
     const result = await runTechnicalTriageAgent({
       message: parsed.data.message,
       context,
-      activationStatus
+      activationStatus,
+      domain: router.domain,
+      confidence: router.confidence,
+      evidenceRefs: router.evidenceRefs
     });
 
     const ticket =
@@ -279,6 +367,19 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    await persistSupportDecision({
+      supabase: owner.supabase,
+      conversationId: conversation?.id ?? null,
+      userId: owner.user.id,
+      businessId: owner.business.id,
+      message: parsed.data.message,
+      decision: result,
+      reply: result.reply,
+      needsFollowUp: result.needsFollowUp,
+      ticketId: ticket?.id ?? null,
+      reason: router.reason
+    });
+
     return NextResponse.json({
       ...result,
       activationStatus,
@@ -289,12 +390,17 @@ export async function POST(req: NextRequest) {
   }
 
   const result = await runSupportAgent({
-    message: parsed.data.message,
-    context,
-    activationStatus,
-    relevantDocs,
-    conversationHistory
-  });
+      message: parsed.data.message,
+      context,
+      activationStatus,
+      relevantDocs,
+      conversationHistory,
+      domain: router.domain,
+      confidence: router.confidence,
+      decisionType: router.decisionType === 'clarifying_question' ? 'clarifying_question' : 'grounded_answer',
+      evidenceRefs: router.evidenceRefs,
+      knowledgeAreaIds: router.knowledgeAreaIds
+    });
 
   if (conversation) {
     await saveSupportMessage({
@@ -305,6 +411,19 @@ export async function POST(req: NextRequest) {
       agentName: result.route
     });
   }
+
+  await persistSupportDecision({
+    supabase: owner.supabase,
+    conversationId: conversation?.id ?? null,
+    userId: owner.user.id,
+    businessId: owner.business.id,
+    message: parsed.data.message,
+    decision: result,
+    reply: result.reply,
+    needsFollowUp: result.needsFollowUp,
+    ticketId: null,
+    reason: router.reason
+  });
 
   return NextResponse.json({
     ...result,

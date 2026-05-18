@@ -134,6 +134,50 @@ export const helpDocs: HelpDoc[] = [
       'Open Dashboard -> Reviews to publish or hide customer reviews. Use this page if you need to hide a customer review from your public page. Only published reviews appear on the public page. The dashboard shows whether a review is verified. The current review management flow supports visibility changes only. The "Request review" button is present in the UI but the follow-up outbound workflow is not wired up yet.'
   },
   {
+    id: 'owner-support-inbox',
+    title: 'How the owner support inbox works',
+    href: '/support',
+    keywords: [
+      'support inbox',
+      'owner support',
+      'reply to support message',
+      'reply to message',
+      'support ticket',
+      'public support inbox',
+      'contact-form ticket'
+    ],
+    content:
+      'Open Dashboard -> Support to view owner support tickets and conversation history. If a ticket has a linked support conversation, use the reply field in that thread to send a message back to support. Public contact-form messages and owner-created support requests should appear in this inbox, and ticket status changes are reflected in the same thread.'
+  },
+  {
+    id: 'contact-form-support',
+    title: 'How public contact-form support messages work',
+    href: '/support',
+    keywords: [
+      'contact form',
+      'public page message',
+      'contact-form message',
+      'public support message',
+      'support ticket from contact form'
+    ],
+    content:
+      'Messages submitted through the public contact form should create a support ticket that appears in Dashboard -> Support. That ticket becomes the owner-visible inbox thread for follow-up replies and status changes.'
+  },
+  {
+    id: 'order-confirmations',
+    title: 'How order confirmations are tracked',
+    href: '/support',
+    keywords: [
+      'order confirmation',
+      'confirmation email',
+      'confirmation not received',
+      'paid order',
+      'order message'
+    ],
+    content:
+      'Paid orders track whether a confirmation has been sent. If a customer paid but no confirmation arrived, first confirm the order was completed successfully, then treat missing confirmation delivery as a support issue rather than a setup step.'
+  },
+  {
     id: 'portfolio-and-public-page',
     title: 'How portfolio and public page sections work',
     href: '/link',

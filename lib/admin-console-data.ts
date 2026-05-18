@@ -1,6 +1,7 @@
 import { startOfMonth, subDays } from 'date-fns';
 import { ADMIN_EMAIL } from '@/lib/admin';
 import { getAgentDiagnostics } from '@/lib/agent-diagnostics';
+import { getLatestSupportDecisionsByConversationId } from '@/lib/agents/tools/support-decisions';
 import type { SupportMessageRecord } from '@/lib/agents/types';
 import { getStripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/server';
@@ -8,6 +9,7 @@ import type {
   AgentDiagnostics,
   DiagnosticCheck,
   DiagnosticState,
+  SupportDecisionRecord,
   SupportTicketRecord
 } from '@/types';
 
@@ -349,6 +351,15 @@ export async function getAdminSupportData() {
   const supportMessagesByConversationId = conversationIds.length
     ? await getSupportMessagesByConversationId(admin, conversationIds)
     : {};
+  const latestSupportDecisionsByConversationId = conversationIds.length
+    ? await getLatestSupportDecisionsByConversationId({
+        supabase: admin,
+        conversationIds
+      })
+    : {};
+  const reviewedDecisionCount = Object.values(
+    latestSupportDecisionsByConversationId
+  ).filter((decision) => decision.review_label).length;
   const onboardingRisks = await Promise.all(
     businessRows.map(async (business) => {
       const counts = await getBusinessCounts(admin, business.id);
@@ -373,10 +384,26 @@ export async function getAdminSupportData() {
       businessName: businessNameMap.get(ticket.business_id) ?? 'Unknown business'
     })),
     supportMessagesByConversationId,
+    latestSupportDecisionsByConversationId,
+    diagnosticsSummary: summarizeSupportDecisionDiagnostics(
+      Object.values(latestSupportDecisionsByConversationId)
+    ),
+    reviewedDecisionCount,
     reviews: reviews.data ?? [],
     onboardingRisks: onboardingRisks.filter((item) => item.missing.length > 0),
     refundedOrders: refundedOrders.data ?? [],
     bookingIssues: refundedBookings.data ?? []
+  };
+}
+
+function summarizeSupportDecisionDiagnostics(decisions: SupportDecisionRecord[]) {
+  return {
+    total: decisions.length,
+    needsReview: decisions.filter((decision) => !decision.review_label).length,
+    escalatedLater: decisions.filter((decision) => decision.escalated_later).length,
+    clarifyingQuestions: decisions.filter(
+      (decision) => decision.decision_type === 'clarifying_question'
+    ).length
   };
 }
 

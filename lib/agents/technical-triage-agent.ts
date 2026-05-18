@@ -197,20 +197,45 @@ function buildTicketDraft(
 export async function runTechnicalTriageAgent({
   message,
   context,
-  activationStatus
+  activationStatus,
+  domain,
+  confidence = 0.9,
+  evidenceRefs = []
 }: {
   message: string;
   context: UserSupportContext;
   activationStatus: ActivationStatus;
+  domain?: TechnicalTriageOutput['domain'];
+  confidence?: number;
+  evidenceRefs?: string[];
 }): Promise<TechnicalTriageOutput> {
   const escalation = detectEscalation(message, context);
   const issueType = inferIssueType(message);
+  const resolvedDomain =
+    domain ??
+    (issueType === 'payments'
+      ? 'payments_expert'
+      : issueType === 'bookings'
+        ? 'booking_expert'
+        : issueType === 'security'
+          ? 'safety_escalation_expert'
+          : issueType === 'account_access'
+            ? 'safety_escalation_expert'
+            : issueType === 'data_loss'
+              ? 'safety_escalation_expert'
+              : issueType === 'public_page' || issueType === 'dashboard' || issueType === 'visual'
+                ? 'frontend_expert'
+                : 'backend_expert');
 
   if (escalation && needsFollowUp(message, issueType)) {
     const followUpQuestion = getEscalationFollowUpQuestion(escalation.issueType);
     return {
       reply: followUpQuestion,
       route: 'technical_triage',
+      domain: resolvedDomain,
+      decisionType: 'technical_triage',
+      confidence,
+      evidenceRefs,
       requiresHuman: true,
       needsFollowUp: true,
       followUpQuestion
@@ -222,6 +247,10 @@ export async function runTechnicalTriageAgent({
     return {
       reply: followUpQuestion,
       route: 'technical_triage',
+      domain: resolvedDomain,
+      decisionType: 'technical_triage',
+      confidence,
+      evidenceRefs,
       requiresHuman: false,
       needsFollowUp: true,
       followUpQuestion
@@ -249,6 +278,10 @@ export async function runTechnicalTriageAgent({
         aiReply?.trim() ||
         'I drafted a technical support ticket with your account context for review.',
       route: 'technical_triage',
+      domain: resolvedDomain,
+      decisionType: 'technical_triage',
+      confidence,
+      evidenceRefs,
       requiresHuman:
         fallbackDraft.severity === 'P0' ||
         fallbackDraft.severity === 'P1' ||
@@ -261,6 +294,10 @@ export async function runTechnicalTriageAgent({
       reply:
         'I drafted a technical support ticket with your account context for review.',
       route: 'technical_triage',
+      domain: resolvedDomain,
+      decisionType: 'technical_triage',
+      confidence,
+      evidenceRefs,
       requiresHuman:
         fallbackDraft.severity === 'P0' ||
         fallbackDraft.severity === 'P1' ||

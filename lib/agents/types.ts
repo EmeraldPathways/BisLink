@@ -4,6 +4,21 @@ export type AgentRoute =
   | 'setup_completion'
   | 'human_escalation';
 
+export type SupportDomain =
+  | 'frontend_expert'
+  | 'backend_expert'
+  | 'payments_expert'
+  | 'booking_expert'
+  | 'calendar_expert'
+  | 'support_ops_expert'
+  | 'safety_escalation_expert';
+
+export type SupportDecisionType =
+  | 'grounded_answer'
+  | 'clarifying_question'
+  | 'technical_triage'
+  | 'human_escalation';
+
 export type Severity = 'P0' | 'P1' | 'P2' | 'P3';
 
 export type ChatMessageRole = 'user' | 'assistant' | 'system';
@@ -42,9 +57,14 @@ export interface ActivationStatus {
 
 export interface RouterResult {
   route: AgentRoute;
+  domain: SupportDomain;
+  decisionType: SupportDecisionType;
   confidence: number;
   reason: string;
   requiresHuman: boolean;
+  evidenceRefs: string[];
+  knowledgeAreaIds: string[];
+  suggestedActionHref?: string;
 }
 
 export interface SupportTicketDraft {
@@ -70,18 +90,33 @@ export interface SupportAgentInput {
   activationStatus: ActivationStatus;
   relevantDocs: HelpDoc[];
   conversationHistory?: ConversationMessage[];
+  domain: SupportDomain;
+  confidence: number;
+  decisionType: Extract<SupportDecisionType, 'grounded_answer' | 'clarifying_question'>;
+  evidenceRefs: string[];
+  knowledgeAreaIds: string[];
 }
 
 export interface SupportAgentOutput {
   reply: string;
   route: 'support';
+  domain: SupportDomain;
+  decisionType: Extract<SupportDecisionType, 'grounded_answer' | 'clarifying_question'>;
+  confidence: number;
+  evidenceRefs: string[];
   requiresHuman: boolean;
+  needsFollowUp?: boolean;
+  followUpQuestion?: string;
   suggestedActionHref?: string;
 }
 
 export interface SetupCompletionOutput {
   reply: string;
   route: 'setup_completion';
+  domain: SupportDomain;
+  decisionType: 'grounded_answer';
+  confidence: number;
+  evidenceRefs: string[];
   requiresHuman: boolean;
   suggestedActionHref?: string;
 }
@@ -89,6 +124,10 @@ export interface SetupCompletionOutput {
 export interface TechnicalTriageOutput {
   reply: string;
   route: 'technical_triage';
+  domain: SupportDomain;
+  decisionType: 'technical_triage';
+  confidence: number;
+  evidenceRefs: string[];
   requiresHuman: boolean;
   needsFollowUp: boolean;
   followUpQuestion?: string;

@@ -521,6 +521,92 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['support_tickets']['Insert']>;
         Relationships: [];
       };
+      support_decisions: {
+        Row: {
+          assistant_reply: string | null;
+          business_id: string | null;
+          confidence: number;
+          conversation_id: string | null;
+          created_at: string;
+          decision_type: 'grounded_answer' | 'clarifying_question' | 'technical_triage' | 'human_escalation';
+          domain:
+            | 'frontend_expert'
+            | 'backend_expert'
+            | 'payments_expert'
+            | 'booking_expert'
+            | 'calendar_expert'
+            | 'support_ops_expert'
+            | 'safety_escalation_expert';
+          escalated_later: boolean;
+          evidence_refs: string[];
+          fallback_used: boolean;
+          id: string;
+          knowledge_area_ids: string[];
+          needs_follow_up: boolean;
+          reason: string | null;
+          requires_human: boolean;
+          review_label:
+            | 'correct'
+            | 'wrong_domain'
+            | 'weak_knowledge'
+            | 'bad_escalation'
+            | 'poor_wording'
+            | 'missing_rule'
+            | null;
+          review_notes: string | null;
+          reviewed_at: string | null;
+          reviewed_by_admin_email: string | null;
+          route: 'support' | 'technical_triage' | 'setup_completion' | 'human_escalation';
+          suggested_action_href: string | null;
+          support_message: string;
+          ticket_id: string | null;
+          updated_at: string;
+          user_id: string | null;
+        };
+        Insert: {
+          assistant_reply?: string | null;
+          business_id?: string | null;
+          confidence: number;
+          conversation_id?: string | null;
+          created_at?: string;
+          decision_type: 'grounded_answer' | 'clarifying_question' | 'technical_triage' | 'human_escalation';
+          domain:
+            | 'frontend_expert'
+            | 'backend_expert'
+            | 'payments_expert'
+            | 'booking_expert'
+            | 'calendar_expert'
+            | 'support_ops_expert'
+            | 'safety_escalation_expert';
+          escalated_later?: boolean;
+          evidence_refs?: string[];
+          fallback_used?: boolean;
+          id?: string;
+          knowledge_area_ids?: string[];
+          needs_follow_up?: boolean;
+          reason?: string | null;
+          requires_human?: boolean;
+          review_label?:
+            | 'correct'
+            | 'wrong_domain'
+            | 'weak_knowledge'
+            | 'bad_escalation'
+            | 'poor_wording'
+            | 'missing_rule'
+            | null;
+          review_notes?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by_admin_email?: string | null;
+          route: 'support' | 'technical_triage' | 'setup_completion' | 'human_escalation';
+          suggested_action_href?: string | null;
+          support_message: string;
+          ticket_id?: string | null;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['support_decisions']['Insert']>;
+        Relationships: [];
+      };
       specialisms: {
         Row: {
           business_id: string;

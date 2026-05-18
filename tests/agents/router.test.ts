@@ -37,7 +37,7 @@ const baseActivation: ActivationStatus = {
   nextBestActionReason: 'Sharing your public page is the next step once setup is complete.'
 };
 
-test('routeSupportMessage uses AI fallback when deterministic rules are ambiguous', async () => {
+test('routeSupportMessage asks for clarification instead of using AI fallback when deterministic rules are ambiguous', async () => {
   let runnerCalled = false;
 
   const result = await routeSupportMessage({
@@ -55,9 +55,11 @@ test('routeSupportMessage uses AI fallback when deterministic rules are ambiguou
     }
   });
 
-  assert.equal(runnerCalled, true);
-  assert.equal(result.route, 'technical_triage');
-  assert.equal(result.confidence, 0.77);
+  assert.equal(runnerCalled, false);
+  assert.equal(result.route, 'support');
+  assert.equal(result.decisionType, 'clarifying_question');
+  assert.equal(result.domain, 'frontend_expert');
+  assert.equal(result.requiresHuman, false);
 });
 
 test('routeSupportMessage keeps deterministic escalation ahead of AI fallback', async () => {
@@ -80,6 +82,8 @@ test('routeSupportMessage keeps deterministic escalation ahead of AI fallback', 
 
   assert.equal(runnerCalled, false);
   assert.equal(result.route, 'human_escalation');
+  assert.equal(result.domain, 'safety_escalation_expert');
+  assert.equal(result.decisionType, 'human_escalation');
   assert.equal(result.requiresHuman, true);
 });
 
@@ -103,6 +107,8 @@ test('routeSupportMessage treats calendar sync failures as technical triage', as
 
   assert.equal(runnerCalled, false);
   assert.equal(result.route, 'technical_triage');
+  assert.equal(result.domain, 'calendar_expert');
+  assert.equal(result.decisionType, 'technical_triage');
   assert.equal(result.requiresHuman, false);
 });
 

@@ -4,13 +4,22 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Loader2, MessageCircle, Send, X } from 'lucide-react';
 import { formatSupportError } from '@/lib/agents/format-support-error';
-import type { ActivationStatus, ConversationMessage } from '@/lib/agents/types';
+import type {
+  ActivationStatus,
+  ConversationMessage,
+  SupportDecisionType,
+  SupportDomain
+} from '@/lib/agents/types';
 
 const SUPPORT_CONVERSATION_STORAGE_KEY = 'bislink-support-conversation-id';
 
 type ChatResponse = {
   reply: string;
   route: 'support' | 'technical_triage' | 'setup_completion' | 'human_escalation';
+  domain?: SupportDomain;
+  decisionType?: SupportDecisionType;
+  confidence?: number;
+  evidenceRefs?: string[];
   requiresHuman: boolean;
   activationStatus?: ActivationStatus;
   suggestedActionHref?: string;

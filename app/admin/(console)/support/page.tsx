@@ -12,6 +12,9 @@ export default async function AdminSupportPage() {
   const {
     tickets,
     supportMessagesByConversationId,
+    latestSupportDecisionsByConversationId,
+    diagnosticsSummary,
+    reviewedDecisionCount,
     reviews,
     onboardingRisks,
     refundedOrders,
@@ -29,6 +32,11 @@ export default async function AdminSupportPage() {
       <AdminSupportInbox
         tickets={tickets}
         supportMessagesByConversationId={supportMessagesByConversationId}
+        latestSupportDecisionsByConversationId={
+          latestSupportDecisionsByConversationId
+        }
+        diagnosticsSummary={diagnosticsSummary}
+        reviewedDecisionCount={reviewedDecisionCount}
       />
 
       <div className="grid gap-6 xl:grid-cols-2">
