@@ -70,12 +70,28 @@ const specialistPlaybooks: Record<SupportDomain, SupportPlaybook> = {
 
         return {
           reply:
-            'Open Dashboard -> Reviews to publish or hide customer reviews. Only published reviews appear on the public page, so this is the right place to check if a review should be visible or hidden.',
+            'Open Dashboard -> Reviews to manage customer review cards. Each review shows the customer name, text, rating, and whether it is Verified or Unverified. Use Publish or Hide to control whether a review appears on the public page.',
           suggestedActionHref: '/reviews'
         };
       }
 
+      if (area.id === 'services') {
+        return {
+          reply:
+            'Open Dashboard -> Services and use the Add service form. The form includes Name, Description, Service image, Duration, and Price. The service image is shown on the public booking cards, should be square 1:1, and the service is saved with Create service.',
+          suggestedActionHref: '/services'
+        };
+      }
+
       if (area.id === 'public-page-editor') {
+        if (supportsOneOf(normalized, ['my link', 'hero', 'announcement', 'link settings'])) {
+          return {
+            reply:
+              'Open Dashboard -> Link to edit your public page live. My Link is split into Hero, Announcement, Bookings, Shop, Portfolio, About and Trust, Contact and Social, and Link Settings. Link Settings is where you update the public slug and copy or open the link after saving.',
+            suggestedActionHref: '/link'
+          };
+        }
+
         if (supportsOneOf(normalized, ['slug', 'share', 'url', 'copy link'])) {
           return {
             reply:
@@ -89,6 +105,57 @@ const specialistPlaybooks: Record<SupportDomain, SupportPlaybook> = {
             reply:
               'Open Dashboard -> Link to update portfolio items and public-page section images. Uploads there must be JPG, PNG, or WebP and 5MB or smaller. Cover and section images use a 16:9 layout, while portfolio images do not enforce a fixed ratio.',
             suggestedActionHref: '/link'
+          };
+        }
+      }
+
+      if (area.id === 'theme-settings') {
+        return {
+          reply:
+            'Open Dashboard -> Theme to control the visual styling of the public page while previewing it live. Theme Settings is split into Theme Preset, Brand Styling, and Save Theme. Theme Preset chooses the overall look, Brand Styling controls brand colour and font pairing, and Save Theme Settings persists those changes to the public page.',
+          suggestedActionHref: '/link/theme'
+        };
+      }
+
+      if (area.id === 'products') {
+        if (
+          supportsOneOf(normalized, [
+            'add product',
+            'create product',
+            'product name',
+            'original price',
+            'badge',
+            'category'
+          ])
+        ) {
+          return {
+            reply:
+              'Open Dashboard -> Products and use the Add product form. The form includes Product name, Description, Product image, Category, Price, Original price, and Badge. The product image is shown on the public shop cards and product detail view, should be square 1:1, and can be attached with Upload Image before you use Create product to save the item.',
+            suggestedActionHref: '/products'
+          };
+        }
+
+        if (
+          supportsOneOf(normalized, [
+            'product image',
+            'upload image',
+            'image upload',
+            'add an image',
+            'add image'
+          ])
+        ) {
+          return {
+            reply:
+              'Open Dashboard -> Products and use the image upload field in the product form before saving the new product. The product image is shown on public shop cards and the product detail view. Product images should be square 1:1, and uploads must be JPG, PNG, or WebP and 5MB or smaller.',
+            suggestedActionHref: '/products'
+          };
+        }
+
+        if (supportsOneOf(normalized, ['digital download', 'download link'])) {
+          return {
+            reply:
+              'Open Dashboard -> Products and edit the product you want to update. Use the product form to set digital product details and save the item so it stays active and available in the shop.',
+            suggestedActionHref: '/products'
           };
         }
       }
@@ -137,9 +204,8 @@ const specialistPlaybooks: Record<SupportDomain, SupportPlaybook> = {
 
       return {
         reply:
-          primaryDoc?.content ??
-          `${area.summary} Supported actions here include ${area.supportedActions.join(', ')}.`,
-        suggestedActionHref: fallbackSuggestion(input, area)
+          'Go to Dashboard -> Payouts to view Stripe Connect status, revenue totals, payout history, and recent orders. If Stripe is not connected, use Complete Stripe onboarding to launch the Stripe Express flow and finish payment setup.',
+        suggestedActionHref: '/payouts'
       };
     }
   },
@@ -152,7 +218,15 @@ const specialistPlaybooks: Record<SupportDomain, SupportPlaybook> = {
       if (supportsOneOf(normalized, ['blocked time', 'time off', 'next monday', 'holiday'])) {
         return {
           reply:
-            'Open Dashboard -> Availability and add blocked time for the specific date and time range you want to close. The end time must be after the start time, and blocked time is combined with weekly working hours when public slots are calculated.',
+            'Open Dashboard -> Availability and use Block time off to enter Date, Start, End, and Reason, then select Add blocked time. The end time must be after the start time, and blocked time is combined with weekly Working hours when public slots are calculated.',
+          suggestedActionHref: '/availability'
+        };
+      }
+
+      if (supportsOneOf(normalized, ['working hours', 'turn on', 'turn off', 'save day'])) {
+        return {
+          reply:
+            'Open Dashboard -> Availability and use the Working hours panel. Each weekday can be turned On or Off, then saved with a start time and end time using the Save button for that row.',
           suggestedActionHref: '/availability'
         };
       }
@@ -161,6 +235,14 @@ const specialistPlaybooks: Record<SupportDomain, SupportPlaybook> = {
         return {
           reply:
             'Check Dashboard -> Availability first. Public slots depend on an active service, active weekday hours, existing bookings, blocked time, and the service duration plus buffer. If the service is active but customers still see no times, review weekday availability and blocked time first.',
+          suggestedActionHref: '/availability'
+        };
+      }
+
+      if (area.id === 'bookings') {
+        return {
+          reply:
+            'In the public booking flow, customers choose a service, a date, and then a time from the Choose a time step. If slots are missing or unavailable, review Dashboard -> Availability, blocked time, and active service state first.',
           suggestedActionHref: '/availability'
         };
       }
@@ -189,9 +271,8 @@ const specialistPlaybooks: Record<SupportDomain, SupportPlaybook> = {
 
       return {
         reply:
-          primaryDoc?.content ??
-          `${area.summary} Supported actions here include ${area.supportedActions.join(', ')}.`,
-        suggestedActionHref: fallbackSuggestion(input, area)
+          'Open Dashboard -> Calendar to review the Google Calendar integration card and the Weekly calendar view. If the integration card shows connected, bookings can sync to Google Calendar. Use Connect Google Calendar or Reconnect Google Calendar from that page if the connection needs attention.',
+        suggestedActionHref: '/calendar'
       };
     }
   },
@@ -206,6 +287,22 @@ const specialistPlaybooks: Record<SupportDomain, SupportPlaybook> = {
           return {
             reply:
               'Open Dashboard -> Support and open the ticket thread you want to answer. If the ticket has a linked conversation, use the reply field in that thread to send your message back to support.',
+            suggestedActionHref: '/support'
+          };
+        }
+
+        if (supportsOneOf(normalized, ['ask admin for help', 'support request', 'subject', 'send support request'])) {
+          return {
+            reply:
+              'Open Dashboard -> Support and use Ask admin for help for owner questions about the platform, payments, or account support. Enter a Subject and Message, then use Send support request to contact admin directly.',
+            suggestedActionHref: '/support'
+          };
+        }
+
+        if (supportsOneOf(normalized, ['escalate to admin', 'public support inbox'])) {
+          return {
+            reply:
+              'Open Dashboard -> Support and use the Public support inbox to manage contact-form tickets. From each ticket you can view the conversation, Send reply, update status and priority, or use Escalate to admin when a public support issue needs admin review.',
             suggestedActionHref: '/support'
           };
         }

@@ -22,7 +22,24 @@ export const helpDocs: HelpDoc[] = [
       'theme'
     ],
     content:
-      'Open Dashboard -> Link to edit your public page live. The editor is split into Hero, Announcement, Bookings, Shop, Portfolio, About and Trust, Contact and Social, and Link Settings. You can change the business name, category, profile photo, cover image, CTA label, custom section images, contact links, social links, and page slug here. Slugs must be 3 to 64 characters and use lowercase letters, numbers, and hyphens. Save changes to update both /link and the public page.'
+      'Open Dashboard -> Link to edit your public page live. My Link is split into Hero, Announcement, Bookings, Shop, Portfolio, About and Trust, Contact and Social, and Link Settings. Hero includes Profile photo, Cover image, Business name, Category, Short bio, and Primary CTA label. Bookings, Shop, About, and Contact each have section image, title, and subtitle controls. Portfolio lets you add, remove, reorder, and update portfolio items. Link Settings lets you update the public slug and copy or open the link. Slugs must be 3 to 64 characters and use lowercase letters, numbers, and hyphens. Save changes to update both /link and the public page.'
+  },
+  {
+    id: 'theme-settings',
+    title: 'How Theme Settings work',
+    href: '/link/theme',
+    keywords: [
+      'theme',
+      'theme settings',
+      'theme preset',
+      'brand colour',
+      'brand color',
+      'font pairing',
+      'save theme',
+      'link theme'
+    ],
+    content:
+      'Open Dashboard -> Theme to control the visual styling of the public page while previewing it live. Theme Settings is split into Theme Preset, Brand Styling, and Save Theme. Theme Preset chooses the overall visual direction. Brand Styling lets you adjust the brand colour and font pairing. Use Save Theme Settings to persist the current theme changes to the public page.'
   },
   {
     id: 'services',
@@ -39,7 +56,7 @@ export const helpDocs: HelpDoc[] = [
       'service image'
     ],
     content:
-      'Open Dashboard -> Services to add or edit bookable services. Each service needs a name, optional description, duration, and price. Duration must be between 5 and 480 minutes. Price is saved as currency in the business default currency. Service images are optional and shown on booking cards. Only active services are available on the public page and booking flow. If no active services exist, customers cannot book.'
+      'Open Dashboard -> Services and use the Add service form to create a new bookable service. The form includes Name, Description, Service image, Duration, and Price. The service image is shown on the public booking cards and should be a square image. Duration must be between 5 and 480 minutes. Price is saved in the business default currency. Use Create service to save the item. Only active services are available on the public page and booking flow. If no active services exist, customers cannot book.'
   },
   {
     id: 'availability',
@@ -56,7 +73,7 @@ export const helpDocs: HelpDoc[] = [
       'time off'
     ],
     content:
-      'Open Dashboard -> Availability to set working hours for each day of the week. Active days require both a start time and end time. You can also add blocked time for specific dates and times, and the end time must be after the start time. Public booking availability is calculated from active weekly hours, existing bookings, blocked time, service duration, and service buffer. Without active availability on that weekday, customers will see no bookable slots.'
+      'Open Dashboard -> Availability to manage Working hours and Block time off. In Working hours, each day of the week can be turned On or Off, then saved with a start time and end time. In Block time off, use Date, Start, End, and Reason, then select Add blocked time. The end time must be after the start time. Public booking availability is calculated from active weekly hours, existing bookings, blocked time, service duration, and service buffer. Without active availability on that weekday, customers will see no bookable slots.'
   },
   {
     id: 'google-calendar-connection',
@@ -75,7 +92,7 @@ export const helpDocs: HelpDoc[] = [
       'calendar sync'
     ],
     content:
-      'Open Dashboard -> Calendar to check the Google Calendar integration card and use Connect Google Calendar or Reconnect Google Calendar. If the status is Not connected or Reconnect needed, reconnect the Google account so new bookings can sync again. If the button shows an error like missing_code, invalid_state, save_failed, or token_exchange_failed, restart the connection from the Calendar page. If the app shows Calendar unavailable, the Google Calendar environment variables are not configured and this needs support review.'
+      'Open Dashboard -> Calendar to check the Calendar integration card and the Weekly calendar view. Use Connect Google Calendar or Reconnect Google Calendar from the integration card. If the status is Not connected or Reconnect needed, reconnect the Google account so new bookings can sync again. If the app shows connected successfully, bookings can sync to Google Calendar. If the button shows an error like missing_code, invalid_state, save_failed, or token_exchange_failed, restart the connection from the Calendar page. If the app shows Calendar unavailable, the Google Calendar environment variables are not configured and this needs support review.'
   },
   {
     id: 'payouts-stripe',
@@ -93,7 +110,7 @@ export const helpDocs: HelpDoc[] = [
       'details submitted'
     ],
     content:
-      'Go to Dashboard -> Payouts and use the Complete Stripe onboarding button. Finish the Stripe Express flow, then return to BisLink. Payments only work after the connected account exists and Stripe reports charges enabled plus details submitted. If setup is incomplete, bookings and product checkout can fail with "Business payments not configured".'
+      'Go to Dashboard -> Payouts to view Stripe Connect status, revenue totals, payout history, and recent orders. If Stripe is not connected, use the Complete Stripe onboarding button to launch the Stripe Express flow. Payments only work after the connected account exists and Stripe reports charges enabled plus details submitted. If setup is incomplete, bookings and product checkout can fail with "Business payments not configured".'
   },
   {
     id: 'products',
@@ -111,7 +128,7 @@ export const helpDocs: HelpDoc[] = [
       'out of stock'
     ],
     content:
-      'Go to Dashboard -> Products and use the product form on the right side of the page. Enter a name and price, then optionally add a description, square image, category, original price, and badge. Save to create the product. New products are created as active and in stock by default, and each business can have up to 10 active products.'
+      'Go to Dashboard -> Products and use the Add product form to create a new item. The form includes Product name, Description, Product image, Category, Price, Original price, and Badge. The product image is shown on public shop cards and the product detail view, and it should be a square image. Use Upload Image to attach it before saving. Category, Original price, and Badge are optional. Use Create product to save the item. New products are created as active and in stock by default, and each business can have up to 10 active products.'
   },
   {
     id: 'reviews',
@@ -131,7 +148,7 @@ export const helpDocs: HelpDoc[] = [
       'request review button'
     ],
     content:
-      'Open Dashboard -> Reviews to publish or hide customer reviews. Use this page if you need to hide a customer review from your public page. Only published reviews appear on the public page. The dashboard shows whether a review is verified. The current review management flow supports visibility changes only. The "Request review" button is present in the UI but the follow-up outbound workflow is not wired up yet.'
+      'Open Dashboard -> Reviews to manage customer feedback cards. Each review shows the customer name, written review text, rating, and whether it is Verified or Unverified. Use Publish or Hide to control whether a review appears on the public page. The current review management flow supports visibility changes only. The Request review button is present in the UI but the follow-up outbound workflow is not wired up yet.'
   },
   {
     id: 'owner-support-inbox',
@@ -147,7 +164,7 @@ export const helpDocs: HelpDoc[] = [
       'contact-form ticket'
     ],
     content:
-      'Open Dashboard -> Support to view owner support tickets and conversation history. If a ticket has a linked support conversation, use the reply field in that thread to send a message back to support. Public contact-form messages and owner-created support requests should appear in this inbox, and ticket status changes are reflected in the same thread.'
+      'Open Dashboard -> Support to manage business support, communication status, and platform help in one place. The Public support inbox shows messages submitted from the public page contact form, with ticket status, priority, conversation history, Send reply, and Escalate to admin actions. If a ticket has a linked support conversation, use the reply field in that thread to send a message back to support. Owner-created support requests also appear here and ticket status changes are reflected in the same thread.'
   },
   {
     id: 'contact-form-support',
@@ -225,7 +242,23 @@ export const helpDocs: HelpDoc[] = [
       'public page booking slots'
     ],
     content:
-      'Booking slots are available only when the business is active, the service is active, the selected weekday has active availability, and the requested time does not overlap an existing pending or confirmed booking or any blocked time. If your service is active but no booking slots are showing on the public page, check weekday availability, blocked time, and existing bookings first. The public availability API returns "Business not found or inactive", "Service not found or inactive", or no opening hours when setup is incomplete. The booking creation API can also return "Slot no longer available" or "Slot is blocked" if the time became unavailable.'
+      'In the public booking flow, customers choose a service, a date, and then a time from the Choose a time step. Available slots are shown only when the business is active, the service is active, the selected weekday has active availability, and the requested time does not overlap an existing pending or confirmed booking or any blocked time. If your service is active but no booking slots are showing on the public page, check weekday availability, blocked time, and existing bookings first. The public availability API returns "Business not found or inactive", "Service not found or inactive", or no opening hours when setup is incomplete. The booking creation API can also return "Slot no longer available" or "Slot is blocked" if the time became unavailable.'
+  },
+  {
+    id: 'support-inbox',
+    title: 'How the support inbox works',
+    href: '/support',
+    keywords: [
+      'public support inbox',
+      'support inbox',
+      'support conversation',
+      'ask admin for help',
+      'send support request',
+      'reply in support conversation',
+      'escalate to admin'
+    ],
+    content:
+      'Open Dashboard -> Support to manage business support, communication status, and platform help in one place. The Public support inbox shows messages submitted from your public page contact form. Owners can filter by status, open a conversation, Send reply, change status, change priority, and Escalate to admin. The same page also includes Ask admin for help, where owners can enter a Subject and Message, then Send support request.'
   },
   {
     id: 'payment-issues',
