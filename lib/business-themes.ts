@@ -221,8 +221,8 @@ export const BUSINESS_THEMES: BusinessThemeDefinition[] = [
       badgeStyle: 'solid'
     },
     fonts: {
-      display: "'Cormorant Garamond', serif",
-      ui: "'DM Sans', sans-serif"
+      display: 'var(--font-cormorant-garamond), serif',
+      ui: 'var(--font-dm-sans), sans-serif'
     },
     tokens: {
       pageBg: '#f7f4ee',
@@ -297,8 +297,8 @@ export const BUSINESS_THEMES: BusinessThemeDefinition[] = [
       badgeStyle: 'soft'
     },
     fonts: {
-      display: "'Fraunces', serif",
-      ui: "'DM Sans', sans-serif"
+      display: 'var(--font-fraunces), serif',
+      ui: 'var(--font-dm-sans), sans-serif'
     },
     tokens: {
       pageBg: '#fdf8f4',
@@ -373,8 +373,8 @@ export const BUSINESS_THEMES: BusinessThemeDefinition[] = [
       badgeStyle: 'solid'
     },
     fonts: {
-      display: "'Space Grotesk', sans-serif",
-      ui: "'Manrope', sans-serif"
+      display: 'var(--font-space-grotesk), sans-serif',
+      ui: 'var(--font-manrope), sans-serif'
     },
     tokens: {
       pageBg: '#f3f8ff',
@@ -449,8 +449,8 @@ export const BUSINESS_THEMES: BusinessThemeDefinition[] = [
       badgeStyle: 'soft'
     },
     fonts: {
-      display: "'Instrument Serif', serif",
-      ui: "'DM Sans', sans-serif"
+      display: 'var(--font-instrument-serif), serif',
+      ui: 'var(--font-dm-sans), sans-serif'
     },
     tokens: {
       pageBg: '#f6f4ef',
@@ -525,8 +525,8 @@ export const BUSINESS_THEMES: BusinessThemeDefinition[] = [
       badgeStyle: 'soft'
     },
     fonts: {
-      display: "'Fraunces', serif",
-      ui: "'Manrope', sans-serif"
+      display: 'var(--font-fraunces), serif',
+      ui: 'var(--font-manrope), sans-serif'
     },
     tokens: {
       pageBg: '#fff7f1',
@@ -601,8 +601,8 @@ export const BUSINESS_THEMES: BusinessThemeDefinition[] = [
       badgeStyle: 'solid'
     },
     fonts: {
-      display: "'Sora', sans-serif",
-      ui: "'Manrope', sans-serif"
+      display: 'var(--font-sora), sans-serif',
+      ui: 'var(--font-manrope), sans-serif'
     },
     tokens: {
       pageBg: '#0d1014',

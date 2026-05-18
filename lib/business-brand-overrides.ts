@@ -5,23 +5,23 @@ export const FONT_PAIRINGS = {
   'theme-default': null,
   editorial: {
     label: 'Editorial - Instrument Serif / Sora',
-    display: "'Instrument Serif', serif",
-    ui: "'Sora', sans-serif"
+    display: 'var(--font-instrument-serif), serif',
+    ui: 'var(--font-sora), sans-serif'
   },
   modern: {
     label: 'Modern - Space Grotesk / Manrope',
-    display: "'Space Grotesk', sans-serif",
-    ui: "'Manrope', sans-serif"
+    display: 'var(--font-space-grotesk), sans-serif',
+    ui: 'var(--font-manrope), sans-serif'
   },
   friendly: {
     label: 'Friendly - Fraunces / DM Sans',
-    display: "'Fraunces', serif",
-    ui: "'DM Sans', sans-serif"
+    display: 'var(--font-fraunces), serif',
+    ui: 'var(--font-dm-sans), sans-serif'
   },
   premium: {
     label: 'Premium - Cormorant Garamond / Manrope',
-    display: "'Cormorant Garamond', serif",
-    ui: "'Manrope', sans-serif"
+    display: 'var(--font-cormorant-garamond), serif',
+    ui: 'var(--font-manrope), sans-serif'
   }
 } as const;
 
